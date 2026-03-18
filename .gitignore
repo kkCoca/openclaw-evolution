@@ -1,0 +1,15 @@
+# OpenClaw 配置
+openclaw.json
+
+# 日志文件
+*.log
+
+# 依赖目录
+node_modules/
+
+# 编译输出
+dist/
+
+# 临时文件
+*.tmp
+.cache/

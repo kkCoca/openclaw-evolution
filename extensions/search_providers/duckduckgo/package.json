@@ -1,0 +1,29 @@
+{
+  "name": "duckduckgo-provider",
+  "version": "1.0.0",
+  "description": "DuckDuckGo provider implementation for OpenClaw web_search.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "duckduckgo",
+    "openclaw",
+    "provider",
+    "typescript"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.8"
+  }
+}
