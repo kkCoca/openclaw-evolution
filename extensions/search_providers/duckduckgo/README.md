@@ -1,9 +1,10 @@
 # DuckDuckGo Provider for OpenClaw
 
 > **零成本搜索能力 · OmniForge 万象锻造工厂出品**  
-> **版本**: v1.0.0  
+> **版本**: v1.1.0  
 > **创建时间**: 2026-03-18  
-> **作者**: by Ai.Coding (OpenCode) + openclaw-ouyp (首席顾问)
+> **作者**: by Ai.Coding (OpenCode) + openclaw-ouyp (首席顾问)  
+> **代理支持**: ✅ 系统代理 (Clash) / ✅ 直接连接
 
 ---
 
@@ -42,20 +43,69 @@
 
 ## 🧪 实测记录
 
-**测试时间**: 2026-03-18 20:35  
-**测试查询**: `OpenClaw 2026 最新动态`  
-**测试环境**: Linux x64, Node.js v22.22.1
+### 测试 1：系统代理模式 (Clash) ✅
+
+**测试时间**: 2026-03-18 21:20  
+**测试查询**: `AI Agent Architecture 2026`  
+**代理配置**: `HTTP_PROXY=http://127.0.0.1:7897`
 
 **测试结果**:
 ```
-❌ 网络请求失败 (ProviderError: NETWORK_ERROR)
-原因：DuckDuckGo HTML API 可能需要特殊网络环境
+✅ 搜索成功！
+来源：duckduckgo
+结果数量：10
 ```
 
-**后续优化方向**:
-1. 添加代理支持（`HTTP_PROXY`/`HTTPS_PROXY`）
-2. 增加重试机制（指数退避）
-3. 备用 API 端点（`duckduckgo.com/acm`）
+**前 3 条结果**:
+1. 2026 年 AI Agent 发展趋势：从概念到落地的关键突破 - 知乎
+2. PDF AI agent trends 2026 - Google Cloud
+3. AI Agent Architecture: Build Systems That Work in 2026 - Redis
+
+### 测试 2：非代理模式 (直接连接) ⚠️
+
+**测试时间**: 2026-03-18 21:20  
+**测试查询**: `AI Agent Architecture 2026`  
+**代理配置**: 无
+
+**测试结果**:
+```
+⚠️  中国大陆地区可能无法直接访问
+建议：配置 HTTP_PROXY/HTTPS_PROXY 环境变量
+```
+
+---
+
+## 🔧 代理配置
+
+### 系统代理模式（推荐）
+
+如果您使用 **Clash**、**V2Ray** 等系统级代理：
+
+```bash
+# 临时配置（当前终端）
+export HTTP_PROXY=http://127.0.0.1:7897
+export HTTPS_PROXY=http://127.0.0.1:7897
+
+# 永久配置（添加到 ~/.bashrc 或 ~/.zshrc）
+echo 'export HTTP_PROXY=http://127.0.0.1:7897' >> ~/.bashrc
+echo 'export HTTPS_PROXY=http://127.0.0.1:7897' >> ~/.bashrc
+source ~/.bashrc
+```
+
+### 非代理模式
+
+如果您可以直接访问 DuckDuckGo（海外环境）：
+
+```bash
+# 不配置任何环境变量，直接使用
+node dist/src/index.js
+```
+
+### 自动检测
+
+Provider 会自动检测环境变量：
+- 有 `HTTP_PROXY`/`HTTPS_PROXY` → **系统代理模式**
+- 无环境变量 → **非代理模式**
 
 ## Install
 
