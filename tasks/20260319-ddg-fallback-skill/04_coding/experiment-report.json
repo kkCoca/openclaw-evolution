@@ -1,0 +1,82 @@
+{
+  "task": "20260319-ddg-fallback-skill",
+  "phase": "04_coding",
+  "steps": [
+    {
+      "step": 1,
+      "name": "types",
+      "status": "completed",
+      "tokenUsage": null,
+      "elapsedMs": null,
+      "iterationCount": 1,
+      "blockers": [
+        "CLI session does not expose per-step token usage; recorded as null."
+      ]
+    },
+    {
+      "step": 2,
+      "name": "error-classifier",
+      "status": "completed",
+      "tokenUsage": null,
+      "elapsedMs": null,
+      "iterationCount": 1,
+      "blockers": []
+    },
+    {
+      "step": 3,
+      "name": "ddg-adapter",
+      "status": "completed",
+      "tokenUsage": null,
+      "elapsedMs": null,
+      "iterationCount": 1,
+      "blockers": []
+    },
+    {
+      "step": 4,
+      "name": "fallback-manager",
+      "status": "completed",
+      "tokenUsage": null,
+      "elapsedMs": null,
+      "iterationCount": 1,
+      "blockers": []
+    },
+    {
+      "step": 5,
+      "name": "index",
+      "status": "completed",
+      "tokenUsage": null,
+      "elapsedMs": null,
+      "iterationCount": 1,
+      "blockers": []
+    },
+    {
+      "step": 6,
+      "name": "tests",
+      "status": "completed",
+      "tokenUsage": null,
+      "elapsedMs": null,
+      "iterationCount": 1,
+      "blockers": [
+        "User-mandated step ordering conflicts with strict test-first TDD; tests were added in the required step order."
+      ]
+    },
+    {
+      "step": 7,
+      "name": "README",
+      "status": "completed",
+      "tokenUsage": null,
+      "elapsedMs": null,
+      "iterationCount": 1,
+      "blockers": []
+    },
+    {
+      "step": 8,
+      "name": "npm test",
+      "status": "completed",
+      "tokenUsage": null,
+      "elapsedMs": 510,
+      "iterationCount": 1,
+      "blockers": []
+    }
+  ]
+}

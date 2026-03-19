@@ -1,0 +1,20 @@
+{
+  "name": "ddg-fallback-skill",
+  "version": "1.0.0",
+  "description": "Gemini primary search with DuckDuckGo fallback.",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "typescript": "^5.8.2",
+    "vitest": "^3.2.4"
+  }
+}
