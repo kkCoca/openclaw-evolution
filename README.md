@@ -39,6 +39,27 @@
 
 ---
 
+## 🧠 研发哲学
+
+**贤者研发模式**（Plan-and-Execute）：
+
+> "自由形式的推理是 token 浪费的根源。结构化规划 + 缓存复用 = 更少的 token + 更高的确定性。"
+
+**核心公式**：
+```
+贤者研发 = 结构化规划 (50%) + Context Caching (30%) + 即时验证 (20%)
+```
+
+**A/B 实验验证**（2026-03-19）：
+- ✅ **Token 节省**: 11-28%（roadmapping 阶段）
+- ✅ **逻辑跳跃**: 4 次 → 0 次（-100%）
+- ✅ **测试覆盖**: 16/16 全绿通过
+- ✅ **内化率**: 30% → 61%（+31%）
+
+**详细报告**：请阅读 [`research/insights/20260319-PLAN-AND-EXECUTE-REVOLUTION.md`](research/insights/20260319-PLAN-AND-EXECUTE-REVOLUTION.md)
+
+---
+
 ## 📚 文档导航
 
 | 文档 | 说明 | 目标读者 |
