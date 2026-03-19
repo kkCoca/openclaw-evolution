@@ -25,13 +25,17 @@
 
 ---
 
-## 🌟 能力索引
+## 🚀 当前能力矩阵 (Capability Matrix)
 
-| 扩展 | 状态 | 集成手册 |
-|------|------|---------|
-| **DuckDuckGo Search** | ✅ 已发布 | [Provider](tasks/20260318-duckduckgo-provider/04_coding/README.md) |
-| **DuckDuckGo Fallback** | ✅ 已发布 | [集成手册](extensions/duckduckgo-fallback/INTEGRATION_PLAYBOOK.md) |
-| **系统代理支持 (Clash)** | ✅ 已发布 | 开发中 |
+| 能力 | 类型 | 状态 | 依赖 | 集成手册 |
+|------|------|------|------|---------|
+| **DuckDuckGo Provider** | 免 Key 搜索内核 | ✅ 已发布 | 无 | [Provider README](tasks/20260318-duckduckgo-provider/04_coding/README.md) |
+| **DDG Fallback Skill** | 异常自愈补救盾牌 | ✅ 已发布 | 需配合 `AGENTS.md` 激活 | [集成手册](extensions/duckduckgo-fallback/INTEGRATION_PLAYBOOK.md) |
+| **系统代理支持 (Clash)** | 透明转发 | ✅ 已发布 | 无 | 开发中 |
+
+**关键说明**：
+- `DDG Fallback Skill` **不具备自动拦截能力**，必须在 `AGENTS.md` 中手动注入【异常自愈协议】才能工作
+- 集成本质：`代码提供能力` + `规约驱动意识`
 
 ---
 
@@ -39,8 +43,9 @@
 
 | 文档 | 说明 | 目标读者 |
 |------|------|---------|
-| **[GUIDE.md](GUIDE.md)** | 《万象锻造：高可用搜索集成白皮书》- 排雷手册 | 开发者、架构师 |
-| **[AGENTS.md](AGENTS.md)** | OmniForge v2.9 进化协议 - 研发规约 | 首席顾问、AI Agent |
+| **[OMNIFORGE_SOP.md](OMNIFORGE_SOP.md)** | 宪法级文档 - 权限授权、软链接桥接、主权回归规约 | 所有开发者 |
+| **[AGENTS.md v3.1](AGENTS.md)** | 研发规约 + 异常自愈协议 | 首席顾问、AI Agent |
+| **[INTEGRATION_PLAYBOOK.md](extensions/duckduckgo-fallback/INTEGRATION_PLAYBOOK.md)** | DuckDuckGo Fallback 集成手册（含实测真相） | 系统架构师 |
 | **[MEMORY.md](MEMORY.md)** | 技术认知树与进化日志 | 所有贡献者 |
 
 ---
@@ -54,11 +59,13 @@
 git clone https://gitee.com/cola16/openclaw-evolution.git
 cd openclaw-evolution
 
-# 2. 阅读 GUIDE.md
-# 包含完整的架构图、权限配置、故障排查
+# 2. 阅读 OMNIFORGE_SOP.md
+# 包含权限授权命令、软链接桥接原理、主权回归规约
 ```
 
-**详细部署指南**：请阅读 [`GUIDE.md`](GUIDE.md) 第 5 章。
+**详细部署指南**：请阅读 [`OMNIFORGE_SOP.md`](OMNIFORGE_SOP.md)。
+
+**DuckDuckGo Fallback 集成**：请阅读 [`INTEGRATION_PLAYBOOK.md`](extensions/duckduckgo-fallback/INTEGRATION_PLAYBOOK.md)。
 
 ---
 
@@ -66,16 +73,18 @@ cd openclaw-evolution
 
 ```
 openclaw-universe/
-├── GUIDE.md                      # 高可用搜索集成白皮书（排雷手册）
-├── AGENTS.md                     # OmniForge v2.9 进化协议
+├── OMNIFORGE_SOP.md              # 宪法级文档（权限/软链接/主权回归）
+├── AGENTS.md v3.1                # 研发规约 + 异常自愈协议
 ├── MEMORY.md                     # 技术认知树与进化日志
-├── README.md                     # 本文档（项目愿景与能力索引）
+├── README.md                     # 本文档（项目愿景与能力矩阵）
 ├── tasks/                        # 研发区（01-04 阶段文档）
 │   ├── 20260318-duckduckgo-provider/
 │   └── 20260319-ddg-fallback-skill/
 └── extensions/                   # 生产区（已部署扩展）
-    ├── duckduckgo-fallback/
-    └── duckduckgo-provider/
+    └── duckduckgo-fallback/
+        ├── INTEGRATION_PLAYBOOK.md  # 集成手册（含实测真相）
+        ├── README.md                # 使用说明（中文）
+        └── EXPERIMENT_REPORT.md     # A/B 实验报告
 ```
 
 ---
@@ -144,7 +153,9 @@ MIT License - 详见 [LICENSE](LICENSE) 文件
 |--------|------|---------|
 | DuckDuckGo Provider 发布 | ✅ 已完成 | 2026-03-19 |
 | DuckDuckGo Fallback Skill | ✅ 已完成 | 2026-03-19 |
-| GUIDE.md 白皮书 | ✅ 已完成 | 2026-03-19 |
+| OMNIFORGE_SOP.md 宪法 | ✅ 已完成 | 2026-03-19 |
+| INTEGRATION_PLAYBOOK.md 集成手册 | ✅ 已完成 | 2026-03-19 |
+| AGENTS.md v3.1（含自愈协议） | ✅ 已完成 | 2026-03-19 |
 | 系统代理支持 | 🟡 计划中 | 2026-03-25 |
 | 扩展到 5+ Provider | 🟡 计划中 | 2026-04-01 |
 

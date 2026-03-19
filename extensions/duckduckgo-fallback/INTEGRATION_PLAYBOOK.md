@@ -8,22 +8,61 @@
 
 ---
 
+## ⚠️ 重要声明：实测真相
+
+**本 Fallback 插件不具备 OpenClaw 底层自动拦截能力**。
+
+**核心事实**：
+- ❌ **不是** OpenClaw 内置的自动 fallback 工具
+- ✅ **100% 依赖** 在 `AGENTS.md` 中手动注入【异常自愈协议】
+- ✅ **集成本质**：`代码提供能力` + `规约驱动意识`
+
+**为什么这样设计？**
+```
+传统方式（硬编码）:
+  web_search 工具内部写死 fallback 逻辑
+  缺点：换了 Agent/模型就失效
+
+规约方式（意识注入）:
+  AGENTS.md 中规定行为准则
+  优点：任何读取 AGENTS.md 的 Agent 都会遵守
+  缺点：需要手动注入协议
+```
+
+**成功运行条件**：
+```
+1. ✅ 部署 Fallback Skill 代码（本手册第 2 章）
+2. ✅ 在 AGENTS.md 中添加【异常自愈协议】（本手册第 3.2 节）
+3. ✅ Agent 启动时读取 AGENTS.md（意识激活）
+```
+
+**缺少第 2 步的后果**：
+```
+❌ web_search 遇到 429 错误时，直接抛给主人
+❌ 不会自动调用 Fallback Skill
+❌ "盾牌"存在，但不会自动举起
+```
+
+---
+
 ## 🎯 导读：为什么需要这份手册？
 
 **这是用血泪换来的经验**：
 - ❌ 我们曾经直接在 `extensions/` 下创建代码（违反规约）
 - ❌ 我们曾经忽略权限问题（OpenCode 无法访问）
 - ❌ 我们曾经假设 DDG 调用一定成功（遇到反爬拦截）
+- ❌ 我们曾经以为代码部署完就自动工作（需要 AGENTS.md 协议）
 
 **本手册提供**：
 - ✅ **双模块依赖逻辑**：Fallback 如何调用 Provider 的构建产物
 - ✅ **集成步骤**：手把手教先部署 Provider，再部署 Fallback
 - ✅ **异常自愈验证**：真实点火测试反馈 + 反爬应对建议
+- ✅ **规约驱动说明**：为什么必须在 AGENTS.md 中注入协议
 
 **阅读后你将获得**：
 - 一套**可复现成功**的集成方案
 - 避免我们踩过的所有坑
-- 理解"为什么这样设计"的深层逻辑
+- 理解"代码 + 规约"的双轮驱动设计
 
 ---
 
@@ -31,8 +70,9 @@
 
 1. [双模块依赖逻辑](#1-双模块依赖逻辑)
 2. [集成步骤](#2-集成步骤)
-3. [异常自愈验证](#3-异常自愈验证)
-4. [故障排查](#4-故障排查)
+3. [规约驱动：为什么需要 AGENTS.md](#3-规约驱动为什么需要-agentsmd)
+4. [异常自愈验证](#4-异常自愈验证)
+5. [故障排查](#5-故障排查)
 
 ---
 
@@ -228,7 +268,125 @@ import { FallbackManager } from './dist/src/fallback-manager.js';
 
 ## 3. 异常自愈验证
 
-### 3.1 点火测试记录（2026-03-19 15:40）
+## 3. 规约驱动：为什么需要 AGENTS.md
+
+### 3.1 代码 + 规约的双轮驱动
+
+**核心公式**：
+```
+完整功能 = 代码提供能力 (50%) + 规约驱动意识 (50%)
+```
+
+**代码提供能力**（本仓库已完成）：
+```
+✅ Fallback Skill 代码（extensions/duckduckgo-fallback/）
+✅ 错误分类器（error-classifier.ts）
+✅ 状态机（fallback-manager.ts）
+✅ DDG 适配器（ddg-adapter.ts）
+```
+
+**规约驱动意识**（需要手动注入）：
+```
+❌ AGENTS.md 中的【异常自愈协议】
+❌ Agent 启动时读取并遵循协议
+❌ 遇到 429 错误时主动调用 Fallback Skill
+```
+
+### 3.2 如何在 AGENTS.md 中注入协议
+
+**步骤 1：打开 AGENTS.md**
+```bash
+# 编辑 AGENTS.md
+vim /home/ouyp/.openclaw/workspace/AGENTS.md
+# 或
+code /home/ouyp/.openclaw/workspace/AGENTS.md
+```
+
+**步骤 2：添加异常自愈协议章节**
+```markdown
+## 第四部分：🛡️ 异常自愈协议
+
+### 1. web_search 异常自愈
+
+**触发条件**：
+- Gemini 返回 `429 Too Many Requests`
+- Gemini 返回 `503 Service Unavailable`
+- Gemini 超时（>30 秒）
+- 网络错误（ETIMEDOUT/ECONNRESET）
+
+**自愈动作**：
+1. **立即调用** `duckduckgo-fallback` Skill
+2. **记录日志**：`[Fallback Activated: DuckDuckGo]`
+3. **返回结果**：将 DDG 搜索结果返回给主人
+4. **禁止报错**：除非 DDG 也失败，否则不向主人报告错误
+
+**执行示例**：
+```typescript
+try {
+  return await geminiSearch(query);
+} catch (error) {
+  if (isFallbackTrigger(error)) {
+    console.log('[Fallback Activated: DuckDuckGo]');
+    return await invokeSkill('duckduckgo-fallback', { query });
+  }
+  throw error;
+}
+```
+```
+
+**步骤 3：验证注入成功**
+```bash
+# 检查 AGENTS.md 是否包含自愈协议
+grep "异常自愈" /home/ouyp/.openclaw/workspace/AGENTS.md
+
+# 预期输出：
+# ## 第四部分：🛡️ 异常自愈协议
+```
+
+### 3.3 缺少规约的后果
+
+**场景对比**：
+
+| 场景 | 有规约 | 无规约 |
+|------|-------|-------|
+| Gemini 429 错误 | ✅ 自动调用 Fallback | ❌ 直接抛给主人 |
+| 日志记录 | ✅ `[Fallback Activated]` | ❌ 无记录 |
+| 主人体验 | ✅ 无感知切换 | ❌ 看到报错 |
+| 系统可用性 | ✅ 高（自动恢复） | ❌ 低（需人工干预） |
+
+**真实案例**（2026-03-19 15:27）：
+```
+问题：主人要求测试 fallback 功能
+原因：AGENTS.md 中已注入自愈协议，但 OpenClaw web_search 工具
+      没有自动调用 Skill 的机制
+结果：需要手动调用 openclaw skills run duckduckgo-fallback
+教训：代码部署≠功能可用，必须规约驱动
+```
+
+### 3.4 为什么这样设计？
+
+**优点**：
+```
+1. ✅ 灵活性：可以针对不同 Agent 定制自愈策略
+2. ✅ 可维护性：修改 AGENTS.md 即可调整行为，无需改代码
+3. ✅ 透明性：所有 Agent 都遵循同一份协议，便于审计
+```
+
+**缺点**：
+```
+1. ❌ 需要手动注入（不是一键部署）
+2. ❌ 依赖 Agent 读取并遵循 AGENTS.md
+3. ❌ 不同 Agent 可能有不同的协议实现
+```
+
+**设计哲学**：
+> "代码提供能力，规约驱动意识。没有规约的代码是死的，没有代码的规约是空的。"
+
+---
+
+## 4. 异常自愈验证
+
+### 4.1 点火测试记录（2026-03-19 15:40）
 
 **测试场景**：模拟 Gemini 429 错误，触发 Fallback
 
@@ -266,7 +424,7 @@ EOF
 ✅ 盾牌已举起！
 ```
 
-### 3.2 真实 DDG 调用测试
+### 4.2 真实 DDG 调用测试
 
 **测试命令**：
 ```bash
@@ -295,7 +453,7 @@ EOF
 ❌ 错误：PARSE_ERROR: no valid DuckDuckGo results could be extracted.
 ```
 
-### 3.3 失败原因分析
+### 4.3 失败原因分析
 
 **根本原因**：DuckDuckGo 反爬虫检测
 
@@ -314,7 +472,7 @@ curl -A "node-fetch" -d "q=AI+technology" https://html.duckduckgo.com/html/
 # 返回：反爬页面
 ```
 
-### 3.4 应对建议（血泪经验）
+### 4.4 应对建议（血泪经验）
 
 #### 方案 A：使用浏览器工具（推荐）
 ```typescript
@@ -375,7 +533,7 @@ const response = await fetch('https://api.search.brave.com/res/v1/web/search', {
 - ⚠️ 需 API Key（免费额度有限）
 - ⚠️ 违背"免 API Key"初衷
 
-### 3.5 最终建议
+### 4.5 最终建议
 
 **生产环境推荐**：
 ```
@@ -391,9 +549,9 @@ const response = await fetch('https://api.search.brave.com/res/v1/web/search', {
 
 ---
 
-## 4. 故障排查
+## 5. 故障排查
 
-### 4.1 常见问题
+### 5.1 常见问题
 
 #### 问题 1：MODULE_NOT_FOUND
 ```
@@ -432,7 +590,7 @@ Error: PARSE_ERROR: no valid DuckDuckGo results could be extracted.
 
 **解决**：见 [3.4 应对建议](#34-应对建议血泪经验)
 
-### 4.2 日志查看
+### 5.2 日志查看
 
 ```bash
 # 实时查看 Fallback 日志
@@ -445,7 +603,7 @@ grep "gemini_rate_limited" ~/.openclaw/logs/*.log
 grep "search.ddg" ~/.openclaw/logs/*.log
 ```
 
-### 4.3 调试技巧
+### 5.3 调试技巧
 
 #### 启用详细日志
 ```typescript
