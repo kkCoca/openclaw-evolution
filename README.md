@@ -27,10 +27,10 @@
 
 ## 🌟 能力索引
 
-| 扩展 | 状态 | 详细文档 |
+| 扩展 | 状态 | 集成手册 |
 |------|------|---------|
-| **DuckDuckGo Search** | ✅ 已发布 | [README](extensions/duckduckgo-fallback/README.md) |
-| **DuckDuckGo Fallback** | ✅ 已发布 | [README](extensions/duckduckgo-fallback/README.md) |
+| **DuckDuckGo Search** | ✅ 已发布 | [Provider](tasks/20260318-duckduckgo-provider/04_coding/README.md) |
+| **DuckDuckGo Fallback** | ✅ 已发布 | [集成手册](extensions/duckduckgo-fallback/INTEGRATION_PLAYBOOK.md) |
 | **系统代理支持 (Clash)** | ✅ 已发布 | 开发中 |
 
 ---
