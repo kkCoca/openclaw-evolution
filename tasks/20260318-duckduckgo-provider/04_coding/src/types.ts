@@ -91,6 +91,8 @@ export interface DuckDuckGoClientOptions {
   fetchImpl?: typeof fetch;
   timeoutMs?: number;
   userAgent?: string;
+  maxRetries?: number;
+  baseDelayMs?: number;
 }
 
 export interface SearchCacheOptions {
