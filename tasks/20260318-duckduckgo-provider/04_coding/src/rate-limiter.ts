@@ -1,4 +1,4 @@
-import type { RateLimitControllerOptions } from './types';
+import type { RateLimitControllerOptions } from './types.js';
 
 const DEFAULT_MIN_INTERVAL_MS = 1_000;
 const DEFAULT_FAILURE_BACKOFF_MS = 250;

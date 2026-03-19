@@ -1,14 +1,14 @@
-import { SearchCache } from './cache';
-import { DefaultDuckDuckGoClient } from './ddg-client';
-import { DuckDuckGoHtmlParser } from './parser';
-import { RateLimitController } from './rate-limiter';
+import { SearchCache } from './cache.js';
+import { DefaultDuckDuckGoClient } from './ddg-client.js';
+import { DuckDuckGoHtmlParser } from './parser.js';
+import { RateLimitController } from './rate-limiter.js';
 import {
   ProviderError,
   type DuckDuckGoSearchProviderOptions,
   type DuckDuckGoSearchRequest,
   type DuckDuckGoSearchResponse,
   type WebSearchInput,
-} from './types';
+} from './types.js';
 
 const COUNTRY_MAP: Record<string, string> = {
   cn: 'cn-zh',

@@ -1,4 +1,5 @@
-import { ProviderError, type DuckDuckGoClientOptions, type DuckDuckGoClient, type DuckDuckGoSearchRequest } from './types';
+import { ProviderError, type DuckDuckGoClientOptions, type DuckDuckGoClient, type DuckDuckGoSearchRequest } from './types.js';
+import { Agent, ProxyAgent } from 'undici';
 
 const DEFAULT_ENDPOINT = 'https://html.duckduckgo.com/html/';
 const DEFAULT_TIMEOUT_MS = 10_000;
@@ -7,6 +8,28 @@ const DEFAULT_USER_AGENT =
 const DEFAULT_MAX_RETRIES = 3;
 const DEFAULT_BASE_DELAY_MS = 1000; // 1 秒基础延迟
 const MAX_DELAY_MS = 30_000; // 最大延迟 30 秒
+
+// 自动检测系统代理
+function getSystemProxy(): string | undefined {
+  const httpsProxy = process.env.HTTPS_PROXY || process.env.https_proxy;
+  const httpProxy = process.env.HTTP_PROXY || process.env.http_proxy;
+  return httpsProxy || httpProxy;
+}
+
+// 创建带代理的 fetch 实现
+function createFetchWithProxy(): typeof fetch {
+  const proxyUrl = getSystemProxy();
+  
+  if (proxyUrl) {
+    const dispatcher = new ProxyAgent(proxyUrl);
+    // 使用 undici 的 fetch 实现，支持代理
+    return (input: RequestInfo | URL, init?: RequestInit) => {
+      return fetch(input, { ...init, dispatcher } as any);
+    };
+  }
+  
+  return fetch;
+}
 
 export class DefaultDuckDuckGoClient implements DuckDuckGoClient {
   private readonly endpoint: URL;
@@ -18,7 +41,7 @@ export class DefaultDuckDuckGoClient implements DuckDuckGoClient {
 
   constructor(options: DuckDuckGoClientOptions = {}) {
     this.endpoint = this.validateEndpoint(options.endpoint ?? DEFAULT_ENDPOINT);
-    this.fetchImpl = options.fetchImpl ?? fetch;
+    this.fetchImpl = options.fetchImpl ?? createFetchWithProxy();
     this.timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
     this.userAgent = options.userAgent ?? DEFAULT_USER_AGENT;
     this.maxRetries = options.maxRetries ?? DEFAULT_MAX_RETRIES;
@@ -63,23 +86,27 @@ export class DefaultDuckDuckGoClient implements DuckDuckGoClient {
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
     const url = new URL(this.endpoint);
 
-    url.searchParams.set('q', request.query);
+    // DuckDuckGo HTML search requires POST request with form data
+    const formData = new URLSearchParams();
+    formData.set('q', request.query);
 
     if (request.country) {
-      url.searchParams.set('kl', request.country);
+      formData.set('kl', request.country);
     }
 
     if (request.language) {
-      url.searchParams.set('kd', request.language);
+      formData.set('kd', request.language);
     }
 
     try {
       const response = await this.fetchImpl(url, {
-        method: 'GET',
+        method: 'POST',
         headers: {
           'user-agent': this.userAgent,
           'accept': 'text/html,application/xhtml+xml',
+          'content-type': 'application/x-www-form-urlencoded',
         },
+        body: formData.toString(),
         signal: controller.signal,
       });
 

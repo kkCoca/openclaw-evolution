@@ -1,4 +1,4 @@
-import type { CacheEntry, DuckDuckGoSearchResponse, SearchCacheOptions } from './types';
+import type { CacheEntry, DuckDuckGoSearchResponse, SearchCacheOptions } from './types.js';
 
 const DEFAULT_TTL_MS = 15 * 60 * 1000;
 

@@ -1,6 +1,6 @@
 import { load } from 'cheerio';
 
-import { ProviderError, type SearchResult } from './types';
+import { ProviderError, type SearchResult } from './types.js';
 
 const RESULT_SELECTOR = '.result';
 const TITLE_SELECTOR = '.result__title .result__a, .result__a';
