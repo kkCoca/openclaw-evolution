@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "skills": {
+    "git": {
+      "version": "1.0.7",
+      "installedAt": 1772895545093
+    },
+    "openclaw-github-assistant": {
+      "version": "2.0.1",
+      "installedAt": 1773739262422
+    }
+  }
+}

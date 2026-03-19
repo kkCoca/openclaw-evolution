@@ -1,0 +1,31 @@
+{
+  "name": "obsidian-tasks",
+  "version": "1.0.0",
+  "description": "Obsidian 待办事项管理 Skill，支持任务添加、列表、完成和报告功能",
+  "main": "scripts/index.js",
+  "bin": {
+    "task": "./scripts/index.js"
+  },
+  "scripts": {
+    "test": "node tests/task-manager.test.js",
+    "start": "node scripts/index.js",
+    "init": "node scripts/index.js init"
+  },
+  "keywords": [
+    "obsidian",
+    "tasks",
+    "todo",
+    "productivity",
+    "openclaw",
+    "skill"
+  ],
+  "author": "ouyp",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ouyp/openclaw-universe.git"
+  }
+}
