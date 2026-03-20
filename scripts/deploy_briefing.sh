@@ -7,10 +7,56 @@
 #   ./deploy_briefing.sh [source_dir] [obsidian_target]
 #
 # 示例：
-#   ./deploy_briefing.sh /home/ouyp/.openclaw/workspace "/home/ouyp/Documents/Obsidian Vault"
+#   ./deploy_briefing.sh /home/ouyp/Learning/Practice/openclaw-universe "/home/ouyp/Documents/Obsidian Vault"
 #
 
+# ============ 路径断路器（安全边界） ============
+# 本脚本只能在主权根目录下运行，严禁在系统私有目录执行
+SOVEREIGN_ROOT="/home/ouyp/Learning/Practice/openclaw-universe"
+FORBIDDEN_PATHS=(
+  "/home/ouyp/.openclaw"
+  "/home/ouyp/.openclaw/workspace"
+  "$HOME/.openclaw"
+)
+
 set -euo pipefail
+
+# ============ 路径验证函数 ============
+validate_sovereign_path() {
+  local target_path="$1"
+  local resolved_path
+  resolved_path="$(cd "$target_path" 2>/dev/null && pwd)" || {
+    log_error "路径不存在：$target_path"
+    return 1
+  }
+  
+  # 检查是否在禁止路径中
+  for forbidden in "${FORBIDDEN_PATHS[@]}"; do
+    if [[ "$resolved_path" == "$forbidden" || "$resolved_path" == "$forbidden/"* ]]; then
+      log_error "🚫 路径断路器触发：禁止在系统私有目录执行"
+      log_error "   目标路径：$resolved_path"
+      log_error "   禁止路径：$forbidden"
+      log_error ""
+      log_error "💡 正确用法："
+      log_error "   ./deploy_briefing.sh $SOVEREIGN_ROOT \"/home/ouyp/Documents/Obsidian Vault\""
+      return 1
+    fi
+  done
+  
+  # 检查是否是主权根目录或其子目录
+  if [[ "$resolved_path" != "$SOVEREIGN_ROOT" && "$resolved_path" != "$SOVEREIGN_ROOT/"* ]]; then
+    log_error "🚫 路径断路器触发：非主权根目录"
+    log_error "   目标路径：$resolved_path"
+    log_error "   主权根目录：$SOVEREIGN_ROOT"
+    log_error ""
+    log_error "💡 正确用法："
+    log_error "   ./deploy_briefing.sh $SOVEREIGN_ROOT \"/home/ouyp/Documents/Obsidian Vault\""
+    return 1
+  fi
+  
+  log_success "✅ 路径验证通过：$resolved_path"
+  return 0
+}
 
 # ============ 配置 ============
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -19,7 +65,7 @@ DEFAULT_OBSIDIAN_ROOT="/home/ouyp/Documents/Obsidian Vault"
 OBSIDIAN_TARGET="${2:-$DEFAULT_OBSIDIAN_ROOT}"
 SOURCE_DIR="${1:-$WORKSPACE_ROOT}"
 
-# 日志颜色
+# ============ 日志颜色 ============
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -110,10 +156,18 @@ sync_file() {
 
 # 同步待办事项到 Obsidian
 sync_tasks_to_obsidian() {
-    local workspace_tasks="$SOURCE_DIR/MEMORY.md"
+    # MEMORY.md 位于 workspace（私人配置目录），而非 universe（工程资产目录）
+    local workspace_tasks="$WORKSPACE_ROOT/MEMORY.md"
     local obsidian_tasks_dir="$OBSIDIAN_TARGET/AI+/待办事项"
     
     log_info "正在同步待办事项到 Obsidian..."
+    log_info "   源文件：$workspace_tasks"
+    
+    # 检查 MEMORY.md 是否存在
+    if [[ ! -f "$workspace_tasks" ]]; then
+        log_warning "MEMORY.md 不存在，跳过来办事项同步"
+        return 0
+    fi
     
     # 确保 Obsidian 目标目录存在
     mkdir -p "$obsidian_tasks_dir"
@@ -232,11 +286,11 @@ EOF
 
 # ============ 主流程 ============
 main() {
+    # 0. 路径断路器验证（最高优先级）
     log_info "========================================="
-    log_info "资产化部署脚本启动"
+    log_info "路径断路器检查..."
     log_info "========================================="
-    log_info "源目录：$SOURCE_DIR"
-    log_info "目标目录：$OBSIDIAN_TARGET"
+    validate_sovereign_path "$SOURCE_DIR" || exit 1
     log_info "========================================="
     
     # 1. 预检：目录验证
