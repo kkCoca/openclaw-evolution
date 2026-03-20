@@ -1,15 +1,60 @@
-# OpenClaw 配置
-openclaw.json
+# ============ 系统私有文件（严禁提交） ============
+# OpenClaw 系统配置
+.openclaw/
+.clawhub/
+
+# 个人配置与身份文件
+SOUL.md
+IDENTITY.md
+BOOTSTRAP.md
+USER.md
+TOOLS.md
+
+# 运行时状态
+session-context-cache.md
+*.lock
+
+# 记忆与笔记（私人认知）
+memory/
+notes/
 
 # 日志文件
+logs/
 *.log
-
-# 依赖目录
-node_modules/
-
-# 编译输出
-dist/
 
 # 临时文件
 *.tmp
-.cache/
+*.bak
+*~
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# ============ 允许提交的工程资产 ============
+# 以下目录手动添加：
+# - tasks/
+# - extensions/
+# - research/
+# - scripts/
+# - OMNIFORGE_SOP.md
+# - AGENTS.md
+# - README.md
+# - .gitignore
