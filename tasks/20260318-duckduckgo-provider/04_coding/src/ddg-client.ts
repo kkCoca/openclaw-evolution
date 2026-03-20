@@ -1,37 +1,11 @@
 import { ProviderError, type DuckDuckGoClientOptions, type DuckDuckGoClient, type DuckDuckGoSearchRequest } from './types.js';
 import { Agent, ProxyAgent } from 'undici';
 
-// 使用主站而非 HTML 接口（主站反爬更宽松）
-const DEFAULT_ENDPOINT = 'https://duckduckgo.com/html/';
-const DEFAULT_TIMEOUT_MS = 15_000;
+const DEFAULT_ENDPOINT = 'https://html.duckduckgo.com/html/';
+const DEFAULT_TIMEOUT_MS = 10_000;
 const DEFAULT_MAX_RETRIES = 3;
-const DEFAULT_BASE_DELAY_MS = 3000; // 3 秒基础延迟（模拟人类阅读时间）
-const MAX_DELAY_MS = 60_000; // 最大延迟 60 秒
-
-// ============ Browser 工具支持（方案 A） ============
-// 当 HTTP 请求失败时，使用 browser 工具访问 DuckDuckGo
-// 这是最可靠的方式，因为使用真实浏览器
-declare global {
-  var browserAction: any;
-}
-
-// ============ 反爬对抗：会话管理 ============
-// Cookie 池：每个会话使用固定 Cookie，模拟真实浏览器
-interface SessionState {
-  cookie?: string;
-  requestCount: number;
-  lastRequestTime: number;
-  consecutiveFailures: number;
-}
-
-const SESSION_STATE: SessionState = {
-  requestCount: 0,
-  lastRequestTime: 0,
-  consecutiveFailures: 0,
-};
-
-const MAX_REQUESTS_PER_SESSION = 10; // 每 10 次请求后重置会话
-const COOLDOWN_AFTER_MAX_REQUESTS = 60_000; // 冷却 60 秒
+const DEFAULT_BASE_DELAY_MS = 1000; // 1 秒基础延迟
+const MAX_DELAY_MS = 30_000; // 最大延迟 30 秒
 
 // ============ 反爬对抗：User-Agent 轮换池 ============
 const USER_AGENTS = [
@@ -190,9 +164,6 @@ export class DefaultDuckDuckGoClient implements DuckDuckGoClient {
   }
 
   private async executeSearch(request: DuckDuckGoSearchRequest): Promise<string> {
-    // ============ 人类行为模拟：请求前检查 ============
-    await this.enforceHumanBehavior();
-    
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
     const url = new URL(this.endpoint);
@@ -213,26 +184,12 @@ export class DefaultDuckDuckGoClient implements DuckDuckGoClient {
       // 生成随机指纹的请求头（反爬对抗）
       const randomHeaders = generateRandomHeaders();
       
-      // 添加 Cookie（会话管理）
-      if (SESSION_STATE.cookie) {
-        randomHeaders['cookie'] = SESSION_STATE.cookie as string;
-      }
-      
       const response = await this.fetchImpl(url, {
         method: 'POST',
         headers: randomHeaders,
         body: formData.toString(),
         signal: controller.signal,
       });
-      
-      // 保存 Cookie（会话管理）
-      const setCookie = response.headers.get('set-cookie');
-      if (setCookie) {
-        const cookieValue = setCookie.split(';')[0];
-        if (cookieValue) {
-          SESSION_STATE.cookie = cookieValue;
-        }
-      }
 
       if (response.status === 429) {
         throw new ProviderError('RATE_LIMITED', 'DuckDuckGo temporarily rate limited the request.', true, {
@@ -291,45 +248,6 @@ export class DefaultDuckDuckGoClient implements DuckDuckGoClient {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  /**
-   * 人类行为模拟：强制执行真实用户的行为模式
-   * - 请求间隔：3 秒 ±30%（人类阅读时间）
-   * - 会话限制：每 10 次请求后冷却 60 秒
-   * - 失败退避：连续失败后增加延迟
-   */
-  private async enforceHumanBehavior(): Promise<void> {
-    const now = Date.now();
-    
-    // 检查是否需要会话冷却
-    if (SESSION_STATE.requestCount >= MAX_REQUESTS_PER_SESSION) {
-      const timeSinceLastRequest = now - SESSION_STATE.lastRequestTime;
-      if (timeSinceLastRequest < COOLDOWN_AFTER_MAX_REQUESTS) {
-        const remainingCooldown = COOLDOWN_AFTER_MAX_REQUESTS - timeSinceLastRequest;
-        console.log(`[DDG] 会话冷却：等待 ${Math.round(remainingCooldown / 1000)} 秒`);
-        await this.sleep(remainingCooldown);
-        // 重置会话
-        SESSION_STATE.requestCount = 0;
-        delete SESSION_STATE.cookie;
-      }
-    }
-    
-    // 基础延迟：3 秒 ±30%（模拟人类阅读时间）
-    const baseDelay = this.baseDelayMs;
-    const jitter = baseDelay * 0.3 * (Math.random() * 2 - 1); // ±30%
-    const humanDelay = baseDelay + jitter;
-    
-    // 检查上次请求时间
-    const timeSinceLastRequest = now - SESSION_STATE.lastRequestTime;
-    if (timeSinceLastRequest < humanDelay) {
-      const remainingDelay = humanDelay - timeSinceLastRequest;
-      await this.sleep(remainingDelay);
-    }
-    
-    // 更新会话状态
-    SESSION_STATE.requestCount++;
-    SESSION_STATE.lastRequestTime = Date.now();
-  }
-
   private validateEndpoint(endpoint: string): URL {
     const url = new URL(endpoint);
 
@@ -337,66 +255,10 @@ export class DefaultDuckDuckGoClient implements DuckDuckGoClient {
       throw new ProviderError('SECURITY_ERROR', 'DuckDuckGo endpoint must use HTTPS.', false);
     }
 
-    // 允许使用主站或 HTML 接口（主站反爬更宽松）
-    if (url.hostname !== 'html.duckduckgo.com' && url.hostname !== 'duckduckgo.com') {
-      throw new ProviderError('SECURITY_ERROR', 'DuckDuckGo endpoint must target duckduckgo.com or html.duckduckgo.com.', false);
+    if (url.hostname !== 'html.duckduckgo.com') {
+      throw new ProviderError('SECURITY_ERROR', 'DuckDuckGo endpoint must target html.duckduckgo.com.', false);
     }
 
     return url;
-  }
-
-  /**
-   * 使用 browser 工具访问 DuckDuckGo（方案 A）
-   * 这是最可靠的方式，使用真实浏览器绕过反爬
-   */
-  private async searchWithBrowser(query: string): Promise<string> {
-    try {
-      const url = `https://duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
-      
-      // 使用 OpenClaw browser 工具打开页面
-      const browserResult = await browserAction({
-        action: 'open',
-        targetUrl: url,
-      });
-      
-      // 等待页面加载
-      await this.sleep(3000);
-      
-      // 获取页面 HTML
-      const snapshot = await browserAction({
-        action: 'snapshot',
-        targetId: browserResult.targetId,
-      });
-      
-      // 从 snapshot 提取 HTML（简化实现）
-      const html = this.extractHtmlFromSnapshot(snapshot);
-      
-      // 关闭标签页
-      await browserAction({
-        action: 'close',
-        targetId: browserResult.targetId,
-      }).catch(() => {});
-      
-      if (!html || html.length < 100) {
-        throw new ProviderError('NETWORK_ERROR', 'Browser failed to load DuckDuckGo page.', true);
-      }
-      
-      return html;
-    } catch (error) {
-      throw new ProviderError(
-        'NETWORK_ERROR',
-        `Browser search failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        true,
-      );
-    }
-  }
-
-  /**
-   * 从 browser snapshot 提取 HTML（简化实现）
-   */
-  private extractHtmlFromSnapshot(snapshot: any): string {
-    // 这是一个简化实现
-    // 实际需要根据 snapshot 格式解析 HTML
-    return snapshot?.html || '';
   }
 }
