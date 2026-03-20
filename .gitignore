@@ -26,6 +26,7 @@ logs/
 *.tmp
 *.bak
 *~
+.cache/
 
 # 编辑器
 .vscode/
@@ -48,6 +49,9 @@ venv/
 .DS_Store
 Thumbs.db
 
+# ============ 环境桥接（本地软链接，非工程资产） ============
+universe-bridge
+
 # ============ 允许提交的工程资产 ============
 # 以下目录手动添加：
 # - tasks/
@@ -57,4 +61,3 @@ Thumbs.db
 # - OMNIFORGE_SOP.md
 # - AGENTS.md
 # - README.md
-# - .gitignore
