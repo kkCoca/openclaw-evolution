@@ -50,13 +50,13 @@
 贤者研发 = 结构化规划 (50%) + Context Caching (30%) + 即时验证 (20%)
 ```
 
-**A/B 实验验证**（2026-03-19）：
-- ✅ **Token 节省**: 11-28%（roadmapping 阶段）
-- ✅ **逻辑跳跃**: 4 次 → 0 次（-100%）
-- ✅ **测试覆盖**: 16/16 全绿通过
-- ✅ **内化率**: 30% → 61%（+31%）
+**A/B 实验验证**：
+| 阶段 | Token 节省 | 返工消除 | 详细报告 |
+|------|-----------|---------|---------|
+| Roadmapping (03-19) | 11-28% | 100% | [白皮书 v1.0](research/insights/20260319-PLAN-AND-EXECUTE-REVOLUTION.md) |
+| Coding (03-20) | 34.4% | 100% | [实验报告 v2.0](research/insights/20260320-coding-experiment-report.md) |
 
-**详细报告**：请阅读 [`research/insights/20260319-PLAN-AND-EXECUTE-REVOLUTION.md`](research/insights/20260319-PLAN-AND-EXECUTE-REVOLUTION.md)
+**学习参考**: [实验目录](tasks/20260319-plan-execute-experiment/) - A/B 两组完整实现代码
 
 ---
 
@@ -103,18 +103,24 @@ cd openclaw-evolution
 ```
 openclaw-universe/
 ├── OMNIFORGE_SOP.md              # 宪法级文档（权限/软链接/主权回归）
-├── AGENTS.md v3.1                # 研发规约 + 异常自愈协议
-├── MEMORY.md                     # 技术认知树与进化日志
+├── AGENTS.md                     # 研发规约 + 异常自愈协议
+├── CHECKLIST.md                  # 待办清单（公共版）
 ├── README.md                     # 本文档（项目愿景与能力矩阵）
+├── briefings/                    # 每日简报（学习洞察）
+├── research/insights/            # 研究洞察（白皮书 + 实验报告）
 ├── tasks/                        # 研发区（01-04 阶段文档）
-│   ├── 20260318-duckduckgo-provider/
-│   └── 20260319-ddg-fallback-skill/
+│   ├── 20260318-duckduckgo-provider/        # DDG 搜索内核
+│   ├── 20260318-duckduckgo-provider-integration/  # 集成任务
+│   ├── 20260319-ddg-fallback-skill/         # Fallback Skill
+│   └── 20260319-plan-execute-experiment/    # 实验目录（教育参考）
 └── extensions/                   # 生产区（已部署扩展）
     └── duckduckgo-fallback/
-        ├── INTEGRATION_PLAYBOOK.md  # 集成手册（含实测真相）
-        ├── README.md                # 使用说明（中文）
-        └── EXPERIMENT_REPORT.md     # A/B 实验报告
+        ├── INTEGRATION_PLAYBOOK.md  # 集成手册
+        └── README.md                # 使用说明
 ```
+
+**说明**:
+- `tasks/20260319-plan-execute-experiment/` 是**实验目录**，包含 A/B 两组完整实现代码，供贡献者学习参考（非交付产品）
 
 ---
 
