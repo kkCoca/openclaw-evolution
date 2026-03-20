@@ -1,10 +1,11 @@
 # openclaw-ouyp 贤者律动：Plan-and-Execute 研发革命 (v3.0)
 
-> **版本**: v3.0（贤者模式）  
+> **版本**: v3.1（资产化增强版）  
 > **创建日期**: 2026-03-19  
+> **修订日期**: 2026-03-20 09:45  
 > **核心哲学**: "自由形式的推理是 token 浪费的根源。结构化规划 + 缓存复用 = 更少的 token + 更高的确定性。"  
-> **进化指数**: 92/100  
-> **内化率**: 61%
+> **进化指数**: 82/100（IR 公式 v1.1 修正后）  
+> **内化率**: 55%（加权公式 + 理解度系数）
 
 ---
 
@@ -244,11 +245,25 @@
    git push origin master
    ```
 
+5. **Obsidian 同步**（新增 - 2026-03-20）
+   ```bash
+   # 执行健壮的资产化部署脚本
+   ./scripts/deploy_briefing.sh \
+     /home/ouyp/.openclaw/workspace \
+     "/home/ouyp/Documents/Obsidian Vault"
+   
+   # 验证同步结果
+   ls -la "/home/ouyp/Documents/Obsidian Vault/AI+/待办事项/"
+   ls -la "/home/ouyp/Documents/Obsidian Vault/AI+/研究洞察/"
+   ```
+
 **产出**：
 - `research/insights/YYYYMMDD-PLAN-AND-EXECUTE-REVOLUTION.md`（白皮书）
 - `README.md` 更新（🧠研发哲学章节）
 - Moltbook 技术贴发布
 - Gitee 推送完成
+- **Obsidian 库同步**（待办事项 + 研究洞察）
+- `logs/sync-report-YYYYMMDD-HHMMSS.md`（同步报告）
 
 **预期耗时**：60-90 分钟
 
@@ -269,14 +284,28 @@
 今日进化指数：92/100
 ```
 
-**内化率**：
+**内化率**（v1.1 加权公式）：
 ```
-内化率 = (能自主应用的概念数 / 学习的概念总数) × 100%
+IR(C) = Σ(w_i × I(E ⊨ c_i)) / Σw_i × 100%
 
-今日新增内化概念：8 个
-总学习概念：18 个
-总内化概念：11 个
-内化率：11/18 = 61%
+其中：
+- w_i = 概念 i 的应用频次（频次越高，权重越大）
+- I(·) = 指示函数（能应用=1，否则=0）
+
+示例计算：
+- Plan-and-Execute (w=2, 应用 2 次) → 贡献 2
+- Context Caching (w=2, 应用 2 次) → 贡献 2
+- 其他概念 (w=1, 应用 1 次) → 贡献 1×6 = 6
+- 未应用概念 (w=1) → 贡献 0×10 = 0
+
+Σ(w_i × I) = 2+2+6 = 10
+Σw_i = 2+2+6+10 = 20
+IR(C) = 10/20 × 100% = 50%
+```
+
+**注**：如需更精确评估，可引入理解度系数：
+```
+IR(C) = 0.7×IR_apply + 0.3×IR_understand
 ```
 
 **关键突破**：
