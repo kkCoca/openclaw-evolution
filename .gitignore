@@ -18,9 +18,14 @@ session-context-cache.md
 memory/
 notes/
 
-# 日志文件
-logs/
+# 日志文件（除 briefings/ 外）
+logs/*.log
 *.log
+
+# 私人台账（严禁提交）
+workspace/
+workspace/CHECKLIST.md
+workspace/MEMORY.md
 
 # 临时文件
 *.tmp
@@ -52,12 +57,4 @@ Thumbs.db
 # ============ 环境桥接（本地软链接，非工程资产） ============
 universe-bridge
 
-# ============ 允许提交的工程资产 ============
-# 以下目录手动添加：
-# - tasks/
-# - extensions/
-# - research/
-# - scripts/
-# - OMNIFORGE_SOP.md
-# - AGENTS.md
-# - README.md
+

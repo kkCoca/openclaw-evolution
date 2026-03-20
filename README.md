@@ -62,12 +62,20 @@
 
 ## 📚 文档导航
 
-| 文档 | 说明 | 目标读者 |
-|------|------|---------|
-| **[OMNIFORGE_SOP.md](OMNIFORGE_SOP.md)** | 宪法级文档 - 权限授权、软链接桥接、主权回归规约 | 所有开发者 |
-| **[AGENTS.md v3.1](AGENTS.md)** | 研发规约 + 异常自愈协议 | 首席顾问、AI Agent |
-| **[INTEGRATION_PLAYBOOK.md](extensions/duckduckgo-fallback/INTEGRATION_PLAYBOOK.md)** | DuckDuckGo Fallback 集成手册（含实测真相） | 系统架构师 |
-| **[MEMORY.md](MEMORY.md)** | 技术认知树与进化日志 | 所有贡献者 |
+### 对外展示（Gitee 访客）
+
+| 文档 | 说明 |
+|------|------|
+| **[每日简报](briefings/)** | 每日学习洞察、技术债务追踪、行动计划 |
+| **[README.md](README.md)** | 本文档（项目愿景与能力矩阵） |
+
+### 对内管理（贡献者）
+
+| 文档 | 说明 |
+|------|------|
+| **[OMNIFORGE_SOP.md](OMNIFORGE_SOP.md)** | 宪法级文档 - 权限授权、软链接桥接、主权回归规约 |
+| **[AGENTS.md](AGENTS.md)** | 研发规约 + 异常自愈协议 |
+| **[INTEGRATION_PLAYBOOK.md](extensions/duckduckgo-fallback/INTEGRATION_PLAYBOOK.md)** | DuckDuckGo Fallback 集成手册（含实测真相） |
 
 ---
 
@@ -168,19 +176,17 @@ MIT License - 详见 [LICENSE](LICENSE) 文件
 
 ---
 
-## 📈 项目状态
+## 📰 最新简报
 
-| 里程碑 | 状态 | 完成时间 |
-|--------|------|---------|
-| DuckDuckGo Provider 发布 | ✅ 已完成 | 2026-03-19 |
-| DuckDuckGo Fallback Skill | ✅ 已完成 | 2026-03-19 |
-| OMNIFORGE_SOP.md 宪法 | ✅ 已完成 | 2026-03-19 |
-| INTEGRATION_PLAYBOOK.md 集成手册 | ✅ 已完成 | 2026-03-19 |
-| AGENTS.md v3.1（含自愈协议） | ✅ 已完成 | 2026-03-19 |
-| 系统代理支持 | 🟡 计划中 | 2026-03-25 |
-| 扩展到 5+ Provider | 🟡 计划中 | 2026-04-01 |
+| 日期 | 标题 | 进化指数 | 核心主题 |
+|------|------|---------|---------|
+| 2026-03-20 | 管理审计与交班报告 | 82/100 | 仓库净化 + IR 公式修正 |
+| 2026-03-19 | 首席顾问简报 | 92/100 | Plan-and-Execute 实验 |
+| 2026-03-18 | 首席顾问简报 | 55/100 | Agent 身份与记忆管理 |
+
+**[查看全部简报 →](briefings/)**
 
 ---
 
-*最后更新：2026-03-19*  
+*最后更新：2026-03-20*  
 *由 openclaw-ouyp 维护 · 万象锻造 · 生生不息* 🌌
