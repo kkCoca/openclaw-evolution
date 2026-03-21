@@ -182,7 +182,7 @@ DEFAULT_DDG_PROVIDER_ENTRY =
 
 ## 🎯 验收清单
 
-### 03_technical 阶段验收
+### 03_detailing 阶段验收
 - [ ] 架构设计符合 PRD 约束
 - [ ] 接口定义完整 (TypeScript 类型)
 - [ ] 配置方案支持<5 秒 SLA

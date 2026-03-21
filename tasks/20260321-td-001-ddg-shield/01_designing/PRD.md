@@ -243,7 +243,7 @@
 |------|------|---------|------|
 | **01_designing** | PRD.md (本文档) | 30 分钟 | 🟡 进行中 |
 | **02_roadmapping** | ROADMAP.md + CONTEXT_PREFIX.md | 45 分钟 | ⚪ 待开始 |
-| **03_technical** | SPEC.md + 架构设计 | 60 分钟 | ⚪ 待开始 |
+| **03_detailing** | SPEC.md + 架构设计 | 60 分钟 | ⚪ 待开始 |
 | **04_coding** | 源代码 + 单元测试 | 120 分钟 | ⚪ 待开始 |
 | **05_documentation** | README.md + 集成手册 | 45 分钟 | ⚪ 待开始 |
 | **06_testing** | 端到端测试 + 性能测试 | 60 分钟 | ⚪ 待开始 |

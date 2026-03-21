@@ -19,7 +19,7 @@
 02_roadmapping (45min)   → ROADMAP.md + CONTEXT_PREFIX.md 🔄 进行中
     │
     ▼
-03_technical (60min)     → SPEC.md + 架构设计
+03_detailing (60min)     → SPEC.md + 架构设计
     │
     ▼
 04_coding (120min)       → 源代码 + 单元测试
@@ -68,7 +68,7 @@
 
 ---
 
-### 03_technical (⚪ 待开始 - 12:10-13:10)
+### 03_detailing (⚪ 待开始 - 12:10-13:10)
 
 | 步骤 | 内容 | 产出 | 状态 |
 |------|------|------|------|
@@ -151,7 +151,7 @@
 |--------|------|------|
 | 10:55-11:25 | 01_designing | PRD.md v1.0 ✅ |
 | 11:25-12:10 | 02_roadmapping | ROADMAP + CONTEXT_PREFIX |
-| 12:10-13:10 | 03_technical | SPEC + 架构设计 |
+| 12:10-13:10 | 03_detailing | SPEC + 架构设计 |
 | 13:10-15:10 | 04_coding | 源代码 + 单元测试 |
 | 15:10-15:55 | 05_documentation | README + 集成手册 |
 | 15:55-16:55 | 06_testing | 端到端 + 性能测试 |
@@ -193,7 +193,7 @@
 | 文档 | 位置 | 说明 |
 |------|------|------|
 | **PRD.md** | [查看](../01_designing/PRD.md) | 产品需求定义 |
-| **CONTEXT_PREFIX.md** | [查看](../03_technical/CONTEXT_PREFIX.md) | 上下文缓存复用 |
+| **CONTEXT_PREFIX.md** | [查看](../03_detailing/CONTEXT_PREFIX.md) | 上下文缓存复用 |
 | **OMNIFORGE_SOP.md** | [查看](../../../OMNIFORGE_SOP.md) | 宪法级文档 |
 | **AGENTS.md v3.5** | [查看](../../../AGENTS.md) | 研发规约 |
 
