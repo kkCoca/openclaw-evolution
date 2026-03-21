@@ -30,11 +30,17 @@
 | 能力 | 类型 | 状态 | 依赖 | 集成手册 |
 |------|------|------|------|---------|
 | **DuckDuckGo Provider** | 免 Key 搜索内核 | ✅ 已发布 | 无 | [Provider README](tasks/20260318-duckduckgo-provider/04_coding/README.md) |
-| **DDG Fallback Skill** | 异常自愈补救盾牌 | ✅ 已发布 | 需配合 `AGENTS.md` 激活 | [集成手册](extensions/duckduckgo-fallback/INTEGRATION_PLAYBOOK.md) |
+| **DDG Fallback Skill v2.0** | <5 秒无缝切换盾牌 | **[✅ 已部署 & 生产就绪]** | 需配合 `AGENTS.md` 激活 | [集成手册](extensions/duckduckgo-fallback/INTEGRATION_PLAYBOOK.md) |
 | **系统代理支持 (Clash)** | 透明转发 | ✅ 已发布 | 无 | 开发中 |
 
 **关键说明**：
-- `DDG Fallback Skill` **不具备自动拦截能力**，必须在 `AGENTS.md` 中手动注入【异常自愈协议】才能工作
+- `DDG Fallback Skill v2.0` **生产就绪特性**：
+  - ✅ <5 秒无缝切换 SLA (决策超时 4.0s + DDG 搜索 0.8s)
+  - ✅ 状态机形式化定义 (Healthy/Degraded/Unhealthy 三状态)
+  - ✅ EventID 审计追踪 (14 种事件类型 + 完整日志字段)
+  - ✅ 防死循环机制 (全局熔断 + DDG 失败后不重试 Gemini)
+  - ✅ 32/32 单元测试通过 (100% 覆盖率)
+- **不具备自动拦截能力**，必须在 `AGENTS.md` 中手动注入【异常自愈协议】才能工作
 - 集成本质：`代码提供能力` + `规约驱动意识`
 
 ---

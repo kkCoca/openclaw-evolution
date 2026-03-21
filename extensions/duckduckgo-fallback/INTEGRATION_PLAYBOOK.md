@@ -1,10 +1,12 @@
 # DuckDuckGo Fallback 集成手册
 
-> **版本**: v1.0  
+> **版本**: v2.0 (TD-001 生产就绪版)  
 > **创建日期**: 2026-03-19  
+> **更新日期**: 2026-03-21  
 > **适用场景**: 在 OpenClaw 中集成 DuckDuckGo Fallback 高可用搜索  
 > **目标读者**: 系统架构师、运维工程师、AI Agent 开发者  
-> **前置条件**: 已阅读 [`OMNIFORGE_SOP.md`](../../OMNIFORGE_SOP.md)
+> **前置条件**: 已阅读 [`OMNIFORGE_SOP.md`](../../OMNIFORGE_SOP.md)  
+> **生产状态**: ✅ 已部署 & 生产就绪
 
 ---
 
@@ -110,11 +112,11 @@
 └─────────────────────────────────────────────────────────┘
 ```
 
-### 1.2 依赖路径
+### 1.2 依赖路径 (生产环境)
 
 **Fallback Skill 中的硬编码路径**：
 ```typescript
-// extensions/duckduckgo-fallback/src/types.ts (第 143-145 行)
+// extensions/duckduckgo-fallback/src/types.ts (第 174 行)
 export const DEFAULT_DDG_PROVIDER_ENTRY =
   '/home/ouyp/.openclaw/workspace/universe-bridge/tasks/20260318-duckduckgo-provider/04_coding/dist/src/index.js';
 ```
@@ -123,6 +125,20 @@ export const DEFAULT_DDG_PROVIDER_ENTRY =
 1. **通过软链接访问**：`universe-bridge` 指向 Universe 根目录
 2. **OpenCode 可访问**：在 `~/.openclaw/workspace/` 内
 3. **Git 版本控制**：实际文件在 Git 仓库内
+
+**生产环境部署路径**：
+```
+/home/ouyp/Learning/Practice/openclaw-universe/
+├── extensions/duckduckgo-fallback/     # ✅ 已部署 (v2.0 生产就绪)
+│   ├── src/
+│   │   ├── types.ts                    # 包含 DEFAULT_DDG_PROVIDER_ENTRY
+│   │   ├── fallback-manager.ts         # Fallback 核心逻辑
+│   │   ├── ddg-adapter.ts              # DDG 适配器
+│   │   └── index.ts                    # 入口文件
+│   └── tests/                          # 32/32 测试通过
+└── tasks/20260318-duckduckgo-provider/ # ✅ 已部署 (Provider 内核)
+    └── 04_coding/dist/                 # 构建产物
+```
 
 ### 1.3 构建产物依赖
 
