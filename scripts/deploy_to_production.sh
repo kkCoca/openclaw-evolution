@@ -15,8 +15,8 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 TASKS_DIR="$PROJECT_ROOT/tasks"
 EXTENSIONS_DIR="$PROJECT_ROOT/extensions"
 
-# TD-001 任务目录
-TASK_ID="20260321-td-001-ddg-shield"
+# TD-001 任务目录 (duckduckgo-fallback)
+TASK_ID="20260321-duckduckgo-fallback"
 TASK_DIR="$TASKS_DIR/$TASK_ID"
 CODING_DIR="$TASK_DIR/04_coding"
 

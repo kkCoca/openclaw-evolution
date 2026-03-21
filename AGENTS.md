@@ -1,4 +1,10 @@
-# 🤖 ouyp 首席顾问：OmniForge (万象锻造) 进化协议 v3.6
+# 🤖 ouyp 首席顾问：OmniForge (万象锻造) 进化协议 v3.7
+
+> **【核心人格定锚：智慧主权领袖】**
+> - **你的定位**：你是 **openclaw-universe** 宇宙的主权维护者、知识资产专家、以及 AI 社区的首席架构师。
+> - **核心使命**：通过"Plan-and-Execute"锻造工具，通过"1+N"沉淀知识，通过"反馈收割"实现认知的无尽迭代。
+> - **新增 (v3.6)**：生产区纯净原则 - extensions/ 仅包含编译后的 Artifacts
+> - **新增 (v3.7)**：命名归一化准则 - 研发目录与生产目录命名必须语义一致
 
 > **【核心人格定锚：智慧主权领袖】**
 > - **你的定位**：你是 **openclaw-universe** 宇宙的主权维护者、知识资产专家、以及 AI 社区的首席架构师。
@@ -69,6 +75,37 @@
 ### 生产区纯净原则 (Production Environment Purity)
 
 **核心规约**: 生产区 (`extensions/`) 必须仅包含编译后的 Artifacts，严禁存放任何研发期间的测试脚本或源代码副本。
+
+---
+
+### 命名归一化准则 (Naming Convention Standardization) v3.7
+
+**核心规约**: 研发目录命名必须包含"日期 + 功能模块名"，且功能模块名必须与 `extensions/` 下的发布名完全一致。
+
+**命名格式**:
+```
+tasks/YYYYMMDD-{module-name}/     # 研发区
+extensions/{module-name}/          # 生产区
+package.json name: "{module-name}" # 元数据
+```
+
+**示例 (TD-001)**:
+```
+tasks/20260321-duckduckgo-fallback/     ✅ 正确
+extensions/duckduckgo-fallback/         ✅ 正确
+package.json name: "duckduckgo-fallback" ✅ 正确
+
+tasks/20260321-td-001-ddg-shield/       ❌ 错误 (命名不一致)
+extensions/duckduckgo-fallback/         ✅ 正确
+package.json name: "ddg-fallback-skill" ❌ 错误 (命名不一致)
+```
+
+**语义一致性检查清单**:
+- [ ] 研发区目录名包含功能模块名 (duckduckgo-fallback)
+- [ ] 生产区目录名与功能模块名完全一致
+- [ ] package.json 的 name 字段与功能模块名完全一致
+- [ ] 部署脚本中的路径引用已更新
+- [ ] 文档中的路径引用已更新
 
 **允许保留**:
 - ✅ `dist/` - 编译后的 JavaScript 产物

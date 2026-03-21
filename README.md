@@ -32,6 +32,7 @@
 | **DuckDuckGo Provider** | 免 Key 搜索内核 | ✅ 已发布 | 无 | [Provider README](tasks/20260318-duckduckgo-provider/04_coding/README.md) |
 | **DDG Fallback Skill v2.0** | <5 秒无缝切换盾牌 | **[✅ 已部署 & 生产就绪]** | 需配合 `AGENTS.md` 激活 | [集成手册](extensions/duckduckgo-fallback/INTEGRATION_PLAYBOOK.md) |
 | **系统代理支持 (Clash)** | 透明转发 | ✅ 已发布 | 无 | 开发中 |
+| **一键部署脚本** | 自动化流水线 | **[✅ 已部署]** | 无 | [查看脚本](scripts/deploy_to_production.sh) |
 
 **关键说明**：
 - `DDG Fallback Skill v2.0` **生产就绪特性**：
