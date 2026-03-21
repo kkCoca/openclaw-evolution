@@ -1,7 +1,7 @@
 {
-  "name": "duckduckgo-fallback",
+  "name": "ddg-fallback-skill",
   "version": "2.0.0",
-  "description": "DuckDuckGo Fallback Skill v2.0 - Production",
+  "description": "DuckDuckGo Fallback Skill v2.0 (TD-001) - Production",
   "type": "module",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",

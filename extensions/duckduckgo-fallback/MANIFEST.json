@@ -1,0 +1,82 @@
+{
+  "name": "duckduckgo-fallback",
+  "version": "2.0.0",
+  "description": "DuckDuckGo Fallback Skill v2.0 - Production",
+  "buildDate": "2026-03-21T14:51:00+08:00",
+  "gitCommit": "4f822d2",
+  
+  "entryPoint": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  
+  "dependencies": {
+    "runtime": {
+      "node": ">=18"
+    },
+    "external": [
+      {
+        "name": "duckduckgo-provider",
+        "path": "/home/ouyp/.openclaw/workspace/universe-bridge/extensions/search_providers/duckduckgo/dist/src/index.js",
+        "version": "1.0.0",
+        "required": true,
+        "description": "DuckDuckGo Search Provider (免 Key 搜索内核)"
+      }
+    ],
+    "internal": []
+  },
+  
+  "buildArtifacts": {
+    "source": "tasks/20260321-duckduckgo-fallback/04_coding/",
+    "output": "dist/src/",
+    "files": [
+      "ddg-adapter.js",
+      "ddg-adapter.d.ts",
+      "error-classifier.js",
+      "error-classifier.d.ts",
+      "fallback-manager.js",
+      "fallback-manager.d.ts",
+      "index.js",
+      "index.d.ts",
+      "types.js",
+      "types.d.ts"
+    ]
+  },
+  
+  "validation": {
+    "preDeploy": [
+      "检查研发区目录存在：tasks/20260321-duckduckgo-fallback/04_coding/",
+      "检查源代码文件完整：src/, package.json",
+      "检查生产区目录存在：extensions/duckduckgo-fallback/"
+    ],
+    "postDeploy": [
+      "验证生产区不包含 src/",
+      "验证生产区不包含 tests/",
+      "验证生产区不包含 tsconfig.json",
+      "验证 dist/src/*.js 存在",
+      "验证外部依赖路径可访问"
+    ]
+  },
+  
+  "moduleRelationships": {
+    "upstream": [
+      {
+        "module": "duckduckgo-provider",
+        "relationship": "depends_on",
+        "description": "Fallback 依赖 Provider 执行实际搜索"
+      }
+    ],
+    "downstream": []
+  },
+  
+  "changeLog": [
+    {
+      "date": "2026-03-21",
+      "version": "2.0.0",
+      "changes": [
+        "命名归一化：tasks/20260321-td-001-ddg-shield → tasks/20260321-duckduckgo-fallback",
+        "依赖路径修复：DEFAULT_DDG_PROVIDER_ENTRY 指向 extensions/search_providers/duckduckgo/",
+        "注释更新：SPEC 路径从 03_technical 改为 03_detailing",
+        "创建 MANIFEST.json 资产依赖清单"
+      ]
+    }
+  ]
+}

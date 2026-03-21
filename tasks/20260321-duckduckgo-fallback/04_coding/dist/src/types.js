@@ -3,12 +3,12 @@
  *
  * 版本：v2.0 (TD-001 生产就绪版)
  * 创建日期：2026-03-21
- * 关联 SPEC: tasks/20260321-td-001-ddg-shield/03_technical/SPEC.md
+ * 关联 SPEC: tasks/20260321-duckduckgo-fallback/03_detailing/SPEC.md
  */
 /**
  * 默认配置 (TD-001 生产环境配置)
  */
-export const DEFAULT_DDG_PROVIDER_ENTRY = '/home/ouyp/.openclaw/workspace/universe-bridge/tasks/20260318-duckduckgo-provider/04_coding/dist/src/index.js';
+export const DEFAULT_DDG_PROVIDER_ENTRY = '/home/ouyp/.openclaw/workspace/universe-bridge/extensions/search_providers/duckduckgo/dist/src/index.js';
 export const DEFAULT_FALLBACK_CONFIG = {
     enabled: true,
     maxDdgRetries: 3,
