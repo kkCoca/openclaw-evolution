@@ -1,20 +1,27 @@
 {
   "name": "ddg-fallback-skill",
-  "version": "1.0.0",
-  "description": "Gemini primary search with DuckDuckGo fallback.",
+  "version": "2.0.0",
+  "description": "DuckDuckGo Fallback Skill v2.0 - Production Ready (TD-001)",
   "type": "module",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
-  "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "test": "vitest run"
-  },
   "engines": {
     "node": ">=18"
   },
-  "devDependencies": {
-    "@types/node": "^24.5.2",
-    "typescript": "^5.8.2",
-    "vitest": "^3.2.4"
+  "files": [
+    "dist/"
+  ],
+  "keywords": [
+    "openclaw",
+    "duckduckgo",
+    "fallback",
+    "search",
+    "skill"
+  ],
+  "author": "openclaw-ouyp",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://gitee.com/cola16/openclaw-evolution.git"
   }
 }
