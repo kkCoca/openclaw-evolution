@@ -5,10 +5,10 @@ import {
   DdgSearchAdapter,
   FallbackConfig,
   GeminiSearchProvider,
-  SmartSearchInput,
+  SearchRequest,
+  SearchResponse,
   SmartSearchLogger,
-  SmartSearchResult,
-  StructuredLogFields,
+  AuditLogFields,
 } from './types.js';
 
 export interface SmartSearchRuntimeOptions {
@@ -32,13 +32,19 @@ export function createSmartSearchRuntime(options: SmartSearchRuntimeOptions) {
   });
 
   return {
-    smartSearch(input: SmartSearchInput): Promise<SmartSearchResult> {
+    /**
+     * 执行智能搜索 (TD-001 生产就绪版)
+     */
+    smartSearch(input: SearchRequest): Promise<SearchResponse> {
       return manager.executeSearch(input);
     },
   };
 }
 
-export function smartSearch(input: SmartSearchInput, options: SmartSearchRuntimeOptions): Promise<SmartSearchResult> {
+/**
+ * 便捷函数：执行单次智能搜索
+ */
+export function smartSearch(input: SearchRequest, options: SmartSearchRuntimeOptions): Promise<SearchResponse> {
   return createSmartSearchRuntime(options).smartSearch(input);
 }
 
@@ -56,17 +62,19 @@ function resolveConfig(config?: Partial<FallbackConfig>): FallbackConfig {
 
 function createConsoleLogger(): SmartSearchLogger {
   return {
-    info(event: string, fields: StructuredLogFields) {
+    info(event, fields: AuditLogFields) {
       console.info(JSON.stringify({ level: 'info', event, ...fields }));
     },
-    warn(event: string, fields: StructuredLogFields) {
+    warn(event, fields: AuditLogFields) {
       console.warn(JSON.stringify({ level: 'warn', event, ...fields }));
     },
-    error(event: string, fields: StructuredLogFields) {
+    error(event, fields: AuditLogFields) {
       console.error(JSON.stringify({ level: 'error', event, ...fields }));
     },
   };
 }
+
+// ==================== 公共导出 ====================
 
 export * from './types.js';
 export * from './error-classifier.js';

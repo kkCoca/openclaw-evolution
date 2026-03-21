@@ -1,11 +1,19 @@
+/**
+ * TD-001: DuckDuckGo 搜索之盾 - DDG 适配器
+ * 
+ * 版本：v2.0 (TD-001 生产就绪版)
+ * 创建日期：2026-03-21
+ * 关联 SPEC: tasks/20260321-td-001-ddg-shield/03_technical/SPEC.md
+ */
+
 import { performance } from 'node:perf_hooks';
 
 import {
   DEFAULT_DDG_PROVIDER_ENTRY,
   DdgSearchAdapter,
   DdgSearchResponse,
+  SearchRequest,
   SearchResultItem,
-  SmartSearchInput,
 } from './types.js';
 
 interface DdgProviderResult {
@@ -17,7 +25,7 @@ interface DdgProviderResult {
 }
 
 interface DdgProviderInstance {
-  search(input: SmartSearchInput): Promise<DdgProviderResult>;
+  search(input: SearchRequest): Promise<DdgProviderResult>;
 }
 
 type ProviderCtor = new () => DdgProviderInstance;
@@ -45,7 +53,12 @@ export class DdgAdapter implements DdgSearchAdapter {
     this.now = options.now ?? (() => performance.now());
   }
 
-  async search(input: SmartSearchInput): Promise<DdgSearchResponse> {
+  /**
+   * 执行 DuckDuckGo 搜索
+   * 
+   * TD-001: 符合 SPEC 3.2 SearchResponse 接口
+   */
+  async search(input: SearchRequest): Promise<DdgSearchResponse> {
     const startedAt = this.now();
     const provider = await this.providerFactory();
     const response = await provider.search(input);
@@ -54,8 +67,9 @@ export class DdgAdapter implements DdgSearchAdapter {
     return {
       provider: 'ddg',
       items,
+      tookMs: this.now() - startedAt,
+      cached: false,
       fallbackUsed: true,
-      timingMs: this.now() - startedAt,
       attempts: {
         gemini: 0,
         ddg: 1,
