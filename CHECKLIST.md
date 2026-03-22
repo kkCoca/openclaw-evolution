@@ -57,7 +57,7 @@
 ## 🔗 相关链接
 
 - [每日简报](briefings/) - 学习洞察与行动计划
-- [研发规约](AGENTS.md) - Plan-and-Execute 模式
+- [研发规约](~/.openclaw/workspace/AGENTS.md) - Plan-and-Execute 模式
 - [进化日志](workspace/MEMORY.md) - 私人版（不公开）
 
 ---

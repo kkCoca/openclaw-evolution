@@ -708,7 +708,7 @@ def enable_context_caching(framework, prefix_content):
 | 资源 | 说明 | 链接 |
 |------|------|------|
 | **OMNIFORGE_SOP.md** | 宪法级文档（权限/软链接/主权回归） | [查看](../OMNIFORGE_SOP.md) |
-| **AGENTS.md v3.3** | 研发规约 + 贤者模式 | [查看](../AGENTS.md) |
+| **AGENTS.md v3.3** | 研发规约 + 贤者模式 | [查看](~/.openclaw/workspace/AGENTS.md) |
 | **INTEGRATION_PLAYBOOK.md** | DuckDuckGo Fallback 集成手册 | [查看](../extensions/duckduckgo-fallback/INTEGRATION_PLAYBOOK.md) |
 
 ---

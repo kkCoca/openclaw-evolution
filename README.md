@@ -81,7 +81,7 @@
 | 文档 | 说明 |
 |------|------|
 | **[OMNIFORGE_SOP.md](OMNIFORGE_SOP.md)** | 宪法级文档 - 权限授权、软链接桥接、主权回归规约 |
-| **[AGENTS.md](AGENTS.md)** | 研发规约 + 异常自愈协议 |
+| **[AGENTS.md](~/.openclaw/workspace/AGENTS.md)** | 研发规约 + 异常自愈协议 |
 | **[INTEGRATION_PLAYBOOK.md](extensions/duckduckgo-fallback/INTEGRATION_PLAYBOOK.md)** | DuckDuckGo Fallback 集成手册（含实测真相） |
 
 ---

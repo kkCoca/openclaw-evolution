@@ -122,7 +122,7 @@ ln -s /home/ouyp/Learning/Practice/openclaw-universe \
 
 # 文档区
 /home/ouyp/Learning/Practice/openclaw-universe/GUIDE.md
-/home/ouyp/Learning/Practice/openclaw-universe/AGENTS.md
+~/.openclaw/workspace/AGENTS.md
 ```
 
 #### ❌ 违规路径
