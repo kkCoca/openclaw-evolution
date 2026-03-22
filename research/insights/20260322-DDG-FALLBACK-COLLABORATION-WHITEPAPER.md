@@ -37,7 +37,7 @@
 | 约束注入 | ✅ 完成 | CONTEXT_PREFIX.md |
 | 调用 OpenCode | ✅ 完成 | opencode run 指令 |
 | 质量检查 | ✅ 完成 | L2/L3/L4 验证 |
-| 部署发布 | ✅ 完成 | extensions/duckduckgo-fallback/ |
+| 部署发布 | ✅ 完成 | extensions/duckduckgo-fallback/ 📦 已归档 |
 | Git 提交 | ✅ 完成 | 3 次提交，Gitee 推送 |
 | 知识沉淀 | ✅ 完成 | 本白皮书 |
 

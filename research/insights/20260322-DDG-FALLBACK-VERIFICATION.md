@@ -37,7 +37,7 @@
 - 构建验证 (npm run build + npm test)
 
 ### 步骤 7-8: 部署阶段 ✅
-- 部署到生产区 (extensions/duckduckgo-fallback/)
+- 部署到生产区 (extensions/duckduckgo-fallback/) 📦 已归档
 - L2 纯净验证 (无 src/, tests/, tsconfig.json)
 - Git 提交 + Gitee 推送
 
