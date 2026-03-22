@@ -1,6 +1,6 @@
 # Context Prefix: DDG Fallback 规范流程验证
 
-> **任务 ID**: 20260322-ddg-fallback-rebuild  
+> **任务 ID**: 20260322-duckduckgo-fallback  
 > **创建日期**: 2026-03-22  
 > **状态**: ✅ 完成
 
@@ -9,6 +9,7 @@
 ## 📎 核心约束
 
 - 100% 遵循 L0-L6 规范
+- **OpenClaw 把控，OpenCode 编码**
 - 生产区纯净原则 (L2)
 - 命名归一化 (L3)
 
@@ -31,7 +32,7 @@
 
 ## 🔗 物理连接
 
-**研发区**: `tasks/20260322-ddg-fallback-rebuild/`
+**研发区**: `tasks/20260322-duckduckgo-fallback/`
 **生产区**: `extensions/duckduckgo-fallback/`
 **部署方式**: 仅复制 dist/ 到生产区
 
@@ -41,9 +42,10 @@
 
 - [x] 任务目录结构符合 L4
 - [x] PRD + ROADMAP 完整
-- [x] 执行报告完整
-- [x] 生产区纯净 (无 src/, tests/)
-- [x] 命名归一化 (duckduckgo-fallback)
+- [ ] OpenCode 代码实现完成
+- [ ] OpenClaw 质量检查完成
+- [ ] 生产区纯净 (无 src/, tests/)
+- [ ] 命名归一化 (duckduckgo-fallback)
 
 ---
 

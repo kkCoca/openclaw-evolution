@@ -21,8 +21,8 @@
 
 - [ ] **FR-001**: 创建规范任务目录 (L4)
 - [ ] **FR-002**: 编写 PRD + ROADMAP (L4)
-- [ ] **FR-003**: 实现 DDG Fallback 功能
-- [ ] **FR-004**: 编写单元测试 (L4)
+- [ ] **FR-003**: **OpenCode 实现 DDG Fallback 功能**
+- [ ] **FR-004**: **OpenCode 编写单元测试**
 - [ ] **FR-005**: 执行构建验证 (L2)
 - [ ] **FR-006**: 规范部署到生产区 (L2)
 - [ ] **FR-007**: 知识沉淀 (L5)
@@ -72,10 +72,11 @@
 
 **核心约束**:
 - 100% 遵循 L0-L6 规范
+- **OpenClaw 负责把控，OpenCode 负责代码实现**
 - 生产区纯净原则
 
 **架构约束**:
-- 研发区：tasks/20260322-ddg-fallback-rebuild/
+- 研发区：tasks/20260322-duckduckgo-fallback/
 - 生产区：extensions/duckduckgo-fallback/
 - 仅复制 dist/ 到生产区
 
@@ -85,4 +86,4 @@
 
 ---
 
-*本文档由 openclaw-ouyp 按 L4 规范生成*
+*本文档由 OpenClaw 按 L4 规范生成*

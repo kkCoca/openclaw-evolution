@@ -1,11 +1,11 @@
 {
   "name": "duckduckgo-fallback",
   "version": "1.0.0",
-  "description": "DuckDuckGo Fallback - 规范流程验证任务",
-  "main": "dist/index.js",
+  "description": "DDG Fallback with dependency injection",
+  "main": "src/index.js",
   "scripts": {
-    "build": "echo 'Build complete'",
-    "test": "echo 'Tests passed'"
+    "build": "node -e \"require('./src/index.js')\" && echo '✅ Build OK'",
+    "test": "node tests/index.test.js"
   },
   "keywords": ["ddg", "fallback", "openclaw"],
   "author": "openclaw-ouyp",

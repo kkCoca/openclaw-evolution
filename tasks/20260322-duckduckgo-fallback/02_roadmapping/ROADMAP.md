@@ -1,7 +1,7 @@
 # ROADMAP: DDG Fallback 规范流程验证
 
-> **步骤数**: 7 步 (符合 L4 规范)  
-> **执行者**: OpenClaw  
+> **步骤数**: 8 步 (符合 L4 规范)  
+> **执行者**: OpenClaw + OpenCode  
 > **复查者**: OpenClaw
 
 ---
@@ -19,17 +19,18 @@
 - [x] 定义验收标准
 
 ### 步骤 3: ROADMAP 编写 ✅
-- [x] 7 步分解
+- [x] 8 步分解
 - [x] Context Prefix 注入
 
-### 步骤 4: 代码实现 ⏳
-- [ ] 创建 package.json
-- [ ] 创建 src/index.js (DDG Fallback 逻辑)
-- [ ] 创建 tests/index.test.js
+### 步骤 4: OpenCode 代码实现 ⏳
+- [ ] **OpenCode**: 创建 package.json
+- [ ] **OpenCode**: 创建 src/index.js (DDG Fallback 逻辑)
+- [ ] **OpenCode**: 创建 tests/index.test.js
 
-### 步骤 5: 单元测试 ⏳
-- [ ] 执行 npm test
-- [ ] 验证测试覆盖率 100%
+### 步骤 5: OpenClaw 质量检查 ⏳
+- [ ] **OpenClaw**: 检查 L2 生产区纯净
+- [ ] **OpenClaw**: 检查 L3 命名归一化
+- [ ] **OpenClaw**: 检查 L4 规划完整性
 
 ### 步骤 6: 构建验证 ⏳
 - [ ] 执行 npm run build
@@ -51,6 +52,7 @@
 
 **核心约束**:
 - 100% 遵循 L0-L6 规范
+- **OpenClaw 把控，OpenCode 编码**
 - 生产区纯净原则
 
 **架构约束**:
@@ -58,24 +60,24 @@
 - 状态机：DDG Fallback 逻辑
 
 **物理连接**:
-- 研发区：tasks/20260322-ddg-fallback-rebuild/
+- 研发区：tasks/20260322-duckduckgo-fallback/
 - 生产区：extensions/duckduckgo-fallback/
 
 ---
 
 ## 执行记录
 
-| 步骤 | 开始时间 | 结束时间 | Token 用量 | 迭代次数 | 验证 |
-|------|---------|---------|-----------|---------|------|
-| 1 | 13:40 | 13:41 | ~100 | 1 | ✅ |
-| 2 | 13:41 | 13:42 | ~500 | 1 | ✅ |
-| 3 | 13:42 | 13:43 | ~300 | 1 | ✅ |
-| 4 | - | - | - | - | ⏳ |
-| 5 | - | - | - | - | ⏳ |
-| 6 | - | - | - | - | ⏳ |
-| 7 | - | - | - | - | ⏳ |
-| 8 | - | - | - | - | ⏳ |
+| 步骤 | 开始时间 | 结束时间 | 执行者 | 验证 |
+|------|---------|---------|--------|------|
+| 1 | 14:15 | 14:16 | OpenClaw | ✅ |
+| 2 | 14:16 | 14:17 | OpenClaw | ✅ |
+| 3 | 14:17 | 14:18 | OpenClaw | ✅ |
+| 4 | - | - | OpenCode | ⏳ |
+| 5 | - | - | OpenClaw | ⏳ |
+| 6 | - | - | OpenClaw | ⏳ |
+| 7 | - | - | OpenClaw | ⏳ |
+| 8 | - | - | OpenClaw | ⏳ |
 
 ---
 
-*本文档由 openclaw-ouyp 按 L4 规范生成*
+*本文档由 OpenClaw 按 L4 规范生成*
