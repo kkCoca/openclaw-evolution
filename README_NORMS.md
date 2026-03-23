@@ -4,18 +4,31 @@
 
 ---
 
-## 📚 核心规范
+## 📚 系统级规范（自动继承）
 
-所有核心规范位于：`~/.openclaw/workspace/NORMS/core/`
+所有系统级规范位于：`~/.openclaw/workspace/NORMS/core/`
 
 | 规范 | 文件 | 检查脚本 |
 |------|------|---------|
-| L1: 核心定位 | [查看](file:///home/ouyp/.openclaw/workspace/NORMS/core/01-core-positioning.md) | - |
-| L2: 生产区纯净 | [查看](file:///home/ouyp/.openclaw/workspace/NORMS/core/02-production-purity.md) | [check-norm-02.sh](file:///home/ouyp/.openclaw/workspace/NORMS/checks/check-norm-02.sh) |
-| L3: 命名归一化 | [查看](file:///home/ouyp/.openclaw/workspace/NORMS/core/03-naming-convention.md) | [check-norm-03.sh](file:///home/ouyp/.openclaw/workspace/NORMS/checks/check-norm-03.sh) |
+| L1: 核心定位与分工 | [查看](file:///home/ouyp/.openclaw/workspace/NORMS/core/01-core-positioning.md) | - |
+| L2: 生产区纯净原则 | [查看](file:///home/ouyp/.openclaw/workspace/NORMS/core/02-production-purity.md) | [check-norm-02.sh](file:///home/ouyp/.openclaw/workspace/NORMS/checks/check-norm-02.sh) |
+| L3: 命名归一化准则 | [查看](file:///home/ouyp/.openclaw/workspace/NORMS/core/03-naming-convention.md) | [check-norm-03.sh](file:///home/ouyp/.openclaw/workspace/NORMS/checks/check-norm-03.sh) |
 | L4: Plan-and-Execute | [查看](file:///home/ouyp/.openclaw/workspace/NORMS/core/04-plan-and-execute.md) | [check-norm-04.sh](file:///home/ouyp/.openclaw/workspace/NORMS/checks/check-norm-04.sh) |
-| L5: 知识沉淀 | [查看](file:///home/ouyp/.openclaw/workspace/NORMS/core/05-knowledge-assets.md) | [check-norm-05.sh](file:///home/ouyp/.openclaw/workspace/NORMS/checks/check-norm-05.sh) |
-| L6: 反馈收割 | [查看](file:///home/ouyp/.openclaw/workspace/NORMS/core/06-feedback-harvest.md) | [check-norm-06.sh](file:///home/ouyp/.openclaw/workspace/NORMS/checks/check-norm-06.sh) |
+| L5: 1+N 知识沉淀 | [查看](file:///home/ouyp/.openclaw/workspace/NORMS/core/05-knowledge-assets.md) | [check-norm-05.sh](file:///home/ouyp/.openclaw/workspace/NORMS/checks/check-norm-05.sh) |
+| L6: 反馈收割机制 | [查看](file:///home/ouyp/.openclaw/workspace/NORMS/core/06-feedback-harvest.md) | [check-norm-06.sh](file:///home/ouyp/.openclaw/workspace/NORMS/checks/check-norm-06.sh) |
+| **L2: 文档层级规范** | **[查看](file:///home/ouyp/.openclaw/workspace/NORMS/core/07-documentation-hierarchy.md)** | **[check-documentation-quality.md](file:///home/ouyp/.openclaw/workspace/NORMS/checks/check-documentation-quality.md)** |
+
+---
+
+## 📚 项目级规范
+
+| 规范 | 文件 | 说明 |
+|------|------|------|
+| OMNIFORGE_SOP.md | [查看](OMNIFORGE_SOP.md) | 项目特定 SOP（软链接、主权回归） |
+
+---
+
+## 🛠️ 技术实现
 
 ---
 
