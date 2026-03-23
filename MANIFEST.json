@@ -1,0 +1,57 @@
+{
+  "name": "openclaw-universe-manifest",
+  "version": "1.0.0",
+  "description": "外部依赖路径与模块关系清单",
+  "created": "2026-03-24",
+  "purpose": "防止重命名/移动操作导致依赖断链",
+  
+  "dependencies": {
+    "external": [
+      {
+        "name": "duckduckgo-fallback",
+        "path": "/home/ouyp/.openclaw/workspace/universe-bridge/extensions/duckduckgo-fallback/dist/src/index.js",
+        "type": "search-provider",
+        "required": true,
+        "consumers": [
+          "openclaw-web-search",
+          "ddg-websearch-mcp-server"
+        ]
+      }
+    ],
+    "internal": [
+      {
+        "name": "openclaw-web-search",
+        "path": "/home/ouyp/.openclaw/workspace/universe-bridge/extensions/openclaw-web-search/dist/src/index.js",
+        "type": "skill",
+        "required": false
+      }
+    ]
+  },
+  
+  "validation": {
+    "preDeploy": [
+      "检查研发区目录存在",
+      "检查源代码文件存在",
+      "检查生产区目录存在",
+      "检查 MANIFEST.json 中所有 required=true 的依赖路径可访问"
+    ],
+    "postDeploy": [
+      "验证生产区不包含 src/",
+      "验证生产区不包含 tests/",
+      "验证生产区不包含 tsconfig.json",
+      "验证外部依赖路径可访问",
+      "验证 Git 状态与物理磁盘一致"
+    ],
+    "preRename": [
+      "查询 MANIFEST.json 检查是否有依赖指向目标目录",
+      "如有依赖，必须先更新依赖路径或迁移模块",
+      "执行 grep -r 确认无代码引用目标路径"
+    ]
+  },
+  
+  "rules": {
+    "deployment": "部署不是搬运，而是制品发布。仅同步 dist/，排除 src/, tests/, 配置文件",
+    "renaming": "移动文件前先查 Manifest，确保依赖不断链",
+    "verification": "汇报前必须执行 ls -R 验证物理现实，不依赖记忆"
+  }
+}

@@ -179,8 +179,15 @@ sync_to_production() {
   mkdir -p "$PROD_DIR/dist"
   
   # 同步 dist/src/ (仅运行时文件)
-  rsync -av --delete "$CODING_DIR/dist/src/" "$PROD_DIR/dist/src/"
-  log_info "  - 已同步：dist/src/"
+  # 使用 --exclude 确保不同步研发源码和配置文件（L2 生产区纯净原则）
+  rsync -av --delete \
+    --exclude='src/' \
+    --exclude='tests/' \
+    --exclude='*.ts' \
+    --exclude='tsconfig.json' \
+    --exclude='package-lock.json' \
+    "$CODING_DIR/dist/src/" "$PROD_DIR/dist/src/"
+  log_info "  - 已同步：dist/src/ (已排除 src/, tests/, *.ts, tsconfig.json)"
   
   # 创建生产版 package.json (仅包含 production 字段)
   cat > "$PROD_DIR/package.json" << 'EOF'
