@@ -99,9 +99,64 @@
 
 ---
 
-## ISSUE-002: [待发现]
+## ISSUE-002: DDG Web Search MCP 集成
 
-**状态**: ⏳ 待发现
+**发现日期**: 2026-03-23  
+**发现阶段**: 架构设计  
+**严重度**: 🟡 P1（功能增强）  
+**状态**: 🟡 方案待确认
+
+### 需求描述
+
+**目标**: 将 DDG Web Search 集成到 OpenClaw，支持 AI 自动调用搜索
+
+**约束条件**:
+- ❌ 不修改 OpenClaw 核心代码
+- ✅ 采用 MCP 协议（OpenClaw 原生支持）
+- ✅ AI 可以自动发现和调用工具
+- ✅ 配置即可使用
+
+### 技术方案（待确认）
+
+**推荐方案**: MCP 服务器方式
+
+**工作内容**:
+1. 创建 MCP 服务器入口：`~/.openclaw/extensions/ddg-websearch/mcp-server.js`
+2. 创建 MCP 配置：`~/.openclaw/mcp.json`
+3. 更新 package.json：添加 MCP 依赖
+4. 创建集成测试：`test-mcp.js`
+5. 运行测试验证
+
+**代码复用**:
+- `~/.openclaw/extensions/ddg-websearch/dist/*` - 100% 复用原有核心代码
+
+**预计代码量**:
+- 新增：~150 行（MCP 适配层）
+- 修改：0 行（核心代码无需修改）
+
+### 验收标准（待确认）
+
+| 标准 | 目标值 | 验证方法 |
+|------|--------|---------|
+| MCP 服务器启动 | 成功 | node mcp-server.js |
+| OpenClaw 识别工具 | 成功 | openclaw status |
+| AI 可调用搜索 | 成功 | 对话测试 |
+| 核心代码复用率 | 100% | 代码审查 |
+| OpenClaw 核心修改 | 0 行 | 代码审查 |
+
+### 执行流程（待确认）
+
+1. ⏳ OpenClaw 创建 PRD-MCP-002.md
+2. ⏳ **等待主人确认方案**
+3. ⏳ OpenClaw 调用 OpenCode 执行
+4. ⏳ OpenCode 创建代码
+5. ⏳ OpenClaw 验收验证
+6. ⏳ OpenClaw Git 提交
+
+---
+
+**审批状态**: ⏳ 待主人确认  
+**执行状态**: ⏳ 等待确认
 
 ---
 
