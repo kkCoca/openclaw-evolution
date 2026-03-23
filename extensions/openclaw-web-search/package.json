@@ -1,11 +1,12 @@
 {
   "name": "ddg-websearch",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "OpenClaw web search extension with DuckDuckGo primary and Bing fallback",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "build": "node -e \"require('./src/index.js')\"",
-    "test": "node --test tests/*.test.js tests/**/*.test.js"
+    "test": "echo '生产区无单元测试'",
+    "test:integration": "node --test tests/parser-integration.test.js",
+    "verify": "node test-verify.js"
   },
   "license": "MIT"
 }
