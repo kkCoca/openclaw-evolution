@@ -24,7 +24,13 @@ function normalizeUrl(url) {
 
 function detectDdgBlockingState(html) {
   const lower = html.toLowerCase();
-  if (lower.includes('captcha') || lower.includes('challenge-form')) {
+  // 增强验证码检测：6 个特征（v1.1 修复）
+  if (lower.includes('captcha') || 
+      lower.includes('challenge-form') || 
+      lower.includes('anomaly-modal') ||
+      lower.includes('botnet') ||
+      lower.includes('select all squares') ||
+      lower.includes('human')) {
     return { blocked: true, type: 'captcha_detected', message: 'DuckDuckGo returned a captcha challenge' };
   }
   if (lower.includes('too many requests') || lower.includes('rate limit')) {

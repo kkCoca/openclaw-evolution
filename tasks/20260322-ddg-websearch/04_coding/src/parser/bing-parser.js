@@ -21,8 +21,9 @@ function extractBingResults(html, limit) {
 
   return blocks.slice(0, limit).map((match) => {
     const block = match[1];
-    const titleMatch = block.match(/<h2>\s*<a[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i);
-    const snippetMatch = block.match(/<p>([\s\S]*?)<\/p>/i);
+    // 优化正则支持灵活 class（v1.1 修复）
+    const titleMatch = block.match(/<h2[^>]*>\s*<a[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i);
+    const snippetMatch = block.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
 
     if (!titleMatch) {
       return null;
