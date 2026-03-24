@@ -197,6 +197,35 @@
 
 ---
 
+### F014: MCP 集成支持
+
+| 属性 | 说明 |
+|------|------|
+| **功能描述** | 以 MCP 协议方式集成到 OpenClaw，支持 AI 自动调用搜索 |
+| **验收标准** | 1. 创建 MCP 服务器入口（mcp-server.js）<br>2. 创建 MCP 配置（~/.openclaw/mcp.json）<br>3. AI 可自动发现和调用 ddg_search 工具<br>4. 配置即可使用，升级无影响<br>5. 不修改 OpenClaw 核心代码 |
+| **优先级** | P0 |
+| **模块** | mcp-server.js, ~/.openclaw/mcp.json |
+| **输入** | OpenClaw MCP 协议 |
+| **输出** | ddg_search 工具（AI 可调用） |
+| **约束条件** | ❌ 不修改 OpenClaw 核心代码<br>✅ 采用 MCP 协议（OpenClaw 原生支持）<br>✅ 代码复用（dist/100% 复用） |
+
+---
+
+### F015: DDG 验证码检测修复
+
+| 属性 | 说明 |
+|------|------|
+| **功能描述** | 增强 DDG 验证码/异常状态检测，覆盖新版验证码页面 |
+| **验收标准** | 1. detectDdgBlockingState() 检测 6 个特征（原 2 个）<br>2. 创建 HTML 样本库（tests/fixtures/）<br>3. 新增集成测试验证真实样本<br>4. 验证码页面应抛出 SearchError（type: captcha_detected）<br>5. 正常页面应提取到结果（≥5 条） |
+| **优先级** | P0 |
+| **模块** | parser/ddg-parser.js, tests/fixtures/ |
+| **输入** | DDG HTML 页面 |
+| **输出** | 检测结果（blocking: boolean, type: string） |
+| **检测特征** | 1. anomaly-modal（验证码弹窗）<br>2. captcha-form（验证码表单）<br>3. rate-limit-message（限流消息）<br>4. access-denied（访问拒绝）<br>5. challenge-window（挑战窗口）<br>6. js-redirect（JS 重定向） |
+| **修复版本** | v1.1（ISSUE-001 已修复） |
+
+---
+
 ## 📏 非功能需求清单
 
 | 编号 | 需求类型 | 目标值 | 验收方法 |
@@ -275,7 +304,7 @@ Bing 也失败 → F005 抛出 all_sources_failed，包含所有错误
 
 ## 📊 验收标准汇总
 
-### 功能验收（13 项）
+### 功能验收（15 项）
 
 | 编号 | 功能 | 验收标准 | 状态 |
 |------|------|---------|------|
@@ -292,6 +321,8 @@ Bing 也失败 → F005 抛出 all_sources_failed，包含所有错误
 | **F011** | 统一搜索入口 | search/healthCheck/createClient | ⏳ 待验收 |
 | **F012** | 运行时配置 | 可配置覆盖 | ⏳ 待验收 |
 | **F013** | 错误处理与分类 | 6 种错误类型 + retryable | ⏳ 待验收 |
+| **F014** | MCP 集成支持 | MCP 服务器 + mcp.json 配置 | ⏳ 待验收 |
+| **F015** | DDG 验证码检测修复 | 6 个检测特征 + HTML 样本库 | ⏳ 待验收 |
 
 ### 非功能验收（6 项）
 
