@@ -10,79 +10,79 @@
 
 ### 阶段 1: designing
 
-调用 designing skill：
+**调用 OpenCode 执行 designing skill**：
 - **输入**: 用户需求
 - **输出**: `01_designing/PRD.md` + `01_designing/TRD.md`
 - **检查点**: 文档完整性
 - **触发条件**: 用户确认需求后
 
 **执行步骤**:
-1. 将用户需求传递给 designing skill
-2. designing skill 分析需求类型（新建/直出/审查/增量）
-3. designing skill 与用户确认模式和输出格式
-4. designing skill 询问需求细节（一次一问）
-5. designing skill 输出 PRD.md + TRD.md
-6. 验证文档完整性
+1. 流程引擎将用户需求传递给 OpenCode
+2. OpenCode 执行 designing skill 分析需求类型（新建/直出/审查/增量）
+3. OpenCode 执行 designing skill 与用户确认模式和输出格式
+4. OpenCode 执行 designing skill 询问需求细节（一次一问）
+5. OpenCode 执行 designing skill 输出 PRD.md + TRD.md
+6. 流程引擎验证文档完整性
 
 ### 阶段 2: roadmapping
 
-调用 roadmapping skill：
+**调用 OpenCode 执行 roadmapping skill**：
 - **输入**: PRD.md + TRD.md
 - **输出**: `02_roadmapping/ROADMAP.md`
 - **检查点**: 开发计划可行性
 - **触发条件**: designing 阶段完成后
 
 **执行步骤**:
-1. 将 PRD.md + TRD.md 传递给 roadmapping skill
-2. roadmapping skill 分析需求规模和复杂度
-3. roadmapping skill 制定开发阶段和里程碑
-4. roadmapping skill 输出 ROADMAP.md
-5. 验证开发计划可行性
+1. 流程引擎将 PRD.md + TRD.md 传递给 OpenCode
+2. OpenCode 执行 roadmapping skill 分析需求规模和复杂度
+3. OpenCode 执行 roadmapping skill 制定开发阶段和里程碑
+4. OpenCode 执行 roadmapping skill 输出 ROADMAP.md
+5. 流程引擎验证开发计划可行性
 
 ### 阶段 3: detailing
 
-调用 detailing skill：
+**调用 OpenCode 执行 detailing skill**：
 - **输入**: PRD.md + TRD.md + ROADMAP.md
 - **输出**: `03_detailing/DETAIL.md`
 - **检查点**: 文件级设计完整性
 - **触发条件**: roadmapping 阶段完成后
 
 **执行步骤**:
-1. 将 PRD.md + TRD.md + ROADMAP.md 传递给 detailing skill
-2. detailing skill 分析系统架构和模块划分
-3. detailing skill 设计文件结构和接口
-4. detailing skill 输出 DETAIL.md
-5. 验证文件级设计完整性
+1. 流程引擎将 PRD.md + TRD.md + ROADMAP.md 传递给 OpenCode
+2. OpenCode 执行 detailing skill 分析系统架构和模块划分
+3. OpenCode 执行 detailing skill 设计文件结构和接口
+4. OpenCode 执行 detailing skill 输出 DETAIL.md
+5. 流程引擎验证文件级设计完整性
 
 ### 阶段 4: coding
 
-调用 coding skill：
+**调用 OpenCode 执行 coding skill**：
 - **输入**: DETAIL.md
 - **输出**: `04_coding/src/` + `04_coding/tests/` + `04_coding/README.md`
 - **检查点**: 代码质量 + 测试覆盖率
 - **触发条件**: detailing 阶段完成后
 
 **执行步骤**:
-1. 将 DETAIL.md 传递给 coding skill
-2. coding skill 按照设计实现代码
-3. coding skill 编写单元测试
-4. coding skill 编写文档
-5. 验证代码质量和测试覆盖率
+1. 流程引擎将 DETAIL.md 传递给 OpenCode
+2. OpenCode 执行 coding skill 按照设计实现代码
+3. OpenCode 执行 coding skill 编写单元测试
+4. OpenCode 执行 coding skill 编写文档
+5. 流程引擎验证代码质量和测试覆盖率
 
 ### 阶段 5: reviewing
 
-调用 reviewing skill：
+**调用 OpenCode 执行 reviewing skill**：
 - **输入**: 所有产出（PRD+TRD+ROADMAP+DETAIL+ 代码 + 测试 + 文档）
 - **输出**: `05_reviewing/REVIEW-REPORT.md`
 - **检查点**: 验收通过
 - **触发条件**: coding 阶段完成后
 
 **执行步骤**:
-1. 将所有产出传递给 reviewing skill
-2. reviewing skill 执行代码审查
-3. reviewing skill 执行文档审查
-4. reviewing skill 输出验收报告
-5. 验证验收通过
+1. 流程引擎将所有产出传递给 OpenCode
+2. OpenCode 执行 reviewing skill 执行代码审查
+3. OpenCode 执行 reviewing skill 执行文档审查
+4. OpenCode 执行 reviewing skill 输出验收报告
+5. 流程引擎验证验收通过
 
 ## 错误处理
 
