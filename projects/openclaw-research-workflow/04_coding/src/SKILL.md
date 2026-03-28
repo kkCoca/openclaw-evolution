@@ -1,6 +1,6 @@
 ---
 name: openclaw-research-workflow
-description: AI 辅助研发流程引擎 v2.0，审阅驱动 + 会话隔离 + 工具无关，自动化编排 designing→roadmapping→detailing→coding→reviewing 完整流程
+description: AI 辅助研发流程编排引擎 v2.0（Meta-Skill），审阅驱动 + 会话隔离 + 工具无关，自动化编排 designing→roadmapping→detailing→coding→reviewing 完整流程
 triggers:
   - /sessions_spawn openclaw-research-workflow
 entry: workflow.md
@@ -9,11 +9,29 @@ author: openclaw-ouyp
 license: MIT
 ---
 
-# OpenClaw Research Workflow Skill v2.0
+# OpenClaw Research Workflow Engine v2.0
+
+> **定位说明**: 这是一个**流程编排引擎**（Meta-Skill），以 Skill 形式提供，但内部实现完整的流程管理、状态机、AI 工具适配等复杂功能。
 
 ## 简介
 
-本 Skill 是一个流程引擎，**审阅驱动**地编排 AI 辅助研发流程。每个阶段完成后必须经 openclaw-ouyp 审阅确认后才继续，确保质量可控。
+本引擎是一个**审阅驱动**的流程编排系统，自动化编排 AI 辅助研发流程。每个阶段完成后必须经 openclaw-ouyp 审阅确认后才继续，确保质量可控。
+
+## 为什么是 Meta-Skill？
+
+| 维度 | 传统 Skill | 本引擎 (Meta-Skill) |
+|------|-----------|-------------------|
+| **功能** | 单一任务 | 编排 5 个阶段 + 状态管理 |
+| **代码规模** | ~100-500 行 | ~5500 行 |
+| **状态管理** | 无 | 完整状态机 + 断点续传 |
+| **可配置性** | 简单 | 完整 config.yaml |
+| **扩展性** | 有限 | 插件式 AI 工具适配层 |
+
+**设计理念**：
+- ✅ **兼容 OpenClaw 生态** - 以 Skill 形式提供，安装/使用方式一致
+- ✅ **内部复杂，外部简单** - 用户无需关心实现细节
+- ✅ **审阅驱动** - 每个阶段必须确认后继续，质量可控
+- ✅ **工具无关** - 可灵活切换 AI 工具（OpenCode/Claude Code/Custom）
 
 ## 核心特性 v2.0
 
