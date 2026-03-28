@@ -124,6 +124,44 @@ rollback:
 
 详见 `config.yaml`
 
+### AI 工具配置
+
+支持 3 种 AI 工具：
+
+| 工具 | 配置项 | 说明 |
+|------|--------|------|
+| **OpenCode** | `opencode` | 通过 OpenClaw sessions_spawn 调用 |
+| **Claude Code** | `claude-code` | 通过 CLI 命令行调用 |
+| **Custom** | `custom` | 支持任意自定义 AI 工具 |
+
+**配置示例**：
+
+```yaml
+aiTools:
+  # OpenCode 配置
+  opencode:
+    timeoutSeconds: 1800
+    
+  # Claude Code 配置
+  claude-code:
+    args:
+      - --print
+      - --permission-mode
+      - bypassPermissions
+    timeoutSeconds: 1800
+    
+  # 自定义工具配置
+  custom:
+    command: /path/to/custom/tool
+    args:
+      - --stage
+      - '{stage}'
+    env:
+      API_KEY: ${CUSTOM_AI_API_KEY}
+```
+
+详见 `ai-tool-adapter.js` 和 `adapters/` 目录。
+
 ## 状态管理
 
 ### 状态文件

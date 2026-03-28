@@ -503,41 +503,119 @@ async function resumeWorkflow() {
 
 ## AI 工具适配
 
-### 工具抽象接口
+### 适配器架构
+
+流程引擎 v2.0 提供统一的 AI 工具适配层，支持多种 AI 工具：
+
+- **OpenCode** - 通过 OpenClaw sessions_spawn API 调用
+- **Claude Code** - 通过 CLI 命令行调用
+- **Custom** - 支持任意自定义 AI 工具
+
+详见 `ai-tool-adapter.js` 和 `adapters/` 目录。
+
+### 使用适配器
 
 ```javascript
-async function executeWithAITool(stageName, input, aiTool, config) {
-  switch (aiTool) {
-    case 'opencode':
-      return await executeWithOpenCode(stageName, input, config.aiTools.opencode);
-      
-    case 'claude-code':
-      return await executeWithClaudeCode(stageName, input, config.aiTools.claude-code);
-      
-    case 'custom':
-      return await executeWithCustomTool(stageName, input, config.aiTools.custom);
-      
-    default:
-      throw new Error(`不支持的 AI 工具：${aiTool}`);
+const { AdapterFactory } = require('./ai-tool-adapter');
+
+async function executeStage(stageName, input, config) {
+  // 从配置创建适配器
+  const adapter = AdapterFactory.fromConfig(config, stageName);
+  
+  // 验证配置
+  if (!(await adapter.validateConfig())) {
+    throw new Error(`${adapter.getType()} 适配器配置无效`);
+  }
+  
+  // 执行阶段任务
+  const result = await adapter.execute(stageName, input);
+  
+  if (!result.success) {
+    throw new Error(`阶段 ${stageName} 执行失败：${result.error}`);
+  }
+  
+  return result;
+}
+```
+
+### 适配器接口
+
+所有适配器都实现以下接口：
+
+```javascript
+class AIToolAdapter {
+  // 获取工具类型
+  getType()
+  
+  // 执行阶段任务
+  async execute(stageName, input)
+  
+  // 构建任务描述
+  buildTask(stageName, input)
+  
+  // 验证配置
+  async validateConfig()
+  
+  // 日志记录
+  log(message, data)
+}
+```
+
+### 执行结果结构
+
+```javascript
+class ExecutionResult {
+  constructor({ success, outputs, error, sessionId, duration }) {
+    this.success = success;        // 是否成功
+    this.outputs = outputs;        // 输出文件列表
+    this.error = error;            // 错误信息（失败时）
+    this.sessionId = sessionId;    // 会话 ID
+    this.duration = duration;      // 执行时长（毫秒）
   }
 }
 ```
 
-### OpenCode 适配器示例
+### 配置示例
+
+```yaml
+aiTools:
+  opencode:
+    timeoutSeconds: 1800
+    
+  claude-code:
+    args:
+      - --print
+      - --permission-mode
+      - bypassPermissions
+    timeoutSeconds: 1800
+    
+  custom:
+    command: /path/to/custom/tool
+    args:
+      - --stage
+      - '{stage}'
+    env:
+      API_KEY: ${CUSTOM_AI_API_KEY}
+    timeoutSeconds: 1800
+    outputParser:
+      patterns:
+        - '[0-9a-z_/-]+\\.md'
+      extractFiles: true
+```
+
+### 适配器选择
 
 ```javascript
-async function executeWithOpenCode(stageName, input, config) {
-  const task = buildStageTask(stageName, input);
-  
-  const session = await sessions_spawn({
-    task: task,
-    runtime: "subagent",
-    mode: "run",
-    timeoutSeconds: config.timeoutSeconds
-  });
-  
-  return await waitForCompletion(session.id);
-}
+// 方式 1：从配置自动选择
+const adapter = AdapterFactory.fromConfig(config, stageName);
+
+// 方式 2：手动创建
+const { OpenCodeAdapter } = require('./adapters/opencode');
+const adapter = new OpenCodeAdapter(config.aiTools.opencode);
+
+// 方式 3：工厂方法
+const { AdapterFactory, ToolType } = require('./ai-tool-adapter');
+const adapter = AdapterFactory.create(ToolType.OPENCODE, config);
 ```
 
 ---
