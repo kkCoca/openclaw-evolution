@@ -1,0 +1,153 @@
+# 变更日志（CHANGELOG）
+
+## 版本历史
+
+所有重要的项目变更都将记录在此文件中。
+
+格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
+版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
+
+---
+
+## [v2.0.1] - 2026-03-30
+
+### Bugfix
+
+- **BUG-002**: 补充 02_roadmapping/和 03_detailing/阶段产物
+  - 创建 02_roadmapping/ROADMAP.md
+  - 创建 03_detailing/DETAIL.md
+  - 追加 PRD.md v2.0.1 章节
+  - 追加 TRD.md v2.0.1 章节
+  - 创建 CHANGELOG.md
+  - 更新 REVIEW-REPORT.md v2.0.1
+  - 保留 04_coding/src/ 中的所有源代码
+
+### 问题根因
+
+- PRD v2.0.0 需求定义不完整，没有明确要求输出 ROADMAP.md 和 DETAIL.md
+- 流程引擎未执行自己定义的 5 阶段标准
+- 验收报告造假（REVIEW-REPORT.md 声称文件存在，但实际不存在）
+
+### 验收标准
+
+- ✅ 01_designing/PRD.md 存在（含 v2.0.1 章节）
+- ✅ 01_designing/TRD.md 存在（含 v2.0.1 章节）
+- ✅ 02_roadmapping/ROADMAP.md 存在（新增）
+- ✅ 03_detailing/DETAIL.md 存在（新增）
+- ✅ 04_coding/src/ 存在（保留原有代码）
+- ✅ 05_reviewing/REVIEW-REPORT.md 存在（v2.0.1 验收报告）
+- ✅ CHANGELOG.md 存在（新增）
+
+---
+
+## [v2.0.0] - 2026-03-28
+
+### Added
+
+- **FEATURE-002**: 审阅驱动 + 会话隔离 + 工具无关
+  - 状态机管理（StateManager 类）
+  - 子会话调度（sessions_spawn）
+  - 审阅协议执行（REVIEW-PROTOCOL.md）
+  - 配置文件支持（config.yaml）
+  - 状态持久化（state-manager.js）
+  - AI 工具适配器（ai-tool-adapter.js）
+
+### Changed
+
+- 重写 workflow.md（流程编排逻辑）
+- 更新 SKILL.md（使用说明）
+- 追加 PRD.md v2.0.0 章节
+- 追加 TRD.md v2.0.0 章节
+
+### 需求目标
+
+- **审阅驱动**: 每个阶段必须 openclaw-ouyp 确认后才继续
+- **会话隔离**: 每个阶段独立子会话执行
+- **工具无关**: 可配置 AI 工具（OpenCode/Claude Code/其他）
+- **状态可追溯**: 完整记录每个阶段的执行状态和审阅结论
+- **回滚灵活**: 支持阶段级回滚（策略 A）
+
+---
+
+## [v1.1.0] - 2026-03-26
+
+### Added
+
+- **FEATURE-001**: 增加 OpenCode 调用说明
+  - workflow.md 每个阶段明确"调用 OpenCode 执行 XXX skill"
+  - README.md 增加"工作原理"章节
+  - 三方协作架构图（openclaw-ouyp → 流程引擎 → OpenCode）
+
+### Changed
+
+- 更新 workflow.md（每个阶段增加调用 OpenCode 说明）
+- 更新 README.md（增加工作原理章节）
+- 追加 PRD.md v1.1.0 章节
+- 追加 TRD.md v1.1.0 章节
+
+### 问题背景
+
+- 流程引擎 Skill 没有明确体现调用 OpenCode 执行研发流程
+- AGENTS.md 与 workflow.md 内容不一致
+- 开发者无法了解流程引擎的工作原理
+
+---
+
+## [v1.0.1] - 2026-03-26
+
+### Fixed
+
+- **BUG-001**: 修复目录结构问题
+  - 修正输出目录路径
+  - 确保文档结构正确
+
+---
+
+## [v1.0.0] - 2026-03-26
+
+### Added
+
+- **初始版本**: 流程引擎 Skill（openclaw-research-workflow）
+  - 独立完整：一个包包含所有依赖 skills（designing/roadmapping/detailing/coding/reviewing）
+  - 零感知安装：用户只需安装 1 个 skill，依赖自动注册
+  - 流程标准化：所有场景都走完整研发流程（designing→roadmapping→detailing→coding→reviewing）
+  - 易于分享：支持 clawhub/脚本/压缩包多种安装方式
+
+### 核心功能
+
+- 自动调用 bundled skills
+- 流程监督
+- 生成审查报告
+- 支持全新功能/增量需求/问题修复三种场景
+
+---
+
+## 版本说明
+
+### 版本号规则
+
+- **主版本号（Major）**: 不兼容的 API 变更或架构重构（如 v1.x.x → v2.x.x）
+- **次版本号（Minor）**: 向后兼容的功能性新增（如 v1.0.x → v1.1.x）
+- **修订号（Patch）**: 向后兼容的问题修复（如 v1.0.0 → v1.0.1）
+
+### 变更类型
+
+- **Added**: 新增功能
+- **Changed**: 变更现有功能
+- **Deprecated**: 即将移除的功能
+- **Removed**: 已移除的功能
+- **Fixed**: Bug 修复
+- **Security**: 安全修复
+
+---
+
+## 相关链接
+
+- [AGENTS.md](../../.openclaw/workspace/AGENTS.md) - 操作手册
+- [REQUIREMENTS.md](REQUIREMENTS.md) - 需求说明
+- [workflow.md](04_coding/src/workflow.md) - 流程编排逻辑
+- [SKILL.md](04_coding/src/SKILL.md) - 使用说明
+
+---
+
+*CHANGELOG 由流程引擎生成，openclaw-ouyp 维护*

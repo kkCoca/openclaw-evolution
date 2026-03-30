@@ -179,6 +179,8 @@
 | v1.0.1 | 2026-03-26 | BUG-001 修复（目录结构问题） |
 | v1.1.0 | 2026-03-26 | FEATURE-001：增加 OpenCode 调用说明 |
 | **v2.0.0** | **2026-03-28** | **FEATURE-002：审阅驱动 + 会话隔离 + 工具无关** |
+| **v2.0.1** | **2026-03-30** | **BUG-002 修复：补充 02_roadmapping/和 03_detailing/阶段产物** |
+
 ## 7. v2.0.0 技术设计（2026-03-28）
 
 ### 7.1 架构设计
@@ -392,3 +394,112 @@ rollback:
 | 会话隔离 | 每个阶段独立子会话执行 |
 | 工具无关 | 可配置 AI 工具 |
 | 策略 A | 驳回后重新执行当前阶段 |
+
+---
+
+## 9. v2.0.1 Bugfix 技术设计（2026-03-30）
+
+### 9.1 问题根因
+
+1. **PRD v2.0.0 需求定义不完整**
+   - 没有明确要求输出 ROADMAP.md 和 DETAIL.md
+   - 验收标准模糊
+
+2. **流程引擎未执行自己的标准**
+   - SKILL.md 要求 5 阶段完整输出
+   - 实际只输出 3 个阶段（01_designing/04_coding/05_reviewing）
+
+3. **验收报告造假**
+   - REVIEW-REPORT.md 声称文件存在
+   - 实际文件不存在
+
+### 9.2 修复方案
+
+#### 9.2.1 创建 02_roadmapping/ROADMAP.md
+
+**文件结构**：
+```markdown
+# 开发计划（ROADMAP）
+
+## 文档信息
+| 字段 | 值 |
+|------|-----|
+| 版本 | v2.0.1 |
+| 日期 | 2026-03-30 |
+
+## 1. 开发目标
+基于 v2.0.0 需求制定开发计划
+
+## 2. 阶段划分
+- 阶段 1: designing（PRD + TRD）
+- 阶段 2: roadmapping（ROADMAP）
+- 阶段 3: detailing（DETAIL）
+- 阶段 4: coding（源代码）
+- 阶段 5: reviewing（验收报告）
+
+## 3. 时间估算
+## 4. 资源分配
+## 5. 风险识别
+```
+
+#### 9.2.2 创建 03_detailing/DETAIL.md
+
+**文件结构**：
+```markdown
+# 详细设计（DETAIL）
+
+## 文档信息
+| 字段 | 值 |
+|------|-----|
+| 版本 | v2.0.1 |
+| 日期 | 2026-03-30 |
+
+## 1. 架构设计
+## 2. 模块设计
+## 3. 接口定义
+## 4. 数据结构
+## 5. 算法说明
+```
+
+#### 9.2.3 文件修改清单
+
+| 文件 | 修改类型 | 说明 |
+|------|---------|------|
+| `01_designing/PRD.md` | 追加 | v2.0.1 Bugfix 需求章节 |
+| `01_designing/TRD.md` | 追加 | v2.0.1 修复方案章节 |
+| `02_roadmapping/ROADMAP.md` | 新建 | 阶段 2 产物 |
+| `03_detailing/DETAIL.md` | 新建 | 阶段 3 产物 |
+| `CHANGELOG.md` | 新建 | 变更记录 |
+| `05_reviewing/REVIEW-REPORT.md` | 更新 | v2.0.1 验收报告 |
+
+#### 9.2.4 保留原有代码
+
+**不修改的文件**：
+- 04_coding/src/ 中的所有文件
+- workflow.md
+- SKILL.md
+- config.yaml
+- state-manager.js
+- 其他源代码文件
+
+### 9.3 技术约束
+
+- **追加式更新**：PRD.md/TRD.md 不覆盖原有内容
+- **保留原有代码**：04_coding/src/保持不变
+- **文档一致性**：与 REQUIREMENTS.md v2.0.1 保持一致
+
+### 9.4 验收检查点
+
+| 检查点 | 验收标准 | 验证方法 |
+|--------|---------|---------|
+| C1 | 02_roadmapping/ROADMAP.md 存在 | `ls -la 02_roadmapping/` |
+| C2 | 03_detailing/DETAIL.md 存在 | `ls -la 03_detailing/` |
+| C3 | PRD.md 含 v2.0.1 章节 | `grep "v2.0.1" PRD.md` |
+| C4 | TRD.md 含 v2.0.1 章节 | `grep "v2.0.1" TRD.md` |
+| C5 | CHANGELOG.md 存在 | `ls -la CHANGELOG.md` |
+| C6 | 04_coding/src/ 代码完整 | `ls -la 04_coding/src/` |
+| C7 | REVIEW-REPORT.md 更新 | `grep "v2.0.1" REVIEW-REPORT.md` |
+
+---
+
+*TRD 文档结束*
