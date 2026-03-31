@@ -28,7 +28,7 @@ export class AttachmentParser {
         
         for (const item of items) {
           try {
-            const attachment = await this.parseAttachmentItem(item);
+            const attachment = await this.parseAttachmentItem(item as any);
             if (attachment && attachment.name) {
               attachments.push(attachment);
             }
@@ -53,18 +53,18 @@ export class AttachmentParser {
       // 提取文件名
       const name = await item.$eval(
         '.file-name, .file-title, [class*="file-name"]',
-        el => el.textContent?.trim() || ''
+        (el: Element) => el.textContent?.trim() || ''
       ).catch(() => '');
 
       // 提取文件大小
       const size = await item.$eval(
         '.file-size, .size, [class*="file-size"]',
-        el => el.textContent?.trim() || ''
+        (el: Element) => el.textContent?.trim() || ''
       ).catch(() => '');
 
       // 提取下载链接（致远 OA 中通常为空）
       const href = await item.$eval('a', 
-        el => el.getAttribute('href') || ''
+        (el: Element) => el.getAttribute('href') || ''
       ).catch(() => '');
 
       return {

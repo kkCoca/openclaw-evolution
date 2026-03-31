@@ -84,6 +84,10 @@ export interface ConvertOptions {
   siteConfig?: string;
 }
 
+export interface TransformOptions {
+  withMeta?: boolean;
+}
+
 // 批量转换
 export interface BatchOptions extends ConvertOptions {
   outputDir?: string;

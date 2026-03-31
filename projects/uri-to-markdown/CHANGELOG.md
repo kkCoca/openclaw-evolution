@@ -73,6 +73,20 @@
   - 文件：`04_coding/src/core/src/parser/FormParser.ts`
   - 测试：更新 `04_coding/tests/unit/FormParser.test.ts`
 
+---
+
+## [2.1.1] - 2026-03-31
+
+### 🐛 Bug 修复
+
+- **Chrome 插件图标修复**
+  - 问题：图标文件是文本占位符，不是有效的 PNG 文件
+  - 修复：使用 Node.js zlib 生成符合 PNG 规范的图标
+  - 影响：Chrome 插件图标正常显示
+  - 文件：`04_coding/src/chrome-extension/icons/create-png-icons.js`（新增）
+  - 图标：绿色背景（RGB: 76, 175, 80）+ 白色 M 字母
+  - 尺寸：16x16, 48x48, 128x128
+
 ### 🔧 技术栈
 
 - **核心库**: TypeScript + Playwright + Turndown + js-yaml

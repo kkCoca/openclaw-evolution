@@ -1,0 +1,1 @@
+chrome.runtime.onMessage.addListener((r,c,t)=>{if(r.action==="getPageHtml")try{let e=document.documentElement.outerHTML;t({success:!0,html:e,url:document.URL,title:document.title})}catch(e){t({success:!1,error:e instanceof Error?e.message:"\u8BFB\u53D6\u9875\u9762\u5931\u8D25"})}});

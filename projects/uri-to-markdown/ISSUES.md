@@ -67,3 +67,51 @@ v1.0.0（开发阶段即时修复，尚未发布）
 
 ### 状态
 ✅ 已修复
+
+---
+
+## Issue #003（2026-03-31）
+
+### 问题描述
+Chrome 插件图标文件是占位符，不是有效的 PNG 文件，导致插件加载后图标显示异常。
+
+### 复现步骤
+1. 构建 Chrome 插件 `npm run build`
+2. 在 Chrome 中加载插件
+3. 观察扩展管理页面中的插件图标
+
+### 预期行为
+- 图标显示为有效的 PNG 图像
+- 16x16, 48x48, 128x128 三个尺寸都正确显示
+
+### 实际行为
+- 图标文件是文本占位符（如 "PLACEHOLDER_ICON_16"）
+- Chrome 无法解析，显示默认图标或空白
+
+### 根因分析
+构建脚本 `generate-icons.js` 仅创建了文本占位符文件，没有生成真实有效的 PNG 图像数据。
+
+### 修复方案
+1. 创建新的 `create-png-icons.js` 脚本
+2. 使用 Node.js 内置 `zlib` 模块生成符合 PNG 规范的文件
+3. 绘制绿色背景（RGB: 76, 175, 80）+ 白色 M 字母
+4. 生成 16x16, 48x48, 128x128 三个尺寸
+
+### 修复版本
+v2.1.1
+
+### 修复文件
+- `04_coding/src/chrome-extension/icons/create-png-icons.js`（新增）
+- `04_coding/src/chrome-extension/icons/icon-16.png`（替换）
+- `04_coding/src/chrome-extension/icons/icon-48.png`（替换）
+- `04_coding/src/chrome-extension/icons/icon-128.png`（替换）
+
+### 测试结果
+```
+✅ icon-16.png (115 bytes) - PNG image data, 16 x 16, 8-bit/color RGB
+✅ icon-48.png (251 bytes) - PNG image data, 48 x 48, 8-bit/color RGB
+✅ icon-128.png (531 bytes) - PNG image data, 128 x 128, 8-bit/color RGB
+```
+
+### 状态
+✅ 已修复
