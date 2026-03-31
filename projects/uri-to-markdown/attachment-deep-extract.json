@@ -1,0 +1,220 @@
+{
+  "url": "https://xt.seeyon.com/seeyon/report4Result.do?method=reportPenetrate&rptDesignId=-4919087800369594175&extendParams=%7B%22formmain_66717_0_id%22%3A%22397711044024549379%22%7D",
+  "timestamp": "2026-03-30T09:41:37.201Z",
+  "targetFrameIndex": 1,
+  "targetFrameUrl": "https://xt.seeyon.com/seeyon/collaboration/collaboration.do?method=summary&openFrom=capQuery&summaryId=2316234878862772219&operationId=487217539644539819.2427116233273265274_5658304508980183976.2841611739927301949&formId=4077528320626868833&designId=-4919087800369594175",
+  "attachments": {
+    "fromDOM": [
+      {
+        "index": 0,
+        "text": "附件(9)",
+        "href": "",
+        "className": "flex-center file-summary-wrapper",
+        "id": "",
+        "fileId": "",
+        "tagName": "DIV",
+        "outerHTML": "<DIV data-v-063c186e=\"\" class=\"flex-center file-summary-wrapper\"><section data-v-063c186e=\"\"><span data-v-063c186e=\"\">附件</span><span data-v-063c186e=\"\">(9)</span></section><!----><!----><div data-v-38e8480c=\"\" data-v-063c186e=\"\" class=\"file-expand-container expand-wrapper\" fiber-id=\"fileexpandbtn_1\"><!----><i data-v-38e8480c=\"\" class=\"expand-icon anticon\" fiber-id=\"aicon_4\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-38e8480c=\"\" xli",
+        "allDataAttrs": "data-v-063c186e=\"\""
+      },
+      {
+        "index": 3,
+        "text": "4、致远产品BUG上报管理细则（2020版）.pdf",
+        "href": "",
+        "className": "flex-wrapper",
+        "id": "",
+        "fileId": "",
+        "tagName": "A",
+        "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">4、致远产品BUG上报管理细则（2020版）</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.pdf</span></A>",
+        "allDataAttrs": "data-v-6291af88=\"\""
+      },
+      {
+        "index": 4,
+        "text": "4、致远产品BUG上报管理细则（2020版）",
+        "href": "",
+        "className": "filename",
+        "id": "",
+        "fileId": "",
+        "tagName": "SPAN",
+        "outerHTML": "<SPAN data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">4、致远产品BUG上报管理细则（2020版）</SPAN>",
+        "allDataAttrs": "data-v-960b5c7e=\"\", data-v-6291af88=\"\""
+      },
+      {
+        "index": 9,
+        "text": "V8.0及以上版本BUG单填写Build Id规范要求说明.zip",
+        "href": "",
+        "className": "flex-wrapper",
+        "id": "",
+        "fileId": "",
+        "tagName": "A",
+        "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">V8.0及以上版本BUG单填写Build Id规范要求说明</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.zip</span></A>",
+        "allDataAttrs": "data-v-6291af88=\"\""
+      },
+      {
+        "index": 10,
+        "text": "V8.0及以上版本BUG单填写Build Id规范要求说明",
+        "href": "",
+        "className": "filename",
+        "id": "",
+        "fileId": "",
+        "tagName": "SPAN",
+        "outerHTML": "<SPAN data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">V8.0及以上版本BUG单填写Build Id规范要求说明</SPAN>",
+        "allDataAttrs": "data-v-960b5c7e=\"\", data-v-6291af88=\"\""
+      },
+      {
+        "index": 15,
+        "text": "研发填写必看.pptx",
+        "href": "",
+        "className": "flex-wrapper",
+        "id": "",
+        "fileId": "",
+        "tagName": "A",
+        "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">研发填写必看</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.pptx</span></A>",
+        "allDataAttrs": "data-v-6291af88=\"\""
+      },
+      {
+        "index": 16,
+        "text": "研发填写必看",
+        "href": "",
+        "className": "filename",
+        "id": "",
+        "fileId": "",
+        "tagName": "SPAN",
+        "outerHTML": "<SPAN data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">研发填写必看</SPAN>",
+        "allDataAttrs": "data-v-960b5c7e=\"\", data-v-6291af88=\"\""
+      },
+      {
+        "index": 21,
+        "text": "诊断结论、问题分类、解决方案枚举说明.xlsx",
+        "href": "",
+        "className": "flex-wrapper",
+        "id": "",
+        "fileId": "",
+        "tagName": "A",
+        "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">诊断结论、问题分类、解决方案枚举说明</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.xlsx</span></A>",
+        "allDataAttrs": "data-v-6291af88=\"\""
+      },
+      {
+        "index": 22,
+        "text": "诊断结论、问题分类、解决方案枚举说明",
+        "href": "",
+        "className": "filename",
+        "id": "",
+        "fileId": "",
+        "tagName": "SPAN",
+        "outerHTML": "<SPAN data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">诊断结论、问题分类、解决方案枚举说明</SPAN>",
+        "allDataAttrs": "data-v-960b5c7e=\"\", data-v-6291af88=\"\""
+      },
+      {
+        "index": 27,
+        "text": "BUG报告单.doc",
+        "href": "",
+        "className": "flex-wrapper",
+        "id": "",
+        "fileId": "",
+        "tagName": "A",
+        "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">BUG报告单</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.doc</span></A>",
+        "allDataAttrs": "data-v-6291af88=\"\""
+      },
+      {
+        "index": 28,
+        "text": "BUG报告单",
+        "href": "",
+        "className": "filename",
+        "id": "",
+        "fileId": "",
+        "tagName": "SPAN",
+        "outerHTML": "<SPAN data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">BUG报告单</SPAN>",
+        "allDataAttrs": "data-v-960b5c7e=\"\", data-v-6291af88=\"\""
+      },
+      {
+        "index": 33,
+        "text": "产品日志获取方法.png",
+        "href": "",
+        "className": "flex-wrapper",
+        "id": "",
+        "fileId": "",
+        "tagName": "A",
+        "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">产品日志获取方法</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.png</span></A>",
+        "allDataAttrs": "data-v-6291af88=\"\""
+      },
+      {
+        "index": 34,
+        "text": "产品日志获取方法",
+        "href": "",
+        "className": "filename",
+        "id": "",
+        "fileId": "",
+        "tagName": "SPAN",
+        "outerHTML": "<SPAN data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">产品日志获取方法</SPAN>",
+        "allDataAttrs": "data-v-960b5c7e=\"\", data-v-6291af88=\"\""
+      },
+      {
+        "index": 39,
+        "text": "8、区域BUG审核专项工作规范.docx",
+        "href": "",
+        "className": "flex-wrapper",
+        "id": "",
+        "fileId": "",
+        "tagName": "A",
+        "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">8、区域BUG审核专项工作规范</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.docx</span></A>",
+        "allDataAttrs": "data-v-6291af88=\"\""
+      },
+      {
+        "index": 40,
+        "text": "8、区域BUG审核专项工作规范",
+        "href": "",
+        "className": "filename",
+        "id": "",
+        "fileId": "",
+        "tagName": "SPAN",
+        "outerHTML": "<SPAN data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">8、区域BUG审核专项工作规范</SPAN>",
+        "allDataAttrs": "data-v-960b5c7e=\"\", data-v-6291af88=\"\""
+      },
+      {
+        "index": 45,
+        "text": "V5日志路径.xls",
+        "href": "",
+        "className": "flex-wrapper",
+        "id": "",
+        "fileId": "",
+        "tagName": "A",
+        "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">V5日志路径</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.xls</span></A>",
+        "allDataAttrs": "data-v-6291af88=\"\""
+      },
+      {
+        "index": 46,
+        "text": "V5日志路径",
+        "href": "",
+        "className": "filename",
+        "id": "",
+        "fileId": "",
+        "tagName": "SPAN",
+        "outerHTML": "<SPAN data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">V5日志路径</SPAN>",
+        "allDataAttrs": "data-v-960b5c7e=\"\", data-v-6291af88=\"\""
+      },
+      {
+        "index": 51,
+        "text": "致远互联【司】字【2026】第001号《2026年产品维护服务周期管理办法》.pdf",
+        "href": "",
+        "className": "flex-wrapper",
+        "id": "",
+        "fileId": "",
+        "tagName": "A",
+        "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">致远互联【司】字【2026】第001号《2026年产品维护服务周期管理办法》</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.pdf</span></A>",
+        "allDataAttrs": "data-v-6291af88=\"\""
+      },
+      {
+        "index": 52,
+        "text": "致远互联【司】字【2026】第001号《2026年产品维护服务周期管理办法》",
+        "href": "",
+        "className": "filename",
+        "id": "",
+        "fileId": "",
+        "tagName": "SPAN",
+        "outerHTML": "<SPAN data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">致远互联【司】字【2026】第001号《2026年产品维护服务周期管理办法》</SPAN>",
+        "allDataAttrs": "data-v-960b5c7e=\"\", data-v-6291af88=\"\""
+      }
+    ],
+    "fromAPI": []
+  }
+}

@@ -1,0 +1,1222 @@
+{
+  "fieldPairs": [
+    {
+      "table": 2,
+      "row": 2,
+      "section": "BUG单期限信息",
+      "field": "流水号",
+      "value": "BUG2026033017131",
+      "cellIndex": 0
+    },
+    {
+      "table": 2,
+      "row": 2,
+      "section": "BUG单期限信息",
+      "field": "BUG2026033017131",
+      "value": "流程超期状态",
+      "cellIndex": 1
+    },
+    {
+      "table": 2,
+      "row": 2,
+      "section": "BUG单期限信息",
+      "field": "流程超期状态",
+      "value": "超期",
+      "cellIndex": 2
+    },
+    {
+      "table": 2,
+      "row": 2,
+      "section": "BUG单期限信息",
+      "field": "超期",
+      "value": "流程上报时间",
+      "cellIndex": 3
+    },
+    {
+      "table": 2,
+      "row": 2,
+      "section": "BUG单期限信息",
+      "field": "流程上报时间",
+      "value": "2026-03-30 15:43",
+      "cellIndex": 4
+    },
+    {
+      "table": 2,
+      "row": 3,
+      "section": "BUG单期限信息",
+      "field": "紧急程度",
+      "value": "重要",
+      "cellIndex": 0
+    },
+    {
+      "table": 2,
+      "row": 3,
+      "section": "BUG单期限信息",
+      "field": "重要",
+      "value": "流程处理截止时间",
+      "cellIndex": 1
+    },
+    {
+      "table": 2,
+      "row": 3,
+      "section": "BUG单期限信息",
+      "field": "流程处理截止时间",
+      "value": "2026-04-02 15:43",
+      "cellIndex": 2
+    },
+    {
+      "table": 2,
+      "row": 3,
+      "section": "BUG单期限信息",
+      "field": "2026-04-02 15:43",
+      "value": "城市专营BUG编号",
+      "cellIndex": 3
+    },
+    {
+      "table": 3,
+      "row": 2,
+      "section": "上报人信息",
+      "field": "上报人",
+      "value": "车丽芳",
+      "cellIndex": 0
+    },
+    {
+      "table": 3,
+      "row": 2,
+      "section": "上报人信息",
+      "field": "车丽芳",
+      "value": "上报人所属部门",
+      "cellIndex": 1
+    },
+    {
+      "table": 3,
+      "row": 2,
+      "section": "上报人信息",
+      "field": "上报人所属部门",
+      "value": "常规服务二部",
+      "cellIndex": 2
+    },
+    {
+      "table": 3,
+      "row": 2,
+      "section": "上报人信息",
+      "field": "常规服务二部",
+      "value": "客服上报人工号",
+      "cellIndex": 3
+    },
+    {
+      "table": 3,
+      "row": 2,
+      "section": "上报人信息",
+      "field": "客服上报人工号",
+      "value": "8197",
+      "cellIndex": 4
+    },
+    {
+      "table": 3,
+      "row": 3,
+      "section": "上报人信息",
+      "field": "远程运维审核人",
+      "value": "车丽芳",
+      "cellIndex": 0
+    },
+    {
+      "table": 3,
+      "row": 3,
+      "section": "上报人信息",
+      "field": "车丽芳",
+      "value": "审核状态",
+      "cellIndex": 1
+    },
+    {
+      "table": 3,
+      "row": 3,
+      "section": "上报人信息",
+      "field": "审核状态",
+      "value": "审核通过",
+      "cellIndex": 2
+    },
+    {
+      "table": 3,
+      "row": 3,
+      "section": "上报人信息",
+      "field": "审核通过",
+      "value": "审核时间",
+      "cellIndex": 3
+    },
+    {
+      "table": 3,
+      "row": 3,
+      "section": "上报人信息",
+      "field": "审核时间",
+      "value": "2026-03-30 15:46",
+      "cellIndex": 4
+    },
+    {
+      "table": 4,
+      "row": 2,
+      "section": "客户信息",
+      "field": "单位名称",
+      "value": "博思特能源装备（天津）股份有限公司",
+      "cellIndex": 0
+    },
+    {
+      "table": 4,
+      "row": 2,
+      "section": "客户信息",
+      "field": "博思特能源装备（天津）股份有限公司",
+      "value": "所属区域",
+      "cellIndex": 1
+    },
+    {
+      "table": 4,
+      "row": 2,
+      "section": "客户信息",
+      "field": "所属区域",
+      "value": "天津区",
+      "cellIndex": 2
+    },
+    {
+      "table": 4,
+      "row": 3,
+      "section": "客户信息",
+      "field": "单位所属类别",
+      "value": "合法用户",
+      "cellIndex": 0
+    },
+    {
+      "table": 4,
+      "row": 3,
+      "section": "客户信息",
+      "field": "合法用户",
+      "value": "服务星卡等级",
+      "cellIndex": 1
+    },
+    {
+      "table": 4,
+      "row": 3,
+      "section": "客户信息",
+      "field": "服务星卡等级",
+      "value": "VIP1星卡",
+      "cellIndex": 2
+    },
+    {
+      "table": 4,
+      "row": 3,
+      "section": "客户信息",
+      "field": "VIP1星卡",
+      "value": "服务到期日",
+      "cellIndex": 3
+    },
+    {
+      "table": 4,
+      "row": 3,
+      "section": "客户信息",
+      "field": "服务到期日",
+      "value": "2026-04-10",
+      "cellIndex": 4
+    },
+    {
+      "table": 4,
+      "row": 4,
+      "section": "客户信息",
+      "field": "业务线",
+      "value": "分销",
+      "cellIndex": 0
+    },
+    {
+      "table": 4,
+      "row": 4,
+      "section": "客户信息",
+      "field": "分销",
+      "value": "客户所属产品生命周期",
+      "cellIndex": 1
+    },
+    {
+      "table": 4,
+      "row": 4,
+      "section": "客户信息",
+      "field": "客户所属产品生命周期",
+      "value": "标准服务支持阶段",
+      "cellIndex": 2
+    },
+    {
+      "table": 4,
+      "row": 5,
+      "section": "V8.0以上版本的客户BUG请上报人填写客户生产环境加密狗号码",
+      "field": "加密狗号",
+      "value": "6977840217466877691",
+      "cellIndex": 0
+    },
+    {
+      "table": 4,
+      "row": 5,
+      "section": "V8.0以上版本的客户BUG请上报人填写客户生产环境加密狗号码",
+      "field": "6977840217466877691",
+      "value": "V8.0以上版本的客户BUG请上报人填写客户生产环境加密狗号码",
+      "cellIndex": 1
+    },
+    {
+      "table": 4,
+      "row": 7,
+      "section": "V8.0以上版本的客户BUG请上报人填写客户生产环境加密狗号码",
+      "field": "产品Build Id",
+      "value": "B221103.225807.CTP36815488",
+      "cellIndex": 0
+    },
+    {
+      "table": 4,
+      "row": 7,
+      "section": "V8.0以上版本的客户BUG请上报人填写客户生产环境加密狗号码",
+      "field": "B221103.225807.CTP36815488",
+      "value": "Build Id验证结果",
+      "cellIndex": 1
+    },
+    {
+      "table": 4,
+      "row": 7,
+      "section": "V8.0以上版本的客户BUG请上报人填写客户生产环境加密狗号码",
+      "field": "Build Id验证结果",
+      "value": "Build Id 验证通过，可正常上报BUG流程",
+      "cellIndex": 2
+    },
+    {
+      "table": 5,
+      "row": 2,
+      "section": "联系人信息",
+      "field": "联系人类型",
+      "value": "用户",
+      "cellIndex": 0
+    },
+    {
+      "table": 5,
+      "row": 2,
+      "section": "联系人信息",
+      "field": "用户",
+      "value": "联系人姓名",
+      "cellIndex": 1
+    },
+    {
+      "table": 5,
+      "row": 2,
+      "section": "联系人信息",
+      "field": "联系人姓名",
+      "value": "井女士",
+      "cellIndex": 2
+    },
+    {
+      "table": 5,
+      "row": 2,
+      "section": "联系人信息",
+      "field": "井女士",
+      "value": "联系人手机",
+      "cellIndex": 3
+    },
+    {
+      "table": 5,
+      "row": 2,
+      "section": "联系人信息",
+      "field": "联系人手机",
+      "value": "15833477257",
+      "cellIndex": 4
+    },
+    {
+      "table": 5,
+      "row": 3,
+      "section": "联系人信息",
+      "field": "联系人手机/QQ",
+      "value": "QQ283291164、283291164@qq.com",
+      "cellIndex": 0
+    },
+    {
+      "table": 5,
+      "row": 3,
+      "section": "联系人信息",
+      "field": "QQ283291164、283291164@qq.com",
+      "value": "微信号",
+      "cellIndex": 1
+    },
+    {
+      "table": 5,
+      "row": 4,
+      "section": "联系人信息",
+      "field": "其他联系人",
+      "value": "向日葵号",
+      "cellIndex": 0
+    },
+    {
+      "table": 5,
+      "row": 4,
+      "section": "联系人信息",
+      "field": "向日葵号",
+      "value": "551417181",
+      "cellIndex": 1
+    },
+    {
+      "table": 6,
+      "row": 3,
+      "section": "问题描述信息",
+      "field": "BUG报告单",
+      "value": "QQ截图20260330112824.png (772KB)\nQQ截图20260330112948.png (127KB)\nQQ截图20260330113048.png (382KB)\nQQ截图20260330113137.png (480KB)\nQQ截图20260330113155.png (500KB)",
+      "cellIndex": 0
+    },
+    {
+      "table": 6,
+      "row": 3,
+      "section": "问题描述信息",
+      "field": "BUG日志及附件",
+      "value": "日志(5).zip (32.4M)",
+      "cellIndex": 2
+    },
+    {
+      "table": 6,
+      "row": 4,
+      "section": "问题描述信息",
+      "field": "产品版本",
+      "value": "A8",
+      "cellIndex": 0
+    },
+    {
+      "table": 6,
+      "row": 4,
+      "section": "问题描述信息",
+      "field": "A8",
+      "value": "A8+企业版",
+      "cellIndex": 1
+    },
+    {
+      "table": 6,
+      "row": 4,
+      "section": "问题描述信息",
+      "field": "A8+企业版",
+      "value": "V8.1sp2",
+      "cellIndex": 2
+    },
+    {
+      "table": 6,
+      "row": 4,
+      "section": "问题描述信息",
+      "field": "V8.1sp2",
+      "value": "是否在版本维护期内",
+      "cellIndex": 3
+    },
+    {
+      "table": 6,
+      "row": 4,
+      "section": "问题描述信息",
+      "field": "是否在版本维护期内",
+      "value": "是",
+      "cellIndex": 4
+    },
+    {
+      "table": 6,
+      "row": 5,
+      "section": "问题描述信息",
+      "field": "月度修复包",
+      "value": "V8.1SP2-2022年10月月度修复包",
+      "cellIndex": 0
+    },
+    {
+      "table": 6,
+      "row": 5,
+      "section": "问题描述信息",
+      "field": "V8.1SP2-2022年10月月度修复包",
+      "value": "问题发生时间点",
+      "cellIndex": 1
+    },
+    {
+      "table": 6,
+      "row": 5,
+      "section": "问题描述信息",
+      "field": "问题发生时间点",
+      "value": "一直",
+      "cellIndex": 2
+    },
+    {
+      "table": 6,
+      "row": 6,
+      "section": "问题描述信息",
+      "field": "浏览器版本",
+      "value": "数据库",
+      "cellIndex": 0
+    },
+    {
+      "table": 6,
+      "row": 6,
+      "section": "问题描述信息",
+      "field": "数据库",
+      "value": "sqlserver",
+      "cellIndex": 1
+    },
+    {
+      "table": 6,
+      "row": 6,
+      "section": "问题描述信息",
+      "field": "sqlserver",
+      "value": "所属模块",
+      "cellIndex": 2
+    },
+    {
+      "table": 6,
+      "row": 6,
+      "section": "问题描述信息",
+      "field": "所属模块",
+      "value": "表单CAP4",
+      "cellIndex": 3
+    },
+    {
+      "table": 6,
+      "row": 7,
+      "section": "问题描述信息",
+      "field": "相关补丁包文件",
+      "value": "是否客开",
+      "cellIndex": 0
+    },
+    {
+      "table": 6,
+      "row": 7,
+      "section": "问题描述信息",
+      "field": "是否客开",
+      "value": "否",
+      "cellIndex": 1
+    },
+    {
+      "table": 7,
+      "row": 2,
+      "section": "开发人员填写",
+      "field": "问题严重程度",
+      "value": "P2",
+      "cellIndex": 0
+    },
+    {
+      "table": 7,
+      "row": 2,
+      "section": "开发人员填写",
+      "field": "P2",
+      "value": "超期责任人",
+      "cellIndex": 1
+    },
+    {
+      "table": 7,
+      "row": 2,
+      "section": "开发人员填写",
+      "field": "超期责任人",
+      "value": "超期责任人所属部门",
+      "cellIndex": 2
+    },
+    {
+      "table": 7,
+      "row": 4,
+      "section": "开发人员填写",
+      "field": "开发开始处理时间",
+      "value": "2026-03-30 15:46",
+      "cellIndex": 0
+    },
+    {
+      "table": 7,
+      "row": 4,
+      "section": "开发人员填写",
+      "field": "2026-03-30 15:46",
+      "value": "开发处理截止时间",
+      "cellIndex": 1
+    },
+    {
+      "table": 7,
+      "row": 4,
+      "section": "开发人员填写",
+      "field": "开发处理截止时间",
+      "value": "2026-04-02 15:46",
+      "cellIndex": 2
+    },
+    {
+      "table": 7,
+      "row": 4,
+      "section": "开发人员填写",
+      "field": "2026-04-02 15:46",
+      "value": "开发处理超期状态",
+      "cellIndex": 3
+    },
+    {
+      "table": 7,
+      "row": 4,
+      "section": "开发人员填写",
+      "field": "开发处理超期状态",
+      "value": "未超期",
+      "cellIndex": 4
+    },
+    {
+      "table": 7,
+      "row": 5,
+      "section": "开发人员填写",
+      "field": "开发修改人",
+      "value": "王星辉",
+      "cellIndex": 0
+    },
+    {
+      "table": 7,
+      "row": 5,
+      "section": "开发人员填写",
+      "field": "王星辉",
+      "value": "BUG处理状态",
+      "cellIndex": 1
+    },
+    {
+      "table": 7,
+      "row": 5,
+      "section": "开发人员填写",
+      "field": "BUG处理状态",
+      "value": "完成",
+      "cellIndex": 2
+    },
+    {
+      "table": 7,
+      "row": 5,
+      "section": "开发人员填写",
+      "field": "完成",
+      "value": "二级所属模块",
+      "cellIndex": 3
+    },
+    {
+      "table": 7,
+      "row": 5,
+      "section": "开发人员填写",
+      "field": "二级所属模块",
+      "value": "CAP4-运行",
+      "cellIndex": 4
+    },
+    {
+      "table": 7,
+      "row": 6,
+      "section": "开发人员填写",
+      "field": "BUG处理时长(小时)",
+      "value": "1.00",
+      "cellIndex": 0
+    },
+    {
+      "table": 7,
+      "row": 6,
+      "section": "开发人员填写",
+      "field": "1.00",
+      "value": "开发处理完成时间",
+      "cellIndex": 1
+    },
+    {
+      "table": 7,
+      "row": 6,
+      "section": "开发人员填写",
+      "field": "开发处理完成时间",
+      "value": "2026-03-30 16:42",
+      "cellIndex": 2
+    },
+    {
+      "table": 7,
+      "row": 6,
+      "section": "开发人员填写",
+      "field": "2026-03-30 16:42",
+      "value": "对应开发模块负责人",
+      "cellIndex": 3
+    },
+    {
+      "table": 7,
+      "row": 7,
+      "section": "开发人员填写",
+      "field": "是否提供补丁包",
+      "value": "否",
+      "cellIndex": 0
+    },
+    {
+      "table": 7,
+      "row": 8,
+      "section": "开发人员填写",
+      "field": "是否为重复BUG",
+      "value": "是\n否",
+      "cellIndex": 0
+    },
+    {
+      "table": 7,
+      "row": 8,
+      "section": "开发人员填写",
+      "field": "是\n否",
+      "value": "重复BUG关联流程",
+      "cellIndex": 1
+    },
+    {
+      "table": 7,
+      "row": 8,
+      "section": "开发人员填写",
+      "field": "重复BUG关联流程",
+      "value": "此重复BUG重复次数",
+      "cellIndex": 2
+    },
+    {
+      "table": 7,
+      "row": 8,
+      "section": "开发人员填写",
+      "field": "此重复BUG重复次数",
+      "value": "0",
+      "cellIndex": 3
+    },
+    {
+      "table": 7,
+      "row": 10,
+      "section": "备注说明：务必按照流程附件\"研发填写必看.pptx\"规范执行。尤其注意：先填写“是否为重复BUG”、”是否提供补丁包“、”依赖月度修复包“的字段内容，然后再关联重复BUG流程。且如果有补丁包的情况下，只能将同版本号且同月度包的重复BUG关联过来。",
+      "field": "代码分支",
+      "value": "standard-V8.1SP2-hotfix_20221103",
+      "cellIndex": 0
+    },
+    {
+      "table": 7,
+      "row": 11,
+      "section": "备注说明：务必按照流程附件\"研发填写必看.pptx\"规范执行。尤其注意：先填写“是否为重复BUG”、”是否提供补丁包“、”依赖月度修复包“的字段内容，然后再关联重复BUG流程。且如果有补丁包的情况下，只能将同版本号且同月度包的重复BUG关联过来。",
+      "field": "补丁包文件",
+      "value": "制作补丁包",
+      "cellIndex": 0
+    },
+    {
+      "table": 7,
+      "row": 12,
+      "section": "备注说明：务必按照流程附件\"研发填写必看.pptx\"规范执行。尤其注意：先填写“是否为重复BUG”、”是否提供补丁包“、”依赖月度修复包“的字段内容，然后再关联重复BUG流程。且如果有补丁包的情况下，只能将同版本号且同月度包的重复BUG关联过来。",
+      "field": "其他补丁",
+      "value": "注：V8.0及其以上版本，已出PAK包外的其他补丁包",
+      "cellIndex": 0
+    },
+    {
+      "table": 7,
+      "row": 14,
+      "section": "备注说明：务必按照流程附件\"研发填写必看.pptx\"规范执行。尤其注意：先填写“是否为重复BUG”、”是否提供补丁包“、”依赖月度修复包“的字段内容，然后再关联重复BUG流程。且如果有补丁包的情况下，只能将同版本号且同月度包的重复BUG关联过来。",
+      "field": "是否涉及到核心代码",
+      "value": "BUG补丁包\n非核心源码",
+      "cellIndex": 0
+    },
+    {
+      "table": 7,
+      "row": 16,
+      "section": "备注说明：务必按照流程附件\"研发填写必看.pptx\"规范执行。尤其注意：先填写“是否为重复BUG”、”是否提供补丁包“、”依赖月度修复包“的字段内容，然后再关联重复BUG流程。且如果有补丁包的情况下，只能将同版本号且同月度包的重复BUG关联过来。",
+      "field": "BUG补丁包源码",
+      "value": "研发关键词",
+      "cellIndex": 0
+    },
+    {
+      "table": 7,
+      "row": 23,
+      "section": "☆☆1、“产生原因分析”及“修改方法”字段内容会自动同步至客户服务云平台，客户可实时查看，请研发同事填写时注意规范用。☆☆\n☆☆2、“修改方法”涉及详细操作步骤文档，请上传至“相关操作文档”字段。☆☆\n☆☆3、 标准产品实现不了的功能，“修改方法”禁止填写走客开、走支持单这类引导性语言。☆☆",
+      "field": "是否转客开BUG处理",
+      "value": "否",
+      "cellIndex": 0
+    },
+    {
+      "table": 7,
+      "row": 23,
+      "section": "☆☆1、“产生原因分析”及“修改方法”字段内容会自动同步至客户服务云平台，客户可实时查看，请研发同事填写时注意规范用。☆☆\n☆☆2、“修改方法”涉及详细操作步骤文档，请上传至“相关操作文档”字段。☆☆\n☆☆3、 标准产品实现不了的功能，“修改方法”禁止填写走客开、走支持单这类引导性语言。☆☆",
+      "field": "BUG类别",
+      "value": "标准产品BUG\n客开BUG\n重复BUG客开校验",
+      "cellIndex": 2
+    },
+    {
+      "table": 7,
+      "row": 24,
+      "section": "☆☆1、“产生原因分析”及“修改方法”字段内容会自动同步至客户服务云平台，客户可实时查看，请研发同事填写时注意规范用。☆☆\n☆☆2、“修改方法”涉及详细操作步骤文档，请上传至“相关操作文档”字段。☆☆\n☆☆3、 标准产品实现不了的功能，“修改方法”禁止填写走客开、走支持单这类引导性语言。☆☆",
+      "field": "是否能联系到客户",
+      "value": "（此字段选择为“否”，开发修改节点处理后流程自动流转至成才进一步审定流程是否回退）",
+      "cellIndex": 0
+    },
+    {
+      "table": 7,
+      "row": 24,
+      "section": "☆☆1、“产生原因分析”及“修改方法”字段内容会自动同步至客户服务云平台，客户可实时查看，请研发同事填写时注意规范用。☆☆\n☆☆2、“修改方法”涉及详细操作步骤文档，请上传至“相关操作文档”字段。☆☆\n☆☆3、 标准产品实现不了的功能，“修改方法”禁止填写走客开、走支持单这类引导性语言。☆☆",
+      "field": "是否转至飞虎队队长",
+      "value": "非考核标记",
+      "cellIndex": 2
+    },
+    {
+      "table": 7,
+      "row": 24,
+      "section": "☆☆1、“产生原因分析”及“修改方法”字段内容会自动同步至客户服务云平台，客户可实时查看，请研发同事填写时注意规范用。☆☆\n☆☆2、“修改方法”涉及详细操作步骤文档，请上传至“相关操作文档”字段。☆☆\n☆☆3、 标准产品实现不了的功能，“修改方法”禁止填写走客开、走支持单这类引导性语言。☆☆",
+      "field": "非考核标记",
+      "value": "否",
+      "cellIndex": 3
+    },
+    {
+      "table": 9,
+      "row": 1,
+      "section": null,
+      "field": "转政务研发处理",
+      "value": "回退客服审核节点",
+      "cellIndex": 0
+    },
+    {
+      "table": 9,
+      "row": 1,
+      "section": null,
+      "field": "回退客服审核节点",
+      "value": "是否知会模块负责人",
+      "cellIndex": 1
+    },
+    {
+      "table": 10,
+      "row": 1,
+      "section": "代码检查信息填写",
+      "field": "诊断结论分析",
+      "value": "代码检查信息填写",
+      "cellIndex": 0
+    },
+    {
+      "table": 10,
+      "row": 1,
+      "section": "代码检查信息填写",
+      "field": "代码检查信息填写",
+      "value": "各产品线影响评估",
+      "cellIndex": 1
+    },
+    {
+      "table": 10,
+      "row": 2,
+      "section": "代码检查信息填写",
+      "field": "问题分类",
+      "value": "实施搭建问题",
+      "cellIndex": 0
+    },
+    {
+      "table": 10,
+      "row": 2,
+      "section": "代码检查信息填写",
+      "field": "实施搭建问题",
+      "value": "代码检查人",
+      "cellIndex": 1
+    },
+    {
+      "table": 10,
+      "row": 2,
+      "section": "代码检查信息填写",
+      "field": "代码检查人",
+      "value": "雷旭辉",
+      "cellIndex": 2
+    },
+    {
+      "table": 10,
+      "row": 2,
+      "section": "代码检查信息填写",
+      "field": "雷旭辉",
+      "value": "是否对G6影响",
+      "cellIndex": 3
+    },
+    {
+      "table": 10,
+      "row": 3,
+      "section": "代码检查信息填写",
+      "field": "诊断结论",
+      "value": "实施配置",
+      "cellIndex": 0
+    },
+    {
+      "table": 10,
+      "row": 3,
+      "section": "代码检查信息填写",
+      "field": "实施配置",
+      "value": "产品功能配置不正确",
+      "cellIndex": 1
+    },
+    {
+      "table": 10,
+      "row": 3,
+      "section": "代码检查信息填写",
+      "field": "产品功能配置不正确",
+      "value": "代码检查结果",
+      "cellIndex": 2
+    },
+    {
+      "table": 10,
+      "row": 3,
+      "section": "代码检查信息填写",
+      "field": "代码检查结果",
+      "value": "是否对M1/M3影响",
+      "cellIndex": 3
+    },
+    {
+      "table": 10,
+      "row": 4,
+      "section": "代码检查信息填写",
+      "field": "解决方案分类",
+      "value": "研发运维解决",
+      "cellIndex": 0
+    },
+    {
+      "table": 10,
+      "row": 4,
+      "section": "代码检查信息填写",
+      "field": "研发运维解决",
+      "value": "其他配置修改",
+      "cellIndex": 1
+    },
+    {
+      "table": 10,
+      "row": 4,
+      "section": "代码检查信息填写",
+      "field": "其他配置修改",
+      "value": "是否提交代码库",
+      "cellIndex": 2
+    },
+    {
+      "table": 10,
+      "row": 4,
+      "section": "代码检查信息填写",
+      "field": "是否提交代码库",
+      "value": "是否对OEM影响",
+      "cellIndex": 3
+    },
+    {
+      "table": 10,
+      "row": 5,
+      "section": "代码检查信息填写",
+      "field": "是否有FAQ",
+      "value": "否",
+      "cellIndex": 0
+    },
+    {
+      "table": 10,
+      "row": 5,
+      "section": "代码检查信息填写",
+      "field": "是否AI辅助",
+      "value": "AI结果反馈",
+      "cellIndex": 2
+    },
+    {
+      "table": 11,
+      "row": 1,
+      "section": null,
+      "field": "诊断结论（旧）",
+      "value": "问题分类（旧）",
+      "cellIndex": 0
+    },
+    {
+      "table": 11,
+      "row": 1,
+      "section": null,
+      "field": "问题分类（旧）",
+      "value": "低版本",
+      "cellIndex": 1
+    },
+    {
+      "table": 12,
+      "row": 1,
+      "section": null,
+      "field": "开发协助处理人",
+      "value": "协助人处理耗时（单位：小时）",
+      "cellIndex": 0
+    },
+    {
+      "table": 12,
+      "row": 1,
+      "section": null,
+      "field": "协助人处理耗时（单位：小时）",
+      "value": "协助人处理日期",
+      "cellIndex": 1
+    },
+    {
+      "table": 12,
+      "row": 1,
+      "section": null,
+      "field": "协助人处理日期",
+      "value": "协助人处理内容描述说明",
+      "cellIndex": 2
+    },
+    {
+      "table": 13,
+      "row": 2,
+      "section": "测试人员填写",
+      "field": "测试状态",
+      "value": "测试结论",
+      "cellIndex": 0
+    },
+    {
+      "table": 13,
+      "row": 2,
+      "section": "测试人员填写",
+      "field": "测试结论",
+      "value": "测试时长（小时）",
+      "cellIndex": 1
+    },
+    {
+      "table": 13,
+      "row": 3,
+      "section": "测试人员填写",
+      "field": "测试功能点",
+      "value": "测试截止时间",
+      "cellIndex": 0
+    },
+    {
+      "table": 13,
+      "row": 3,
+      "section": "测试人员填写",
+      "field": "测试截止时间",
+      "value": "2026-03-31 14:42",
+      "cellIndex": 1
+    },
+    {
+      "table": 13,
+      "row": 4,
+      "section": "测试人员填写",
+      "field": "测试说明",
+      "value": "测试关键词",
+      "cellIndex": 0
+    },
+    {
+      "table": 13,
+      "row": 5,
+      "section": "测试人员填写",
+      "field": "测试人",
+      "value": "王涛（研发）",
+      "cellIndex": 0
+    },
+    {
+      "table": 13,
+      "row": 5,
+      "section": "测试人员填写",
+      "field": "王涛（研发）",
+      "value": "测试完成时间",
+      "cellIndex": 1
+    },
+    {
+      "table": 13,
+      "row": 5,
+      "section": "测试人员填写",
+      "field": "测试完成时间",
+      "value": "测试超期状态",
+      "cellIndex": 2
+    },
+    {
+      "table": 13,
+      "row": 5,
+      "section": "测试人员填写",
+      "field": "测试超期状态",
+      "value": "无",
+      "cellIndex": 3
+    },
+    {
+      "table": 13,
+      "row": 6,
+      "section": "测试人员填写",
+      "field": "回退次数",
+      "value": "回退原因",
+      "cellIndex": 0
+    },
+    {
+      "table": 14,
+      "row": 2,
+      "section": "客开人员填写信息",
+      "field": "客开开始处理时间",
+      "value": "客开截止处理时间",
+      "cellIndex": 0
+    },
+    {
+      "table": 14,
+      "row": 2,
+      "section": "客开人员填写信息",
+      "field": "客开截止处理时间",
+      "value": "客开处理完成时间",
+      "cellIndex": 1
+    },
+    {
+      "table": 14,
+      "row": 3,
+      "section": "客开人员填写信息",
+      "field": "客开处理类型",
+      "value": "空",
+      "cellIndex": 0
+    },
+    {
+      "table": 14,
+      "row": 3,
+      "section": "客开人员填写信息",
+      "field": "客开处理结果",
+      "value": "客开处理状态",
+      "cellIndex": 2
+    },
+    {
+      "table": 14,
+      "row": 6,
+      "section": "客开人员填写信息",
+      "field": "客开补丁测试状态",
+      "value": "注：客开人员出的补丁包或者合并的补丁测试验证后，标记此字段为“完成”",
+      "cellIndex": 0
+    },
+    {
+      "table": 14,
+      "row": 7,
+      "section": "客开人员填写信息",
+      "field": "区域客开BUG审核人",
+      "value": "赵德飞",
+      "cellIndex": 0
+    },
+    {
+      "table": 14,
+      "row": 7,
+      "section": "客开人员填写信息",
+      "field": "赵德飞",
+      "value": "区域客开BUG处理人",
+      "cellIndex": 1
+    },
+    {
+      "table": 14,
+      "row": 7,
+      "section": "客开人员填写信息",
+      "field": "区域客开BUG处理人",
+      "value": "客开超期状态",
+      "cellIndex": 2
+    },
+    {
+      "table": 14,
+      "row": 7,
+      "section": "客开人员填写信息",
+      "field": "客开超期状态",
+      "value": "无",
+      "cellIndex": 3
+    },
+    {
+      "table": 15,
+      "row": 2,
+      "section": "发起人交付信息",
+      "field": "BUG交付时间",
+      "value": "2026-03-30 16:51",
+      "cellIndex": 0
+    },
+    {
+      "table": 15,
+      "row": 2,
+      "section": "发起人交付信息",
+      "field": "2026-03-30 16:51",
+      "value": "BUG交付结果",
+      "cellIndex": 1
+    },
+    {
+      "table": 15,
+      "row": 2,
+      "section": "发起人交付信息",
+      "field": "BUG交付结果",
+      "value": "流程结束",
+      "cellIndex": 2
+    },
+    {
+      "table": 15,
+      "row": 2,
+      "section": "发起人交付信息",
+      "field": "流程结束",
+      "value": "BUG交付次数",
+      "cellIndex": 3
+    },
+    {
+      "table": 15,
+      "row": 2,
+      "section": "发起人交付信息",
+      "field": "BUG交付次数",
+      "value": "1次",
+      "cellIndex": 4
+    },
+    {
+      "table": 15,
+      "row": 3,
+      "section": "发起人交付信息",
+      "field": "交付失败原因",
+      "value": "交付失败次数：客服交付到客户环境验证结果不通过的次数（包括补丁包，产品配置调整等）",
+      "cellIndex": 0
+    },
+    {
+      "table": 15,
+      "row": 4,
+      "section": "发起人交付信息",
+      "field": "BUG最终解决状态",
+      "value": "已解决",
+      "cellIndex": 0
+    },
+    {
+      "table": 15,
+      "row": 4,
+      "section": "发起人交付信息",
+      "field": "已解决",
+      "value": "如未解决，选择原因",
+      "cellIndex": 1
+    },
+    {
+      "table": 15,
+      "row": 5,
+      "section": "发起人交付信息",
+      "field": "满意度评价",
+      "value": "本次服务不满意原因",
+      "cellIndex": 0
+    }
+  ],
+  "sections": [
+    {
+      "table": 1,
+      "row": 1,
+      "name": "BUG上报单"
+    },
+    {
+      "table": 2,
+      "row": 1,
+      "name": "BUG单期限信息"
+    },
+    {
+      "table": 3,
+      "row": 1,
+      "name": "上报人信息"
+    },
+    {
+      "table": 4,
+      "row": 1,
+      "name": "客户信息"
+    },
+    {
+      "table": 4,
+      "row": 5,
+      "name": "V8.0以上版本的客户BUG请上报人填写客户生产环境加密狗号码"
+    },
+    {
+      "table": 5,
+      "row": 1,
+      "name": "联系人信息"
+    },
+    {
+      "table": 6,
+      "row": 1,
+      "name": "问题描述信息"
+    },
+    {
+      "table": 7,
+      "row": 1,
+      "name": "开发人员填写"
+    },
+    {
+      "table": 7,
+      "row": 9,
+      "name": "备注说明：务必按照流程附件\"研发填写必看.pptx\"规范执行。尤其注意：先填写“是否为重复BUG”、”是否提供补丁包“、”依赖月度修复包“的字段内容，然后再关联重复BUG流程。且如果有补丁包的情况下，只能将同版本号且同月度包的重复BUG关联过来。"
+    },
+    {
+      "table": 7,
+      "row": 20,
+      "name": "☆☆1、“产生原因分析”及“修改方法”字段内容会自动同步至客户服务云平台，客户可实时查看，请研发同事填写时注意规范用。☆☆\n☆☆2、“修改方法”涉及详细操作步骤文档，请上传至“相关操作文档”字段。☆☆\n☆☆3、 标准产品实现不了的功能，“修改方法”禁止填写走客开、走支持单这类引导性语言。☆☆"
+    },
+    {
+      "table": 10,
+      "row": 1,
+      "name": "代码检查信息填写"
+    },
+    {
+      "table": 13,
+      "row": 1,
+      "name": "测试人员填写"
+    },
+    {
+      "table": 14,
+      "row": 1,
+      "name": "客开人员填写信息"
+    },
+    {
+      "table": 15,
+      "row": 1,
+      "name": "发起人交付信息"
+    }
+  ],
+  "tableCount": 16,
+  "url": "https://xt.seeyon.com/seeyon/common/cap4/template/display/pc/form/dist/index.html?_r=1774864982010&type=browse&rightId=5658304508980183976.-8629394011287892463&moduleId=2316234878862772219&isSubFlow=false&moduleType=1&affairId=7368696374956871538&hasSignAction=false&nodeName=undefined&isNewTemplate=1&loadReviserSDK=true"
+}

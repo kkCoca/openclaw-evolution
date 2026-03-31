@@ -1,0 +1,586 @@
+{
+  "loginStructure": {
+    "title": "致远A8+协同管理软件 V10.0SP1",
+    "url": "https://xt.seeyon.com/seeyon/main.do?method=index",
+    "inputs": [
+      {
+        "type": "hidden",
+        "name": "loginType",
+        "id": "loginType",
+        "className": "",
+        "value": "usernamePwd",
+        "placeholder": "",
+        "visible": false,
+        "disabled": false
+      },
+      {
+        "type": "hidden",
+        "name": "authorization",
+        "id": "authorization",
+        "className": "",
+        "value": "",
+        "placeholder": "",
+        "visible": false,
+        "disabled": false
+      },
+      {
+        "type": "hidden",
+        "name": "login.timezone",
+        "id": "timezone",
+        "className": "",
+        "value": "",
+        "placeholder": "",
+        "visible": false,
+        "disabled": false
+      },
+      {
+        "type": "hidden",
+        "name": "province",
+        "id": "province",
+        "className": "",
+        "value": "",
+        "placeholder": "",
+        "visible": false,
+        "disabled": false
+      },
+      {
+        "type": "hidden",
+        "name": "city",
+        "id": "city",
+        "className": "",
+        "value": "",
+        "placeholder": "",
+        "visible": false,
+        "disabled": false
+      },
+      {
+        "type": "hidden",
+        "name": "redirect_url",
+        "id": "redirect_url",
+        "className": "",
+        "value": "",
+        "placeholder": "",
+        "visible": false,
+        "disabled": false
+      },
+      {
+        "type": "hidden",
+        "name": "token_login_app_id",
+        "id": "token_login_app_id",
+        "className": "",
+        "value": "",
+        "placeholder": "",
+        "visible": false,
+        "disabled": false
+      },
+      {
+        "type": "hidden",
+        "name": "token_login_third_user_id",
+        "id": "token_login_third_user_id",
+        "className": "",
+        "value": "",
+        "placeholder": "",
+        "visible": false,
+        "disabled": false
+      },
+      {
+        "type": "hidden",
+        "name": "request_auth_authenticator",
+        "id": "request_auth_authenticator",
+        "className": "",
+        "value": "",
+        "placeholder": "",
+        "visible": false,
+        "disabled": false
+      },
+      {
+        "type": "hidden",
+        "name": "rectangle",
+        "id": "rectangle",
+        "className": "",
+        "value": "",
+        "placeholder": "",
+        "visible": false,
+        "disabled": false
+      },
+      {
+        "type": "text",
+        "name": "login_username",
+        "id": "login_username",
+        "className": "",
+        "value": "",
+        "placeholder": "账号/手机号",
+        "visible": true,
+        "disabled": false
+      },
+      {
+        "type": "hidden",
+        "name": "trustdo_type",
+        "id": "trustdo_type",
+        "className": "",
+        "value": "",
+        "placeholder": "",
+        "visible": false,
+        "disabled": false
+      },
+      {
+        "type": "password",
+        "name": "login_password1",
+        "id": "login_password1",
+        "className": "",
+        "value": "",
+        "placeholder": "",
+        "visible": true,
+        "disabled": false
+      },
+      {
+        "type": "hidden",
+        "name": "login_validatePwdStrength",
+        "id": "login_validatePwdStrength",
+        "className": "",
+        "value": "4",
+        "placeholder": "",
+        "visible": false,
+        "disabled": false
+      },
+      {
+        "type": "text",
+        "name": "selGroup",
+        "id": "selGroup",
+        "className": "",
+        "value": "",
+        "placeholder": "",
+        "visible": false,
+        "disabled": false
+      },
+      {
+        "type": "text",
+        "name": "phone_number",
+        "id": "phone_number",
+        "className": "",
+        "value": "",
+        "placeholder": "请输入手机号",
+        "visible": false,
+        "disabled": false
+      },
+      {
+        "type": "hidden",
+        "name": "trustdo_type",
+        "id": "trustdo_type",
+        "className": "",
+        "value": "",
+        "placeholder": "",
+        "visible": false,
+        "disabled": false
+      },
+      {
+        "type": "text",
+        "name": "login_smsVerifyCode",
+        "id": "login_smsVerifyCode",
+        "className": "",
+        "value": "",
+        "placeholder": "请输入验证码",
+        "visible": false,
+        "disabled": false
+      },
+      {
+        "type": "hidden",
+        "name": "trustdo_type",
+        "id": "trustdo_type",
+        "className": "",
+        "value": "",
+        "placeholder": "",
+        "visible": false,
+        "disabled": false
+      },
+      {
+        "type": "text",
+        "name": "login.VerifyCode",
+        "id": "VerifyCode",
+        "className": "",
+        "value": "",
+        "placeholder": "",
+        "visible": false,
+        "disabled": false
+      },
+      {
+        "type": "button",
+        "name": "",
+        "id": "login_button",
+        "className": "point",
+        "value": "登 录",
+        "placeholder": "",
+        "visible": true,
+        "disabled": false
+      },
+      {
+        "type": "submit",
+        "name": "",
+        "id": "submit_button",
+        "className": "",
+        "value": "",
+        "placeholder": "",
+        "visible": false,
+        "disabled": false
+      },
+      {
+        "type": "checkbox",
+        "name": "privacyCheck",
+        "id": "privacyCheck",
+        "className": "section_frame_set_header",
+        "value": "on",
+        "placeholder": "",
+        "visible": false,
+        "disabled": false
+      },
+      {
+        "type": "hidden",
+        "name": "random",
+        "id": "random",
+        "className": "",
+        "value": "",
+        "placeholder": "",
+        "visible": false,
+        "disabled": false
+      }
+    ],
+    "buttons": [
+      {
+        "tag": "INPUT",
+        "type": "button",
+        "id": "login_button",
+        "className": "point",
+        "text": "",
+        "value": "登 录",
+        "visible": true
+      },
+      {
+        "tag": "INPUT",
+        "type": "submit",
+        "id": "submit_button",
+        "className": "",
+        "text": "",
+        "value": "",
+        "visible": false
+      }
+    ],
+    "forms": [
+      {
+        "id": "login_form",
+        "className": "",
+        "action": "https://xt.seeyon.com/seeyon/main.do?method=login",
+        "method": "post",
+        "inputCount": 24
+      }
+    ],
+    "loginHints": [
+      {
+        "tag": "HTML",
+        "className": "h100b overflow_login",
+        "id": "",
+        "text": "A8+集团版（并发数：3,000）\n找回密码？\n致信\n中文（简体）\n账号短信登录"
+      },
+      {
+        "tag": "HEAD",
+        "className": "",
+        "id": "",
+        "text": "\n\n\n\n\n\n\n致远A8+协同管理软件 V10.0SP1\nwindow.ctpEnv=window.ctpEnv || {};ctpEnv.ctpSkinUrl='/skin/dist/componen"
+      },
+      {
+        "tag": "SCRIPT",
+        "className": "",
+        "id": "",
+        "text": "\n\n\tvar loginFrom= '';\n\tvar intervalQrcode = null;\n\tvar sendFlag = false;\n\n\tvar _SecuritySeed = '-313"
+      },
+      {
+        "tag": "SCRIPT",
+        "className": "",
+        "id": "privacyInfoHtml",
+        "text": "<html xmlns:o=\"urn:schemas-microsoft-com:office:office\" xmlns:w=\"urn:schemas-microsoft-com:office:wo"
+      },
+      {
+        "tag": "SCRIPT",
+        "className": "",
+        "id": "",
+        "text": "\n  var wechatCorpUrl = \"https://weixin.seeyon.com/corpAccount/wechatQrLogin?oaUrl=https%3A%2F%2Fm.se"
+      },
+      {
+        "tag": "BODY",
+        "className": "h100b",
+        "id": "",
+        "text": "A8+集团版（并发数：3,000）\n找回密码？\n致信\n中文（简体）\n账号短信登录"
+      },
+      {
+        "tag": "DIV",
+        "className": "",
+        "id": "login_content",
+        "text": "A8+集团版（并发数：3,000）\n找回密码？\n致信\n中文（简体）\n账号短信登录"
+      },
+      {
+        "tag": "DIV",
+        "className": "",
+        "id": "login_wrap",
+        "text": "A8+集团版（并发数：3,000）\n找回密码？\n致信\n中文（简体）\n账号短信登录"
+      },
+      {
+        "tag": "FORM",
+        "className": "",
+        "id": "login_form",
+        "text": "A8+集团版（并发数：3,000）\n找回密码？\n致信\n中文（简体）\n账号短信登录"
+      },
+      {
+        "tag": "DIV",
+        "className": "login_area_t_b",
+        "id": "login_area_div",
+        "text": "A8+集团版（并发数：3,000）\n找回密码？\n致信\n中文（简体）\n账号短信登录"
+      },
+      {
+        "tag": "DIV",
+        "className": "login_area_body",
+        "id": "",
+        "text": "A8+集团版（并发数：3,000）\n找回密码？\n致信\n中文（简体）\n账号短信登录"
+      },
+      {
+        "tag": "DIV",
+        "className": "login_bottom",
+        "id": "login_bottom_div",
+        "text": "找回密码？\n致信\n中文（简体）"
+      },
+      {
+        "tag": "DIV",
+        "className": "fzIntall_area",
+        "id": "",
+        "text": "找回密码？\n致信\n中文（简体）"
+      },
+      {
+        "tag": "DIV",
+        "className": "zhixin zhixin_left",
+        "id": "",
+        "text": "找回密码？"
+      },
+      {
+        "tag": "A",
+        "className": "",
+        "id": "",
+        "text": "找回密码？"
+      },
+      {
+        "tag": "FONT",
+        "className": "",
+        "id": "",
+        "text": "找回密码？"
+      },
+      {
+        "tag": "DIV",
+        "className": "qrcodeArea",
+        "id": "qrcodeAreaBtns",
+        "text": "账号短信登录"
+      },
+      {
+        "tag": "DIV",
+        "className": "swith_phone",
+        "id": "fiveLayoutSwitch",
+        "text": "账号短信登录"
+      },
+      {
+        "tag": "FONT",
+        "className": "sms_Login_switch overflow_Sty",
+        "id": "loginNameSmsLoginswitch",
+        "text": "账号短信登录"
+      },
+      {
+        "tag": "SPAN",
+        "className": "qrcodeAreaLogin mobileAuthentication",
+        "id": "isShowQR",
+        "text": "使用二维码登录"
+      }
+    ],
+    "bodyClasses": "h100b",
+    "pageContent": "A8+集团版（并发数：3,000）\n找回密码？\n致信\n中文（简体）\n账号短信登录"
+  },
+  "pageAnalysis": {
+    "main": {
+      "frameName": "main",
+      "title": "致远A8+协同管理软件 V10.0SP1",
+      "url": "https://xt.seeyon.com/seeyon/main.do",
+      "textLength": 0,
+      "textPreview": "",
+      "tables": [],
+      "images": [
+        {
+          "src": "https://xt.seeyon.com/seeyon/commonimage.do?method=showImage&type=image&handler=portalImage&size=source&id=1176530107609403062",
+          "alt": "",
+          "className": "",
+          "visible": true
+        }
+      ],
+      "links": [
+        {
+          "text": "获取验证码",
+          "href": "",
+          "className": "",
+          "isAttachment": false
+        },
+        {
+          "text": "隐私保护协议",
+          "href": "javascript:;",
+          "className": "login-privacy-link",
+          "isAttachment": false
+        },
+        {
+          "text": "找回密码？",
+          "href": "",
+          "className": "",
+          "isAttachment": false
+        },
+        {
+          "text": "中文（简体）",
+          "href": "javascript:void(0)",
+          "className": "common_drop_list_select common_button  ",
+          "isAttachment": false
+        },
+        {
+          "text": "中文（简体）\n            ",
+          "href": "javascript:void(0)",
+          "className": "",
+          "isAttachment": false
+        },
+        {
+          "text": "中文（繁體）\n            ",
+          "href": "javascript:void(0)",
+          "className": "",
+          "isAttachment": false
+        },
+        {
+          "text": "English\n            ",
+          "href": "javascript:void(0)",
+          "className": "",
+          "isAttachment": false
+        },
+        {
+          "text": "刷新二维码",
+          "href": "",
+          "className": "",
+          "isAttachment": false
+        },
+        {
+          "text": "使用帮助",
+          "href": "https://xt.seeyon.com/seeyon/main.do?method=qrCodeHelp",
+          "className": "",
+          "isAttachment": false
+        }
+      ],
+      "attachmentLinks": [],
+      "metadata": {
+        "title": "中文（简体）",
+        "author": "",
+        "date": "",
+        "docNumber": "\n                                                        \n                                          "
+      },
+      "codeBlocks": [
+        {
+          "tag": "DIV",
+          "className": "qrcodeArea",
+          "textLength": 6
+        },
+        {
+          "tag": "SPAN",
+          "className": "qrcodeAreaLogin mobileAuthentication",
+          "textLength": 7
+        },
+        {
+          "tag": "DIV",
+          "className": "QrcodeArea",
+          "textLength": 1224
+        },
+        {
+          "tag": "DIV",
+          "className": "qrcode",
+          "textLength": 70
+        },
+        {
+          "tag": "DIV",
+          "className": "qrcode",
+          "textLength": 143
+        },
+        {
+          "tag": "DIV",
+          "className": "qrcode",
+          "textLength": 0
+        },
+        {
+          "tag": "DIV",
+          "className": "qrcode",
+          "textLength": 0
+        },
+        {
+          "tag": "DIV",
+          "className": "qrcode",
+          "textLength": 0
+        }
+      ],
+      "forms": [
+        {
+          "tag": "FORM",
+          "className": ""
+        },
+        {
+          "tag": "INPUT",
+          "type": "text",
+          "className": ""
+        },
+        {
+          "tag": "INPUT",
+          "type": "text",
+          "className": ""
+        },
+        {
+          "tag": "INPUT",
+          "type": "text",
+          "className": ""
+        },
+        {
+          "tag": "INPUT",
+          "type": "text",
+          "className": ""
+        },
+        {
+          "tag": "INPUT",
+          "type": "text",
+          "className": ""
+        }
+      ],
+      "bodyClasses": "h100b"
+    },
+    "iframes": [
+      {
+        "frameName": "iframe-0",
+        "title": "",
+        "url": "about:blank",
+        "textLength": 0,
+        "textPreview": "",
+        "tables": [],
+        "images": [],
+        "links": [],
+        "attachmentLinks": [],
+        "metadata": {},
+        "codeBlocks": [],
+        "forms": [],
+        "bodyClasses": ""
+      }
+    ],
+    "totalFrames": 1
+  },
+  "summary": {
+    "pageType": "主页/导航页",
+    "hasContent": false,
+    "hasTables": false,
+    "hasImages": true,
+    "hasAttachments": false,
+    "hasCodeBlocks": true,
+    "hasMetadata": true,
+    "needsLogin": true,
+    "iframeCount": 1
+  },
+  "timestamp": "2026-03-30T09:34:17.150Z"
+}

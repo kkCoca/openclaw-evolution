@@ -1,0 +1,53 @@
+{
+  "name": "uri-to-markdown",
+  "version": "1.0.0",
+  "description": "将网页转换为 Markdown 格式的工具集（核心库 + Chrome 插件 + CLI）",
+  "private": true,
+  "workspaces": [
+    "04_coding/src/core",
+    "04_coding/src/cli",
+    "04_coding/src/chrome-extension"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "test:unit": "vitest run 04_coding/tests/unit",
+    "test:integration": "playwright test 04_coding/tests/integration",
+    "test:coverage": "vitest --coverage",
+    "lint": "eslint 04_coding/src --ext .ts",
+    "clean": "rm -rf 04_coding/src/*/dist"
+  },
+  "keywords": [
+    "markdown",
+    "html",
+    "converter",
+    "chrome-extension",
+    "cli",
+    "playwright",
+    "turndown"
+  ],
+  "author": "openclaw-ouyp",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://gitee.com/openclaw-universe/uri-to-markdown"
+  },
+  "bugs": {
+    "url": "https://gitee.com/openclaw-universe/uri-to-markdown/issues"
+  },
+  "homepage": "https://gitee.com/openclaw-universe/uri-to-markdown#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.55.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0",
+    "@vitest/coverage-v8": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

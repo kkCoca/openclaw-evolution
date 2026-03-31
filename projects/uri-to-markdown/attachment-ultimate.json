@@ -1,0 +1,300 @@
+{
+  "url": "https://xt.seeyon.com/seeyon/report4Result.do?method=reportPenetrate&rptDesignId=-4919087800369594175&extendParams=%7B%22formmain_66717_0_id%22%3A%22397711044024549379%22%7D",
+  "timestamp": "2026-03-30T09:42:46.427Z",
+  "attachments": [
+    {
+      "index": 0,
+      "fileName": "4、致远产品BUG上报管理细则（2020版）.pdf",
+      "extension": ".pdf",
+      "hasDownloadAttr": true,
+      "href": "",
+      "fiberId": "atooltip_1",
+      "clickHandler": null,
+      "containerData": {
+        "data-v-5bbecc4c": ""
+      },
+      "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">4、致远产品BUG上报管理细则（2020版）</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.pdf</span></A>",
+      "parentHTML": "<UL data-v-5bbecc4c=\"\" class=\"file-list-container\"><li data-v-5bbecc4c=\"\" class=\"item-wrapper\"><section data-v-5bbecc4c=\"\" class=\"left-item-wrapper\"><span data-v-5bbecc4c=\"\" class=\"file-icon syDoc pdf\"></span><!----><section data-v-5bbecc4c=\"\" class=\"title-wrapper\"><div data-v-960b5c7e=\"\" data-v-5bbecc4c=\"\" class=\"name-element-container name-wrapper\" fiber-id=\"atooltip_1\"><div data-v-6291af88=\"\" data-v-960b5c7e=\"\" class=\"download-att-container download-att-wrapper\" fiber-id=\"downloadatt_1\"><a data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">4、致远产品BUG上报管理细则（2020版）</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.pdf</span></a></div></div><span data-v-5bbecc4c=\"\">(538.8K)</span></section></section><section data-v-5bbecc4c=\"\" class=\"right-item-wrapper\"><!----><!----><ul data-v-e24fa3a8=\"\" data-v-5bbecc4c=\"\" class=\"file-handle-container\" fiber-id=\"filehandle_1\"><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"\" fiber-id=\"",
+      "className": "flex-wrapper",
+      "id": ""
+    },
+    {
+      "index": 1,
+      "fileName": "",
+      "extension": "",
+      "hasDownloadAttr": true,
+      "href": "",
+      "fiberId": "filehandle_1",
+      "clickHandler": null,
+      "containerData": {
+        "data-v-5bbecc4c": ""
+      },
+      "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><i data-v-e24fa3a8=\"\" class=\"anticon\" data-v-6291af88=\"\" fiber-id=\"aicon_6\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-xiazai\"></use></svg></i></A>",
+      "parentHTML": "<UL data-v-e24fa3a8=\"\" data-v-5bbecc4c=\"\" class=\"file-handle-container\" fiber-id=\"filehandle_1\"><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"\" fiber-id=\"atooltip_10\"><i data-v-e24fa3a8=\"\" class=\"syIcon sy-collect\"></i></a></li><li data-v-e24fa3a8=\"\"><div data-v-6291af88=\"\" data-v-e24fa3a8=\"\" class=\"download-att-container\" fiber-id=\"atooltip_11\"><a data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><i data-v-e24fa3a8=\"\" class=\"anticon\" data-v-6291af88=\"\" fiber-id=\"aicon_6\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-xiazai\"></use></svg></i></a></div></li><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"view-icon\" fiber-id=\"atooltip_12\"><i data-v-e24fa3a8=\"\" class=\"anticon\" fiber-id=\"aicon_7\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-chakan\"></use></svg></i></a></li></UL>",
+      "className": "flex-wrapper",
+      "id": ""
+    },
+    {
+      "index": 2,
+      "fileName": "V8.0及以上版本BUG单填写Build Id规范要求说明.zip",
+      "extension": ".zip",
+      "hasDownloadAttr": true,
+      "href": "",
+      "fiberId": "atooltip_2",
+      "clickHandler": null,
+      "containerData": {
+        "data-v-5bbecc4c": ""
+      },
+      "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">V8.0及以上版本BUG单填写Build Id规范要求说明</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.zip</span></A>",
+      "parentHTML": "<UL data-v-5bbecc4c=\"\" class=\"file-list-container\"><li data-v-5bbecc4c=\"\" class=\"item-wrapper\"><section data-v-5bbecc4c=\"\" class=\"left-item-wrapper\"><span data-v-5bbecc4c=\"\" class=\"file-icon syDoc pdf\"></span><!----><section data-v-5bbecc4c=\"\" class=\"title-wrapper\"><div data-v-960b5c7e=\"\" data-v-5bbecc4c=\"\" class=\"name-element-container name-wrapper\" fiber-id=\"atooltip_1\"><div data-v-6291af88=\"\" data-v-960b5c7e=\"\" class=\"download-att-container download-att-wrapper\" fiber-id=\"downloadatt_1\"><a data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">4、致远产品BUG上报管理细则（2020版）</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.pdf</span></a></div></div><span data-v-5bbecc4c=\"\">(538.8K)</span></section></section><section data-v-5bbecc4c=\"\" class=\"right-item-wrapper\"><!----><!----><ul data-v-e24fa3a8=\"\" data-v-5bbecc4c=\"\" class=\"file-handle-container\" fiber-id=\"filehandle_1\"><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"\" fiber-id=\"",
+      "className": "flex-wrapper",
+      "id": ""
+    },
+    {
+      "index": 3,
+      "fileName": "",
+      "extension": "",
+      "hasDownloadAttr": true,
+      "href": "",
+      "fiberId": "filehandle_2",
+      "clickHandler": null,
+      "containerData": {
+        "data-v-5bbecc4c": ""
+      },
+      "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><i data-v-e24fa3a8=\"\" class=\"anticon\" data-v-6291af88=\"\" fiber-id=\"aicon_8\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-xiazai\"></use></svg></i></A>",
+      "parentHTML": "<UL data-v-e24fa3a8=\"\" data-v-5bbecc4c=\"\" class=\"file-handle-container\" fiber-id=\"filehandle_2\"><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"\" fiber-id=\"atooltip_13\"><i data-v-e24fa3a8=\"\" class=\"syIcon sy-collect\"></i></a></li><li data-v-e24fa3a8=\"\"><div data-v-6291af88=\"\" data-v-e24fa3a8=\"\" class=\"download-att-container\" fiber-id=\"atooltip_14\"><a data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><i data-v-e24fa3a8=\"\" class=\"anticon\" data-v-6291af88=\"\" fiber-id=\"aicon_8\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-xiazai\"></use></svg></i></a></div></li><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"view-icon\" fiber-id=\"atooltip_15\"><i data-v-e24fa3a8=\"\" class=\"anticon\" fiber-id=\"aicon_9\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-chakan\"></use></svg></i></a></li></UL>",
+      "className": "flex-wrapper",
+      "id": ""
+    },
+    {
+      "index": 4,
+      "fileName": "研发填写必看.pptx",
+      "extension": ".pptx",
+      "hasDownloadAttr": true,
+      "href": "",
+      "fiberId": "atooltip_3",
+      "clickHandler": null,
+      "containerData": {
+        "data-v-5bbecc4c": ""
+      },
+      "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">研发填写必看</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.pptx</span></A>",
+      "parentHTML": "<UL data-v-5bbecc4c=\"\" class=\"file-list-container\"><li data-v-5bbecc4c=\"\" class=\"item-wrapper\"><section data-v-5bbecc4c=\"\" class=\"left-item-wrapper\"><span data-v-5bbecc4c=\"\" class=\"file-icon syDoc pdf\"></span><!----><section data-v-5bbecc4c=\"\" class=\"title-wrapper\"><div data-v-960b5c7e=\"\" data-v-5bbecc4c=\"\" class=\"name-element-container name-wrapper\" fiber-id=\"atooltip_1\"><div data-v-6291af88=\"\" data-v-960b5c7e=\"\" class=\"download-att-container download-att-wrapper\" fiber-id=\"downloadatt_1\"><a data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">4、致远产品BUG上报管理细则（2020版）</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.pdf</span></a></div></div><span data-v-5bbecc4c=\"\">(538.8K)</span></section></section><section data-v-5bbecc4c=\"\" class=\"right-item-wrapper\"><!----><!----><ul data-v-e24fa3a8=\"\" data-v-5bbecc4c=\"\" class=\"file-handle-container\" fiber-id=\"filehandle_1\"><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"\" fiber-id=\"",
+      "className": "flex-wrapper",
+      "id": ""
+    },
+    {
+      "index": 5,
+      "fileName": "",
+      "extension": "",
+      "hasDownloadAttr": true,
+      "href": "",
+      "fiberId": "filehandle_3",
+      "clickHandler": null,
+      "containerData": {
+        "data-v-5bbecc4c": ""
+      },
+      "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><i data-v-e24fa3a8=\"\" class=\"anticon\" data-v-6291af88=\"\" fiber-id=\"aicon_10\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-xiazai\"></use></svg></i></A>",
+      "parentHTML": "<UL data-v-e24fa3a8=\"\" data-v-5bbecc4c=\"\" class=\"file-handle-container\" fiber-id=\"filehandle_3\"><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"\" fiber-id=\"atooltip_16\"><i data-v-e24fa3a8=\"\" class=\"syIcon sy-collect\"></i></a></li><li data-v-e24fa3a8=\"\"><div data-v-6291af88=\"\" data-v-e24fa3a8=\"\" class=\"download-att-container\" fiber-id=\"atooltip_17\"><a data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><i data-v-e24fa3a8=\"\" class=\"anticon\" data-v-6291af88=\"\" fiber-id=\"aicon_10\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-xiazai\"></use></svg></i></a></div></li><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"view-icon\" fiber-id=\"atooltip_18\"><i data-v-e24fa3a8=\"\" class=\"anticon\" fiber-id=\"aicon_11\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-chakan\"></use></svg></i></a></li></UL>",
+      "className": "flex-wrapper",
+      "id": ""
+    },
+    {
+      "index": 6,
+      "fileName": "诊断结论、问题分类、解决方案枚举说明.xlsx",
+      "extension": ".xlsx",
+      "hasDownloadAttr": true,
+      "href": "",
+      "fiberId": "atooltip_4",
+      "clickHandler": null,
+      "containerData": {
+        "data-v-5bbecc4c": ""
+      },
+      "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">诊断结论、问题分类、解决方案枚举说明</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.xlsx</span></A>",
+      "parentHTML": "<UL data-v-5bbecc4c=\"\" class=\"file-list-container\"><li data-v-5bbecc4c=\"\" class=\"item-wrapper\"><section data-v-5bbecc4c=\"\" class=\"left-item-wrapper\"><span data-v-5bbecc4c=\"\" class=\"file-icon syDoc pdf\"></span><!----><section data-v-5bbecc4c=\"\" class=\"title-wrapper\"><div data-v-960b5c7e=\"\" data-v-5bbecc4c=\"\" class=\"name-element-container name-wrapper\" fiber-id=\"atooltip_1\"><div data-v-6291af88=\"\" data-v-960b5c7e=\"\" class=\"download-att-container download-att-wrapper\" fiber-id=\"downloadatt_1\"><a data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">4、致远产品BUG上报管理细则（2020版）</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.pdf</span></a></div></div><span data-v-5bbecc4c=\"\">(538.8K)</span></section></section><section data-v-5bbecc4c=\"\" class=\"right-item-wrapper\"><!----><!----><ul data-v-e24fa3a8=\"\" data-v-5bbecc4c=\"\" class=\"file-handle-container\" fiber-id=\"filehandle_1\"><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"\" fiber-id=\"",
+      "className": "flex-wrapper",
+      "id": ""
+    },
+    {
+      "index": 7,
+      "fileName": "",
+      "extension": "",
+      "hasDownloadAttr": true,
+      "href": "",
+      "fiberId": "filehandle_4",
+      "clickHandler": null,
+      "containerData": {
+        "data-v-5bbecc4c": ""
+      },
+      "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><i data-v-e24fa3a8=\"\" class=\"anticon\" data-v-6291af88=\"\" fiber-id=\"aicon_12\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-xiazai\"></use></svg></i></A>",
+      "parentHTML": "<UL data-v-e24fa3a8=\"\" data-v-5bbecc4c=\"\" class=\"file-handle-container\" fiber-id=\"filehandle_4\"><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"\" fiber-id=\"atooltip_19\"><i data-v-e24fa3a8=\"\" class=\"syIcon sy-collect\"></i></a></li><li data-v-e24fa3a8=\"\"><div data-v-6291af88=\"\" data-v-e24fa3a8=\"\" class=\"download-att-container\" fiber-id=\"atooltip_20\"><a data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><i data-v-e24fa3a8=\"\" class=\"anticon\" data-v-6291af88=\"\" fiber-id=\"aicon_12\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-xiazai\"></use></svg></i></a></div></li><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"view-icon\" fiber-id=\"atooltip_21\"><i data-v-e24fa3a8=\"\" class=\"anticon\" fiber-id=\"aicon_13\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-chakan\"></use></svg></i></a></li></UL>",
+      "className": "flex-wrapper",
+      "id": ""
+    },
+    {
+      "index": 8,
+      "fileName": "BUG报告单.doc",
+      "extension": ".doc",
+      "hasDownloadAttr": true,
+      "href": "",
+      "fiberId": "atooltip_5",
+      "clickHandler": null,
+      "containerData": {
+        "data-v-5bbecc4c": ""
+      },
+      "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">BUG报告单</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.doc</span></A>",
+      "parentHTML": "<UL data-v-5bbecc4c=\"\" class=\"file-list-container\"><li data-v-5bbecc4c=\"\" class=\"item-wrapper\"><section data-v-5bbecc4c=\"\" class=\"left-item-wrapper\"><span data-v-5bbecc4c=\"\" class=\"file-icon syDoc pdf\"></span><!----><section data-v-5bbecc4c=\"\" class=\"title-wrapper\"><div data-v-960b5c7e=\"\" data-v-5bbecc4c=\"\" class=\"name-element-container name-wrapper\" fiber-id=\"atooltip_1\"><div data-v-6291af88=\"\" data-v-960b5c7e=\"\" class=\"download-att-container download-att-wrapper\" fiber-id=\"downloadatt_1\"><a data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">4、致远产品BUG上报管理细则（2020版）</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.pdf</span></a></div></div><span data-v-5bbecc4c=\"\">(538.8K)</span></section></section><section data-v-5bbecc4c=\"\" class=\"right-item-wrapper\"><!----><!----><ul data-v-e24fa3a8=\"\" data-v-5bbecc4c=\"\" class=\"file-handle-container\" fiber-id=\"filehandle_1\"><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"\" fiber-id=\"",
+      "className": "flex-wrapper",
+      "id": ""
+    },
+    {
+      "index": 9,
+      "fileName": "",
+      "extension": "",
+      "hasDownloadAttr": true,
+      "href": "",
+      "fiberId": "filehandle_5",
+      "clickHandler": null,
+      "containerData": {
+        "data-v-5bbecc4c": ""
+      },
+      "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><i data-v-e24fa3a8=\"\" class=\"anticon\" data-v-6291af88=\"\" fiber-id=\"aicon_14\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-xiazai\"></use></svg></i></A>",
+      "parentHTML": "<UL data-v-e24fa3a8=\"\" data-v-5bbecc4c=\"\" class=\"file-handle-container\" fiber-id=\"filehandle_5\"><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"\" fiber-id=\"atooltip_22\"><i data-v-e24fa3a8=\"\" class=\"syIcon sy-collect\"></i></a></li><li data-v-e24fa3a8=\"\"><div data-v-6291af88=\"\" data-v-e24fa3a8=\"\" class=\"download-att-container\" fiber-id=\"atooltip_23\"><a data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><i data-v-e24fa3a8=\"\" class=\"anticon\" data-v-6291af88=\"\" fiber-id=\"aicon_14\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-xiazai\"></use></svg></i></a></div></li><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"view-icon\" fiber-id=\"atooltip_24\"><i data-v-e24fa3a8=\"\" class=\"anticon\" fiber-id=\"aicon_15\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-chakan\"></use></svg></i></a></li></UL>",
+      "className": "flex-wrapper",
+      "id": ""
+    },
+    {
+      "index": 10,
+      "fileName": "产品日志获取方法.png",
+      "extension": ".png",
+      "hasDownloadAttr": true,
+      "href": "",
+      "fiberId": "atooltip_6",
+      "clickHandler": null,
+      "containerData": {
+        "data-v-5bbecc4c": ""
+      },
+      "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">产品日志获取方法</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.png</span></A>",
+      "parentHTML": "<UL data-v-5bbecc4c=\"\" class=\"file-list-container\"><li data-v-5bbecc4c=\"\" class=\"item-wrapper\"><section data-v-5bbecc4c=\"\" class=\"left-item-wrapper\"><span data-v-5bbecc4c=\"\" class=\"file-icon syDoc pdf\"></span><!----><section data-v-5bbecc4c=\"\" class=\"title-wrapper\"><div data-v-960b5c7e=\"\" data-v-5bbecc4c=\"\" class=\"name-element-container name-wrapper\" fiber-id=\"atooltip_1\"><div data-v-6291af88=\"\" data-v-960b5c7e=\"\" class=\"download-att-container download-att-wrapper\" fiber-id=\"downloadatt_1\"><a data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">4、致远产品BUG上报管理细则（2020版）</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.pdf</span></a></div></div><span data-v-5bbecc4c=\"\">(538.8K)</span></section></section><section data-v-5bbecc4c=\"\" class=\"right-item-wrapper\"><!----><!----><ul data-v-e24fa3a8=\"\" data-v-5bbecc4c=\"\" class=\"file-handle-container\" fiber-id=\"filehandle_1\"><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"\" fiber-id=\"",
+      "className": "flex-wrapper",
+      "id": ""
+    },
+    {
+      "index": 11,
+      "fileName": "",
+      "extension": "",
+      "hasDownloadAttr": true,
+      "href": "",
+      "fiberId": "filehandle_6",
+      "clickHandler": null,
+      "containerData": {
+        "data-v-5bbecc4c": ""
+      },
+      "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><i data-v-e24fa3a8=\"\" class=\"anticon\" data-v-6291af88=\"\" fiber-id=\"aicon_16\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-xiazai\"></use></svg></i></A>",
+      "parentHTML": "<UL data-v-e24fa3a8=\"\" data-v-5bbecc4c=\"\" class=\"file-handle-container\" fiber-id=\"filehandle_6\"><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"\" fiber-id=\"atooltip_25\"><i data-v-e24fa3a8=\"\" class=\"syIcon sy-collect\"></i></a></li><li data-v-e24fa3a8=\"\"><div data-v-6291af88=\"\" data-v-e24fa3a8=\"\" class=\"download-att-container\" fiber-id=\"atooltip_26\"><a data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><i data-v-e24fa3a8=\"\" class=\"anticon\" data-v-6291af88=\"\" fiber-id=\"aicon_16\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-xiazai\"></use></svg></i></a></div></li><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"view-icon\" fiber-id=\"atooltip_27\"><i data-v-e24fa3a8=\"\" class=\"anticon\" fiber-id=\"aicon_17\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-chakan\"></use></svg></i></a></li></UL>",
+      "className": "flex-wrapper",
+      "id": ""
+    },
+    {
+      "index": 12,
+      "fileName": "8、区域BUG审核专项工作规范.docx",
+      "extension": ".docx",
+      "hasDownloadAttr": true,
+      "href": "",
+      "fiberId": "atooltip_7",
+      "clickHandler": null,
+      "containerData": {
+        "data-v-5bbecc4c": ""
+      },
+      "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">8、区域BUG审核专项工作规范</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.docx</span></A>",
+      "parentHTML": "<UL data-v-5bbecc4c=\"\" class=\"file-list-container\"><li data-v-5bbecc4c=\"\" class=\"item-wrapper\"><section data-v-5bbecc4c=\"\" class=\"left-item-wrapper\"><span data-v-5bbecc4c=\"\" class=\"file-icon syDoc pdf\"></span><!----><section data-v-5bbecc4c=\"\" class=\"title-wrapper\"><div data-v-960b5c7e=\"\" data-v-5bbecc4c=\"\" class=\"name-element-container name-wrapper\" fiber-id=\"atooltip_1\"><div data-v-6291af88=\"\" data-v-960b5c7e=\"\" class=\"download-att-container download-att-wrapper\" fiber-id=\"downloadatt_1\"><a data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">4、致远产品BUG上报管理细则（2020版）</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.pdf</span></a></div></div><span data-v-5bbecc4c=\"\">(538.8K)</span></section></section><section data-v-5bbecc4c=\"\" class=\"right-item-wrapper\"><!----><!----><ul data-v-e24fa3a8=\"\" data-v-5bbecc4c=\"\" class=\"file-handle-container\" fiber-id=\"filehandle_1\"><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"\" fiber-id=\"",
+      "className": "flex-wrapper",
+      "id": ""
+    },
+    {
+      "index": 13,
+      "fileName": "",
+      "extension": "",
+      "hasDownloadAttr": true,
+      "href": "",
+      "fiberId": "filehandle_7",
+      "clickHandler": null,
+      "containerData": {
+        "data-v-5bbecc4c": ""
+      },
+      "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><i data-v-e24fa3a8=\"\" class=\"anticon\" data-v-6291af88=\"\" fiber-id=\"aicon_18\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-xiazai\"></use></svg></i></A>",
+      "parentHTML": "<UL data-v-e24fa3a8=\"\" data-v-5bbecc4c=\"\" class=\"file-handle-container\" fiber-id=\"filehandle_7\"><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"\" fiber-id=\"atooltip_28\"><i data-v-e24fa3a8=\"\" class=\"syIcon sy-collect\"></i></a></li><li data-v-e24fa3a8=\"\"><div data-v-6291af88=\"\" data-v-e24fa3a8=\"\" class=\"download-att-container\" fiber-id=\"atooltip_29\"><a data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><i data-v-e24fa3a8=\"\" class=\"anticon\" data-v-6291af88=\"\" fiber-id=\"aicon_18\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-xiazai\"></use></svg></i></a></div></li><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"view-icon\" fiber-id=\"atooltip_30\"><i data-v-e24fa3a8=\"\" class=\"anticon\" fiber-id=\"aicon_19\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-chakan\"></use></svg></i></a></li></UL>",
+      "className": "flex-wrapper",
+      "id": ""
+    },
+    {
+      "index": 14,
+      "fileName": "V5日志路径.xls",
+      "extension": ".xls",
+      "hasDownloadAttr": true,
+      "href": "",
+      "fiberId": "atooltip_8",
+      "clickHandler": null,
+      "containerData": {
+        "data-v-5bbecc4c": ""
+      },
+      "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">V5日志路径</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.xls</span></A>",
+      "parentHTML": "<UL data-v-5bbecc4c=\"\" class=\"file-list-container\"><li data-v-5bbecc4c=\"\" class=\"item-wrapper\"><section data-v-5bbecc4c=\"\" class=\"left-item-wrapper\"><span data-v-5bbecc4c=\"\" class=\"file-icon syDoc pdf\"></span><!----><section data-v-5bbecc4c=\"\" class=\"title-wrapper\"><div data-v-960b5c7e=\"\" data-v-5bbecc4c=\"\" class=\"name-element-container name-wrapper\" fiber-id=\"atooltip_1\"><div data-v-6291af88=\"\" data-v-960b5c7e=\"\" class=\"download-att-container download-att-wrapper\" fiber-id=\"downloadatt_1\"><a data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">4、致远产品BUG上报管理细则（2020版）</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.pdf</span></a></div></div><span data-v-5bbecc4c=\"\">(538.8K)</span></section></section><section data-v-5bbecc4c=\"\" class=\"right-item-wrapper\"><!----><!----><ul data-v-e24fa3a8=\"\" data-v-5bbecc4c=\"\" class=\"file-handle-container\" fiber-id=\"filehandle_1\"><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"\" fiber-id=\"",
+      "className": "flex-wrapper",
+      "id": ""
+    },
+    {
+      "index": 15,
+      "fileName": "",
+      "extension": "",
+      "hasDownloadAttr": true,
+      "href": "",
+      "fiberId": "filehandle_8",
+      "clickHandler": null,
+      "containerData": {
+        "data-v-5bbecc4c": ""
+      },
+      "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><i data-v-e24fa3a8=\"\" class=\"anticon\" data-v-6291af88=\"\" fiber-id=\"aicon_20\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-xiazai\"></use></svg></i></A>",
+      "parentHTML": "<UL data-v-e24fa3a8=\"\" data-v-5bbecc4c=\"\" class=\"file-handle-container\" fiber-id=\"filehandle_8\"><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"\" fiber-id=\"atooltip_31\"><i data-v-e24fa3a8=\"\" class=\"syIcon sy-collect\"></i></a></li><li data-v-e24fa3a8=\"\"><div data-v-6291af88=\"\" data-v-e24fa3a8=\"\" class=\"download-att-container\" fiber-id=\"atooltip_32\"><a data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><i data-v-e24fa3a8=\"\" class=\"anticon\" data-v-6291af88=\"\" fiber-id=\"aicon_20\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-xiazai\"></use></svg></i></a></div></li><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"view-icon\" fiber-id=\"atooltip_33\"><i data-v-e24fa3a8=\"\" class=\"anticon\" fiber-id=\"aicon_21\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-chakan\"></use></svg></i></a></li></UL>",
+      "className": "flex-wrapper",
+      "id": ""
+    },
+    {
+      "index": 16,
+      "fileName": "致远互联【司】字【2026】第001号《2026年产品维护服务周期管理办法》.pdf",
+      "extension": ".pdf",
+      "hasDownloadAttr": true,
+      "href": "",
+      "fiberId": "atooltip_9",
+      "clickHandler": null,
+      "containerData": {
+        "data-v-5bbecc4c": ""
+      },
+      "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">致远互联【司】字【2026】第001号《2026年产品维护服务周期管理办法》</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.pdf</span></A>",
+      "parentHTML": "<UL data-v-5bbecc4c=\"\" class=\"file-list-container\"><li data-v-5bbecc4c=\"\" class=\"item-wrapper\"><section data-v-5bbecc4c=\"\" class=\"left-item-wrapper\"><span data-v-5bbecc4c=\"\" class=\"file-icon syDoc pdf\"></span><!----><section data-v-5bbecc4c=\"\" class=\"title-wrapper\"><div data-v-960b5c7e=\"\" data-v-5bbecc4c=\"\" class=\"name-element-container name-wrapper\" fiber-id=\"atooltip_1\"><div data-v-6291af88=\"\" data-v-960b5c7e=\"\" class=\"download-att-container download-att-wrapper\" fiber-id=\"downloadatt_1\"><a data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><span data-v-960b5c7e=\"\" data-v-6291af88=\"\" class=\"filename\">4、致远产品BUG上报管理细则（2020版）</span><span data-v-960b5c7e=\"\" data-v-6291af88=\"\">.pdf</span></a></div></div><span data-v-5bbecc4c=\"\">(538.8K)</span></section></section><section data-v-5bbecc4c=\"\" class=\"right-item-wrapper\"><!----><!----><ul data-v-e24fa3a8=\"\" data-v-5bbecc4c=\"\" class=\"file-handle-container\" fiber-id=\"filehandle_1\"><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"\" fiber-id=\"",
+      "className": "flex-wrapper",
+      "id": ""
+    },
+    {
+      "index": 17,
+      "fileName": "",
+      "extension": "",
+      "hasDownloadAttr": true,
+      "href": "",
+      "fiberId": "filehandle_9",
+      "clickHandler": null,
+      "containerData": {
+        "data-v-5bbecc4c": ""
+      },
+      "outerHTML": "<A data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><i data-v-e24fa3a8=\"\" class=\"anticon\" data-v-6291af88=\"\" fiber-id=\"aicon_22\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-xiazai\"></use></svg></i></A>",
+      "parentHTML": "<UL data-v-e24fa3a8=\"\" data-v-5bbecc4c=\"\" class=\"file-handle-container\" fiber-id=\"filehandle_9\"><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"\" fiber-id=\"atooltip_34\"><i data-v-e24fa3a8=\"\" class=\"syIcon sy-collect\"></i></a></li><li data-v-e24fa3a8=\"\"><div data-v-6291af88=\"\" data-v-e24fa3a8=\"\" class=\"download-att-container\" fiber-id=\"atooltip_35\"><a data-v-6291af88=\"\" download=\"\" class=\"flex-wrapper\"><i data-v-e24fa3a8=\"\" class=\"anticon\" data-v-6291af88=\"\" fiber-id=\"aicon_22\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-xiazai\"></use></svg></i></a></div></li><li data-v-e24fa3a8=\"\"><a data-v-e24fa3a8=\"\" class=\"view-icon\" fiber-id=\"atooltip_36\"><i data-v-e24fa3a8=\"\" class=\"anticon\" fiber-id=\"aicon_23\"><svg width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\" focusable=\"false\" class=\"\"><use data-v-e24fa3a8=\"\" xlink:href=\"#cap-icon-chakan\"></use></svg></i></a></li></UL>",
+      "className": "flex-wrapper",
+      "id": ""
+    }
+  ],
+  "windowData": {
+    "globalVars": {},
+    "vueData": null,
+    "storage": {}
+  },
+  "capturedUrls": []
+}
