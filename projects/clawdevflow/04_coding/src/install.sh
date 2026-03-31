@@ -69,7 +69,7 @@ main() {
 
     # 3. 获取脚本所在目录
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    SKILL_NAME="openclaw-research-workflow"
+    SKILL_NAME="clawdevflow"
     TARGET_DIR="$SKILLS_DIR/$SKILL_NAME"
 
     # 4. 检查是否已安装
@@ -155,7 +155,7 @@ main() {
     print_info "📍 安装位置：$TARGET_DIR"
     echo ""
     print_info "使用方法:"
-    echo "  /sessions_spawn openclaw-research-workflow"
+    echo "  /sessions_spawn clawdevflow"
     echo ""
     print_info "查看文档:"
     echo "  cat $TARGET_DIR/README.md"

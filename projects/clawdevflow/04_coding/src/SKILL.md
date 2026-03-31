@@ -1,10 +1,12 @@
 ---
-name: openclaw-research-workflow
-description: AI 辅助研发流程编排引擎 v2.0（Meta-Skill），审阅驱动 + 会话隔离 + 工具无关，自动化编排 designing→roadmapping→detailing→coding→reviewing 完整流程
+name: clawdevflow
+displayName: ClawDevFlow (CDF) - 爪刃研发流
+description: AI 辅助研发流程编排引擎 v3.0.1（Meta-Skill），审阅驱动 + 会话隔离 + 工具无关，自动化编排 designing→roadmapping→detailing→coding→reviewing 完整流程
 triggers:
-  - /sessions_spawn openclaw-research-workflow
-entry: workflow.md
-version: 2.0.0
+  - /sessions_spawn clawdevflow
+  - /sessions_spawn cdf
+entry: workflow-executor.js
+version: 3.0.1
 author: openclaw-ouyp
 license: MIT
 ---
