@@ -41,6 +41,22 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error('无法获取当前标签页');
       }
 
+      showStatus('正在注入脚本...', 'info');
+
+      // 先注入 content script（确保 content script 已加载）
+      try {
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ['content/content.js']
+        });
+      } catch (e) {
+        // 如果已经注入过，会报错，忽略继续
+        console.log('Content script 可能已注入');
+      }
+
+      // 等待一小段时间确保 content script 就绪
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       showStatus('正在读取页面内容...', 'info');
 
       // 发送消息到 content script 获取页面 HTML
@@ -59,8 +75,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const withAttachments = (document.getElementById('withAttachments') as HTMLInputElement).checked;
       const withFields = (document.getElementById('withFields') as HTMLInputElement).checked;
 
-      // 调用 background script 进行转换
-      const result = await chrome.runtime.sendMessage({
+      // 发送到 content script 进行转换（转换逻辑已移到 content script）
+      const result = await chrome.tabs.sendMessage(tab.id, {
         action: 'convert',
         html: pageResponse.html,
         url: tab.url,
@@ -71,7 +87,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
 
+      console.log('[URI-to-Markdown] 转换结果:', result);
       convertResult = result;
+
+      // 检查转换结果
+      if (!result.success) {
+        throw new Error(result.error || '转换失败');
+      }
+
+      if (!result.markdown || result.markdown.trim() === '') {
+        console.warn('[URI-to-Markdown] 转换结果为空，HTML 长度:', pageResponse.html?.length);
+        showStatus('警告：转换结果为空，请检查页面内容', 'error');
+      }
 
       // 显示元数据
       if (result.meta && withMeta) {
@@ -87,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // 显示预览
-      previewContent.textContent = result.markdown;
+      previewContent.textContent = result.markdown || '(空)';
       preview.classList.add('show');
       actions.classList.add('show');
 

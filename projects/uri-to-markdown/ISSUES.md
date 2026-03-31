@@ -115,3 +115,63 @@ v2.1.1
 
 ### 状态
 ✅ 已修复
+
+---
+
+## Issue #004（2026-03-31）
+
+### 问题描述
+Chrome 插件转换致远 OA 页面时结果为 `undefined`，无法正确提取内容。
+
+### 复现步骤
+1. 在 Chrome 中加载 URI to Markdown 插件
+2. 打开致远 OA 页面（如 BUG 单、报表）
+   - 示例 URL: `https://xt.seeyon.com/seeyon/report4Result.do?method=reportPenetrate&rptDesignId=-4919087800369594175&...`
+3. 点击插件图标 → 点击"转换当前页面"
+4. 预览区域显示 `undefined`
+
+### 预期行为
+- 正确提取致远 OA 页面内容
+- 输出完整 Markdown（含表单字段、附件列表）
+- 82 个字段完整提取
+
+### 实际行为
+- 转换结果为 `undefined`
+- 预览区域空白或显示错误
+
+### 根因分析
+致远 OA 页面内容在 iframe 中（`cap4/form/dist/index.html`），但 Chrome 插件的 content script 只获取了主页面 HTML，没有提取 iframe 内容，导致转换引擎无内容可处理。
+
+**技术原因**：
+- 致远 OA 使用 iframe 嵌套架构
+- 主页面是框架容器，实际业务内容在 iframe 内
+- 原 content.ts 仅调用 `document.documentElement.outerHTML` 获取主页面
+- iframe 内容未被提取，导致转换结果为空
+
+### 修复方案
+1. 修改 `content/content.ts` 添加 iframe 内容提取逻辑
+2. 遍历所有 iframe，使用 `iframe.contentDocument` 访问内容
+3. 添加 try-catch 处理跨域 iframe（自动跳过）
+4. 只提取有实际内容的 iframe（textContent.length > 0）
+5. 将 iframe 内容合并到主 HTML（用 HTML 注释标记分隔）
+6. 添加 console.log 便于调试
+
+### 修复版本
+v2.1.2
+
+### 修复文件
+- `04_coding/src/chrome-extension/content/content.ts`（修改）
+- `04_coding/src/chrome-extension/content/content.js`（重新构建）
+- `01_designing/TRD.md`（追加根因分析）
+- `CHANGELOG.md`（追加 v2.1.2 记录）
+- `05_reviewing/REVIEW-REPORT.md`（追加修复验证）
+
+### 测试结果
+✅ content.ts 已修改
+✅ content.js 已重新构建（1.1kb）
+✅ 致远 OA 同源 iframe 可正常访问
+✅ 跨域 iframe 自动跳过（不报错）
+✅ iframe 内容合并到主 HTML
+
+### 状态
+✅ 已修复

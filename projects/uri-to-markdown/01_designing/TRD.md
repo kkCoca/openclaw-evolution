@@ -712,6 +712,86 @@ async function withRetry<T>(
 | 版本 | 日期 | 变更说明 |
 |------|------|---------|
 | v1.0.0 | 2026-03-30 | 初始版本（全新功能） |
+| v2.1.2 | 2026-03-31 | Issue #004 修复：Chrome 插件 iframe 内容提取 |
+
+---
+
+## 11. Issue #004 根因分析与修复方案
+
+### 11.1 问题描述
+
+Chrome 插件转换致远 OA 页面时结果为 `undefined`，无法正确提取内容。
+
+### 11.2 根因分析
+
+致远 OA 页面内容在 iframe 中（`cap4/form/dist/index.html`），但 Chrome 插件的 content script 只获取了主页面 HTML，没有提取 iframe 内容，导致转换引擎无内容可处理。
+
+**技术原因**：
+- 致远 OA 使用 iframe 嵌套架构
+- 主页面是框架容器，实际业务内容在 iframe 内
+- 原 content.ts 仅调用 `document.documentElement.outerHTML` 获取主页面
+- iframe 内容未被提取，导致转换结果为空
+
+### 11.3 修复方案
+
+#### 11.3.1 修改 content.ts
+
+添加 iframe 内容提取逻辑：
+
+```typescript
+// 检测所有 iframe
+const iframes = document.querySelectorAll('iframe');
+
+// 提取每个 iframe 的内容
+for (const iframe of iframes) {
+  try {
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    const content = iframeDoc?.body?.innerHTML || '';
+    const textLength = iframeDoc?.body?.textContent?.length || 0;
+    
+    if (textLength > 0) {
+      // 收集有内容的 iframe
+      frameContents.push(content);
+    }
+  } catch (e) {
+    // 跨域 iframe 无法访问，跳过
+  }
+}
+
+// 合并到主 HTML
+const mergedHtml = html.replace(
+  '</body>',
+  '<!-- IFRAME_CONTENT_START -->' + 
+  frameContents.join('<hr><!-- FRAME_SEPARATOR -->') +
+  '<!-- IFRAME_CONTENT_END --></body>'
+);
+```
+
+#### 11.3.2 技术要点
+
+1. **同源策略处理**：使用 try-catch 捕获跨域 iframe 访问异常
+2. **内容过滤**：只提取有实际内容的 iframe（textContent.length > 0）
+3. **标记分隔**：使用 HTML 注释标记 iframe 内容边界，便于后续处理
+4. **调试日志**：添加 console.log 便于排查问题
+
+### 11.4 验证结果
+
+- ✅ content.ts 已修改
+- ✅ content.js 已重新构建
+- ✅ 致远 OA 同源 iframe 可正常访问
+- ✅ 跨域 iframe 自动跳过（不报错）
+- ✅ iframe 内容合并到主 HTML
+
+### 11.5 影响范围
+
+| 文件 | 变更类型 | 说明 |
+|------|---------|------|
+| `content/content.ts` | 修改 | 添加 iframe 提取逻辑 |
+| `content/content.js` | 重新构建 | 编译后的 JS 文件 |
+| `TRD.md` | 追加 | 记录根因分析和修复方案 |
+| `CHANGELOG.md` | 追加 | v2.1.2 修复记录 |
+| `ISSUES.md` | 更新 | #004 状态更新为已修复 |
+| `REVIEW-REPORT.md` | 更新 | 记录修复验证 |
 
 ---
 

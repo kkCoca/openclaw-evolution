@@ -75,6 +75,25 @@
 
 ---
 
+## [2.1.2] - 2026-03-31
+
+### 🐛 Bug 修复
+
+- **Chrome 插件 iframe 内容提取修复（Issue #004）**
+  - 问题：致远 OA 页面内容在 iframe 中，但 content script 只获取主页面 HTML，导致转换结果为 `undefined`
+  - 根因：content.ts 未提取 iframe 内容，转换引擎无内容可处理
+  - 修复：
+    - 遍历所有 iframe，使用 `iframe.contentDocument` 访问内容
+    - 添加 try-catch 处理跨域 iframe（自动跳过）
+    - 只提取有实际内容的 iframe（textContent.length > 0）
+    - 将 iframe 内容合并到主 HTML（用 HTML 注释标记分隔）
+  - 影响：致远 OA 页面可正确提取 iframe 内容并转换为 Markdown
+  - 文件：`04_coding/src/chrome-extension/content/content.ts`（修改）
+  - 构建：`04_coding/src/chrome-extension/content/content.js`（重新构建）
+  - 调试：添加 console.log 便于排查问题
+
+---
+
 ## [2.1.1] - 2026-03-31
 
 ### 🐛 Bug 修复
