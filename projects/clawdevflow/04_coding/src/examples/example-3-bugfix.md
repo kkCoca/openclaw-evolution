@@ -7,7 +7,7 @@
 ## 使用方式
 
 ```bash
-/sessions_spawn openclaw-research-workflow
+/sessions_spawn clawdevflow
 
 # 任务：修复登录会话过期问题
 # 场景类型：问题修复

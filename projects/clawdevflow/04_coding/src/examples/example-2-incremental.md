@@ -7,7 +7,7 @@
 ## 使用方式
 
 ```bash
-/sessions_spawn openclaw-research-workflow
+/sessions_spawn clawdevflow
 
 # 任务：添加用户头像上传功能
 # 场景类型：增量需求

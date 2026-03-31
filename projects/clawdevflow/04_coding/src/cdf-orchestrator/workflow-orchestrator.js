@@ -1,0 +1,365 @@
+/**
+ * Workflow Orchestrator (流程编排器)
+ * 
+ * ClawDevFlow (CDF) 核心编排器
+ * 负责整个研发流程的调度、状态管理和审阅协调
+ * 
+ * @version 3.0.0
+ * @author openclaw-ouyp
+ * @license MIT
+ */
+
+const path = require('path');
+const StageExecutor = require('./stage-executor');
+const StateManager = require('./state-manager');
+const ReviewOrchestrator = require('../review-orchestrator/review-orchestrator');
+const StageModule = require('./stage-executor');
+const Stage = StageModule.Stage;
+const StageStatus = require('./state-manager').StageStatus;
+
+/**
+ * 阶段序列
+ */
+const STAGE_SEQUENCE = [
+  Stage.DESIGNING,
+  Stage.ROADMAPPING,
+  Stage.DETAILING,
+  Stage.CODING,
+  Stage.TESTING,
+  Stage.REVIEWING
+];
+
+/**
+ * 流程编排器
+ */
+class WorkflowOrchestrator {
+  /**
+   * 构造函数
+   * @param {object} config - 配置对象
+   */
+  constructor(config) {
+    this.config = config || {};
+    this.stageExecutor = new StageExecutor(config);
+    this.stateManager = null;
+    this.reviewOrchestrator = new ReviewOrchestrator(config);
+    
+    console.log('[Workflow-Orchestrator] 流程编排器初始化完成');
+    console.log('[Workflow-Orchestrator] 阶段序列:', STAGE_SEQUENCE.join(' → '));
+  }
+
+  /**
+   * 执行工作流
+   * 
+   * @param {object} workflowConfig - 工作流配置
+   * @param {string} workflowConfig.projectPath - 项目路径
+   * @param {string} workflowConfig.scenario - 场景类型（全新功能/增量需求/问题修复）
+   * @param {string} workflowConfig.requirementsFile - 需求说明文件路径
+   * @returns {Promise<{success: boolean, workflowId: string}>}
+   * 
+   * @example
+   * ```javascript
+   * const orchestrator = new WorkflowOrchestrator(config);
+   * const result = await orchestrator.execute({
+   *   projectPath: '/path/to/project',
+   *   scenario: '全新功能',
+   *   requirementsFile: 'REQUIREMENTS.md'
+   * });
+   * ```
+   */
+  async execute(workflowConfig) {
+    console.log('');
+    console.log('╔═══════════════════════════════════════════════════════════╗');
+    console.log('║   ClawDevFlow (CDF) 流程执行开始                           ║');
+    console.log('╚═══════════════════════════════════════════════════════════╝');
+    console.log('');
+
+    const { projectPath, scenario, requirementsFile } = workflowConfig;
+
+    try {
+      // 1. 初始化状态管理器
+      console.log('[Workflow-Orchestrator] 步骤 1/7: 初始化状态管理器...');
+      this.stateManager = new StateManager(this.config, projectPath);
+      this.stateManager.setMetadata({ scenario, requirementsFile, startTime: new Date().toISOString() });
+      console.log(`[Workflow-Orchestrator] ✅ 工作流 ID: ${this.stateManager.state.workflowId}`);
+      console.log('');
+
+      // 2. 执行阶段循环
+      console.log('[Workflow-Orchestrator] 步骤 2/7: 开始执行阶段循环...');
+      console.log('');
+
+      for (let i = 0; i < STAGE_SEQUENCE.length; i++) {
+        const stageName = STAGE_SEQUENCE[i];
+        const stageResult = await this.executeStage(stageName, workflowConfig);
+        
+        if (!stageResult.success) {
+          console.log(`[Workflow-Orchestrator] ❌ 阶段 ${stageName} 执行失败`);
+          this.stateManager.terminate(`阶段 ${stageName} 执行失败：${stageResult.error}`);
+          return {
+            success: false,
+            workflowId: this.stateManager.state.workflowId,
+            failedStage: stageName,
+            error: stageResult.error
+          };
+        }
+
+        // 如果不是最后一个阶段，继续下一个
+        if (i < STAGE_SEQUENCE.length - 1) {
+          console.log('');
+          console.log(`[Workflow-Orchestrator] ─────────────────────────────────────────────`);
+          console.log('');
+        }
+      }
+
+      console.log('');
+      console.log('[Workflow-Orchestrator] 步骤 3/7: 所有阶段执行完成...');
+      console.log('');
+
+      // 3. 完成工作流
+      this.stateManager.complete();
+
+      // 4. 生成报告
+      console.log('[Workflow-Orchestrator] 步骤 4/7: 生成工作流报告...');
+      const report = this.stateManager.getReport();
+      console.log('[Workflow-Orchestrator] ✅ 工作流报告已生成');
+      console.log('');
+
+      // 5. 输出总结
+      console.log('╔═══════════════════════════════════════════════════════════╗');
+      console.log('║   ClawDevFlow (CDF) 流程执行完成                           ║');
+      console.log('╚═══════════════════════════════════════════════════════════╝');
+      console.log('');
+      console.log(`工作流 ID: ${report.workflowId}`);
+      console.log(`项目路径：${report.projectPath}`);
+      console.log(`进度：${report.progress.passed}/${report.progress.total} (${report.progress.percentage}%)`);
+      console.log(`待修复项：${report.totalFixItems} 项`);
+      console.log(`创建时间：${new Date(report.createdAt).toLocaleString()}`);
+      console.log(`更新时间：${new Date(report.updatedAt).toLocaleString()}`);
+      console.log('');
+
+      return {
+        success: true,
+        workflowId: report.workflowId,
+        report
+      };
+
+    } catch (error) {
+      console.error('[Workflow-Orchestrator] ❌ 工作流执行失败:', error.message);
+      
+      if (this.stateManager) {
+        this.stateManager.terminate(error.message);
+      }
+      
+      return {
+        success: false,
+        workflowId: this.stateManager?.state.workflowId || 'unknown',
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * 执行单个阶段
+   * @param {string} stageName - 阶段名称
+   * @param {object} workflowConfig - 工作流配置
+   * @returns {Promise<{success: boolean, error?: string}>}
+   * @private
+   */
+  async executeStage(stageName, workflowConfig) {
+    console.log('');
+    console.log('[Workflow-Orchestrator] ════════════════════════════════════════');
+    console.log(`[Workflow-Orchestrator] 阶段：${stageName.toUpperCase()}`);
+    console.log('[Workflow-Orchestrator] ════════════════════════════════════════');
+    console.log('');
+
+    try {
+      // 1. 更新状态为执行中
+      this.stateManager.updateStage(stageName, StageStatus.RUNNING);
+
+      // 2. 准备阶段输入
+      const input = await this.prepareStageInput(stageName, workflowConfig);
+
+      // 3. 执行阶段
+      const stageResult = await this.stageExecutor.execute(
+        stageName,
+        input,
+        workflowConfig.projectPath
+      );
+
+      if (!stageResult.success) {
+        return { success: false, error: stageResult.error };
+      }
+
+      // 4. 记录阶段输出
+      this.stateManager.setStageOutputs(stageName, stageResult.outputs);
+
+      // 5. 更新状态为待审阅
+      this.stateManager.updateStage(stageName, StageStatus.REVIEWING);
+
+      // 6. 执行审阅
+      console.log('[Workflow-Orchestrator] 执行审阅...');
+      const reviewDecision = await this.reviewOrchestrator.review(
+        stageName,
+        input,
+        stageResult.outputs,
+        workflowConfig.projectPath
+      );
+
+      // 7. 记录审阅决策
+      this.stateManager.recordReviewDecision(
+        stageName,
+        reviewDecision.decision,
+        reviewDecision.notes,
+        reviewDecision.fixItems
+      );
+
+      // 8. 处理审阅决策
+      return await this.handleReviewDecision(stageName, reviewDecision, workflowConfig);
+
+    } catch (error) {
+      console.error(`[Workflow-Orchestrator] 阶段 ${stageName} 执行失败:`, error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * 准备阶段输入
+   * @param {string} stageName - 阶段名称
+   * @param {object} workflowConfig - 工作流配置
+   * @returns {Promise<object>} 阶段输入
+   * @private
+   */
+  async prepareStageInput(stageName, workflowConfig) {
+    const { projectPath, requirementsFile } = workflowConfig;
+    
+    const input = {
+      projectPath,
+      requirementsFile: path.join(projectPath, requirementsFile)
+    };
+
+    // 根据阶段添加特定输入
+    switch (stageName) {
+      case Stage.ROADMAPPING:
+        input.prdFile = path.join(projectPath, '01_designing/PRD.md');
+        input.trdFile = path.join(projectPath, '01_designing/TRD.md');
+        break;
+
+      case Stage.DETAILING:
+        input.prdFile = path.join(projectPath, '01_designing/PRD.md');
+        input.trdFile = path.join(projectPath, '01_designing/TRD.md');
+        input.roadmapFile = path.join(projectPath, '02_roadmapping/ROADMAP.md');
+        break;
+
+      case Stage.CODING:
+        input.detailFile = path.join(projectPath, '03_detailing/DETAIL.md');
+        break;
+
+      case Stage.TESTING:
+        input.srcDir = path.join(projectPath, '04_coding/src');
+        break;
+    }
+
+    return input;
+  }
+
+  /**
+   * 处理审阅决策
+   * @param {string} stageName - 阶段名称
+   * @param {object} reviewDecision - 审阅决策
+   * @param {object} workflowConfig - 工作流配置
+   * @returns {Promise<{success: boolean, error?: string}>}
+   * @private
+   */
+  async handleReviewDecision(stageName, reviewDecision, workflowConfig) {
+    console.log('');
+    console.log('[Workflow-Orchestrator] 处理审阅决策...');
+    console.log(`  结论：${reviewDecision.decision}`);
+    console.log(`  待修复项：${reviewDecision.fixItems.length} 项`);
+    console.log('');
+
+    switch (reviewDecision.decision) {
+      case 'pass':
+        console.log('[Workflow-Orchestrator] ✅ 审阅通过，进入下一阶段');
+        return { success: true };
+
+      case 'conditional':
+        console.log('[Workflow-Orchestrator] ⚠️ 条件通过，进入下一阶段但需修复');
+        console.log('[Workflow-Orchestrator] 待修复项已记录，将在后续版本修复');
+        return { success: true };
+
+      case 'reject':
+        const stage = this.stateManager.getStage(stageName);
+        if (stage.retryCount >= 3) {
+          console.log('[Workflow-Orchestrator] ❌ 超过最大重试次数，终止流程');
+          return { success: false, error: '超过最大重试次数' };
+        }
+        
+        console.log('[Workflow-Orchestrator] ❌ 审阅驳回，重新执行当前阶段');
+        // 重新执行当前阶段
+        return await this.executeStage(stageName, workflowConfig);
+
+      case 'clarify':
+        console.log('[Workflow-Orchestrator] ❓ 需澄清，等待补充信息');
+        // TODO: 等待用户澄清
+        return { success: false, error: '需要澄清' };
+
+      default:
+        return { success: false, error: `未知审阅结论：${reviewDecision.decision}` };
+    }
+  }
+
+  /**
+   * 恢复工作流（断点续传）
+   * @param {string} projectPath - 项目路径
+   * @returns {Promise<object>} 工作流结果
+   */
+  async resume(projectPath) {
+    console.log('');
+    console.log('╔═══════════════════════════════════════════════════════════╗');
+    console.log('║   ClawDevFlow (CDF) 恢复工作流                             ║');
+    console.log('╚═══════════════════════════════════════════════════════════╝');
+    console.log('');
+
+    // 1. 加载现有状态
+    this.stateManager = new StateManager(this.config, projectPath);
+    console.log(`[Workflow-Orchestrator] 加载工作流状态：${this.stateManager.state.workflowId}`);
+    console.log(`[Workflow-Orchestrator] 当前阶段：${this.stateManager.getCurrentStage() || '无'}`);
+    console.log('');
+
+    // 2. 从未通过的阶段继续
+    const currentIndex = this.stateManager.getCurrentStageIndex();
+    
+    for (let i = currentIndex; i < STAGE_SEQUENCE.length; i++) {
+      const stageName = STAGE_SEQUENCE[i];
+      const stage = this.stateManager.getStage(stageName);
+
+      // 如果阶段已通过，跳过
+      if (this.stateManager.isStagePassed(stageName)) {
+        console.log(`[Workflow-Orchestrator] ⏭️ 跳过已通过阶段：${stageName}`);
+        continue;
+      }
+
+      // 执行阶段
+      console.log(`[Workflow-Orchestrator] 继续执行阶段：${stageName}`);
+      const result = await this.executeStage(stageName, {
+        projectPath,
+        scenario: this.stateManager.state.metadata.scenario,
+        requirementsFile: this.stateManager.state.metadata.requirementsFile
+      });
+
+      if (!result.success) {
+        return result;
+      }
+    }
+
+    // 3. 完成工作流
+    this.stateManager.complete();
+    
+    return {
+      success: true,
+      workflowId: this.stateManager.state.workflowId,
+      report: this.stateManager.getReport()
+    };
+  }
+}
+
+module.exports = WorkflowOrchestrator;

@@ -7,7 +7,7 @@
 ## 使用方式
 
 ```bash
-/sessions_spawn openclaw-research-workflow
+/sessions_spawn clawdevflow
 
 # 任务：创建用户登录功能
 # 场景类型：全新功能
