@@ -1,0 +1,21 @@
+{
+  "primary": "origin",
+  "mirrors": [
+    {
+      "name": "github",
+      "url": "https://github.com/USERNAME/REPO.git",
+      "branches": ["master", "main"],
+      "enabled": true
+    },
+    {
+      "name": "gitee",
+      "url": "git@gitee.com:USERNAME/REPO.git",
+      "branches": ["master"],
+      "enabled": true
+    }
+  ],
+  "syncMode": "auto",
+  "retryCount": 3,
+  "retryDelay": 1000,
+  "logLevel": "info"
+}
