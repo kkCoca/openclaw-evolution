@@ -1,15 +1,33 @@
 #!/bin/bash
-# pre-push - 推送前 Hook
-# 推送前验证配置
+# pre-push - 推送前 Hook v1.0.1
+# 推送前验证配置，支持 OpenClaw 环境
 
-# 获取脚本所在目录
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# 获取 Hook 所在目录（可能是 .git/hooks 或 .multi-git/hooks）
+HOOK_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# 加载日志模块
-source "$SCRIPT_DIR/logger.sh"
+# 智能查找真正的 hooks 目录
+# 如果是软链接，找到真实位置
+if [ -L "$HOOK_SCRIPT_DIR/pre-push" ] || [[ "$HOOK_SCRIPT_DIR" == *".git/hooks"* ]]; then
+    # 在 .git/hooks 中，真实 hooks 在 .multi-git/hooks
+    GIT_DIR="$(cd "$HOOK_SCRIPT_DIR/.." && pwd)"
+    REPO_ROOT="$(cd "$GIT_DIR/.." && pwd)"
+    SCRIPT_DIR="$REPO_ROOT/.multi-git/hooks"
+else
+    # 直接在 .multi-git/hooks 中
+    SCRIPT_DIR="$HOOK_SCRIPT_DIR"
+fi
 
-# 加载配置模块
+# 验证目录存在
+if [ ! -d "$SCRIPT_DIR" ]; then
+    echo "[multi-git] [ERROR] 找不到 hooks 目录：$SCRIPT_DIR" >&2
+    exit 1
+fi
+
+# 直接加载配置模块（含 OpenClaw 环境检测）
 source "$SCRIPT_DIR/config.sh"
+
+# 直接加载日志模块
+source "$SCRIPT_DIR/logger.sh"
 
 # 加载配置
 if ! load_config; then
@@ -22,6 +40,12 @@ LOG_LEVEL=$(get_log_level)
 init_logger "$LOG_LEVEL"
 
 log_debug "pre-push Hook 触发"
+log_debug "脚本目录：$SCRIPT_DIR"
+
+# 检测 OpenClaw 环境
+if is_openclaw_env; then
+    log_debug "检测到 OpenClaw 环境"
+fi
 
 # 验证主仓库配置
 PRIMARY=$(get_primary)

@@ -85,6 +85,30 @@ copy_hooks() {
     print_info "Hook 脚本已复制"
 }
 
+# 复制 CLI 脚本
+copy_cli() {
+    print_info "复制 CLI 脚本..."
+    local script_dir
+    script_dir=$(get_script_dir)
+    
+    # 确定源文件
+    local src_cli
+    if [ -f "$script_dir/bin/multi-git.sh" ]; then
+        src_cli="$script_dir/bin/multi-git.sh"
+    elif [ -f "$script_dir/04_coding/bin/multi-git.sh" ]; then
+        src_cli="$script_dir/04_coding/bin/multi-git.sh"
+    else
+        print_warning "找不到 CLI 脚本，跳过安装"
+        return
+    fi
+    
+    # 复制到仓库根目录
+    cp "$src_cli" "$REPO_ROOT/multi-git.sh"
+    chmod +x "$REPO_ROOT/multi-git.sh"
+    
+    print_info "CLI 脚本已复制：$REPO_ROOT/multi-git.sh"
+}
+
 # 复制配置文件
 copy_config() {
     print_info "配置配置文件..."
@@ -131,6 +155,7 @@ set_permissions() {
     print_info "设置执行权限..."
     chmod +x "$REPO_ROOT/.multi-git/hooks/"*
     chmod +x "$REPO_ROOT/.multi-git/config.json" 2>/dev/null || true
+    chmod +x "$REPO_ROOT/multi-git.sh" 2>/dev/null || true
     print_info "权限已设置"
 }
 
@@ -165,6 +190,13 @@ validate_config() {
         return 1
     fi
     
+    # 检查 CLI 工具（可选）
+    if [ -f "$REPO_ROOT/multi-git.sh" ]; then
+        print_info "CLI 工具：已安装"
+    else
+        print_info "CLI 工具：未安装（可选）"
+    fi
+    
     print_info "配置验证通过"
     return 0
 }
@@ -181,6 +213,13 @@ print_usage() {
     echo "2. 配置主仓库和镜像仓库"
     echo "3. 执行一次测试提交：git commit --allow-empty -m 'test'"
     echo ""
+    echo "CLI 工具（v1.0.1 新增）："
+    echo "  ./multi-git.sh sync       # 手动触发同步"
+    echo "  ./multi-git.sh status     # 查看状态"
+    echo "  ./multi-git.sh config     # 查看配置"
+    echo "  ./multi-git.sh log -n 20  # 查看最近 20 条日志"
+    echo "  ./multi-git.sh help       # 显示帮助"
+    echo ""
     echo "配置示例："
     echo "{"
     echo '  "primary": "origin",'
@@ -192,7 +231,8 @@ print_usage() {
     echo '      "enabled": true'
     echo '    }'
     echo '  ],'
-    echo '  "syncMode": "auto"'
+    echo '  "syncMode": "auto",'
+    echo '  "logLevel": "info"'
     echo "}"
     echo ""
 }
@@ -200,7 +240,7 @@ print_usage() {
 # 主函数
 main() {
     echo "========================================"
-    echo "  multi-git-manager 安装程序"
+    echo "  multi-git-manager 安装程序 v1.0.1"
     echo "========================================"
     echo ""
     
@@ -209,6 +249,7 @@ main() {
     create_directories
     copy_hooks
     copy_config
+    copy_cli
     create_hook_links
     set_permissions
     

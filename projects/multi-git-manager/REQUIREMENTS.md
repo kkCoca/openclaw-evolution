@@ -157,6 +157,85 @@ projects/multi-git-manager/
 | 版本 | 日期 | 变更说明 |
 |------|------|---------|
 | v1.0.0 | 2026-04-01 | 初始版本（纯 Git Hook 方案） |
+| **v1.0.1** | **2026-04-01** | **Bugfix：同步日志 + OpenClaw 兼容 + sync 命令** |
+
+---
+
+## 8. v1.0.1 Bugfix 需求说明
+
+**Issue ID**: BUGFIX-001  
+**需求类型**: 问题修复  
+**版本升级**: v1.0.0 → v1.0.1
+
+### 8.1 问题背景
+
+v1.0.0 部署验证中发现以下问题：
+
+1. **缺少同步日志** - 无法追溯同步历史
+2. **OpenClaw 兼容性** - post-commit Hook 有时不触发
+3. **缺少手动同步命令** - 用户需要手动执行 Hook 脚本
+
+### 8.2 修复目标
+
+| 目标 | 说明 | 验收标准 |
+|------|------|---------|
+| **同步日志** | 记录每次同步结果 | `.multi-git/sync.log` 文件存在 |
+| **OpenClaw 兼容** | 适配 OpenClaw Git 提交流程 | post-commit Hook 稳定触发 |
+| **sync 命令** | 提供手动同步命令 | `multi-git sync` 可用 |
+
+### 8.3 功能需求
+
+1. **同步日志文件**
+   - 路径：`.multi-git/sync.log`
+   - 格式：`[时间] [状态] [仓库] [消息]`
+   - 保留：最近 100 条记录
+
+2. **OpenClaw 兼容性改进**
+   - 检测 OpenClaw 环境
+   - 使用绝对路径加载模块
+   - 添加环境变量支持
+
+3. **multi-git sync 命令**
+   - 脚本：`multi-git.sh`
+   - 功能：手动触发同步
+   - 位置：项目根目录或 PATH 中
+
+### 8.4 输出要求
+
+**新增文件**：
+```
+projects/multi-git-manager/
+├── 04_coding/
+│   ├── multi-git.sh         # 新增：CLI 命令
+│   └── hooks/
+│       ├── logger.sh        # 修改：添加日志文件支持
+│       ├── sync.sh          # 修改：添加日志记录
+│       └── post-commit      # 修改：OpenClaw 兼容性改进
+├── 05_reviewing/
+│   └── REVIEW-REPORT-v1.0.1.md  # 新增：验收报告
+└── CHANGELOG.md             # 追加：v1.0.1 记录
+```
+
+### 8.5 验收标准
+
+- Given 同步日志功能已实现
+- When 执行同步
+- Then `.multi-git/sync.log` 包含同步记录
+
+- Given OpenClaw 环境
+- When 执行 git commit
+- Then post-commit Hook 正常触发
+
+- Given multi-git.sh 脚本存在
+- When 执行 `./multi-git.sh sync`
+- Then 手动触发同步到所有镜像仓库
+
+### 8.6 版本历史（追加）
+
+| 版本 | 日期 | 变更说明 |
+|------|------|---------|
+| v1.0.0 | 2026-04-01 | 初始版本 |
+| **v1.0.1** | **2026-04-01** | **Bugfix：同步日志 + OpenClaw 兼容 + sync 命令** |
 
 ---
 
