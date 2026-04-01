@@ -9,6 +9,52 @@
 
 ---
 
+## [v3.0.1] - 2026-04-01
+
+### Changed
+
+- **文档精简**: 删除研发过程报告，保持项目目录简洁
+  - 删除 AGENTS-UPDATE-LOG.md（内容已合并）
+  - 删除 DEPLOYMENT-REPORT.md（内容已合并）
+  - 删除 INSTALLATION-CHECK.md（临时验证文件）
+  - 删除 REPAIR-PLAN.md（内容已合并到 ISSUES.md）
+  - 删除 UPGRADE-LOG.md（内容已合并）
+  - 删除 WORKFLOW-V2-SUMMARY.md（内容已合并）
+  - 删除 04_coding/src/PHASE2-IMPLEMENTATION.md（临时文件）
+  - 删除 04_coding/src/PHASE3-SUMMARY.md（临时文件）
+
+### Added
+
+- **README.md**: 新增完整的 skill 介绍和使用指南
+  - 功能特性说明
+  - 安装步骤
+  - 使用示例
+  - 配置说明
+  - 常见问题
+
+### Changed
+
+- **SKILL.md**: 移除 "Meta-Skill" 描述，统一称为 "流程引擎 skill"
+
+---
+
+## [v3.0.0] - 2026-03-31
+
+### Changed
+
+- **重命名**: openclaw-research-workflow → clawdevflow
+  - 统一使用 clawdevflow 名称
+  - 更新所有引用和文档
+
+### Added
+
+- **安装脚本**: install.sh / install.bat / install.js
+  - 支持 Linux/Mac/Windows
+  - 自动检测 Node.js 版本
+  - 自动安装 bundled skills
+
+---
+
 ## [v2.0.1] - 2026-03-30
 
 ### Bugfix

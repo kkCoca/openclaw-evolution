@@ -1,7 +1,7 @@
 ---
 name: clawdevflow
 displayName: ClawDevFlow (CDF) - 爪刃研发流
-description: AI 辅助研发流程编排引擎 v3.0.1（Meta-Skill），审阅驱动 + 会话隔离 + 工具无关，自动化编排 designing→roadmapping→detailing→coding→reviewing 完整流程
+description: AI 辅助研发流程编排引擎 v3.0.1，审阅驱动 + 会话隔离 + 工具无关，自动化编排 designing→roadmapping→detailing→coding→reviewing 完整流程
 triggers:
   - /sessions_spawn clawdevflow
   - /sessions_spawn cdf
@@ -11,18 +11,18 @@ author: openclaw-ouyp
 license: MIT
 ---
 
-# OpenClaw Research Workflow Engine v2.0
+# ClawDevFlow 流程引擎
 
-> **定位说明**: 这是一个**流程编排引擎**（Meta-Skill），以 Skill 形式提供，但内部实现完整的流程管理、状态机、AI 工具适配等复杂功能。
+> **定位说明**: 这是一个**流程编排引擎 skill**，以 Skill 形式提供，内部实现完整的流程管理、状态机、AI 工具适配等复杂功能。
 
 ## 简介
 
 本引擎是一个**审阅驱动**的流程编排系统，自动化编排 AI 辅助研发流程。每个阶段完成后必须经 openclaw-ouyp 审阅确认后才继续，确保质量可控。
 
-## 为什么是 Meta-Skill？
+## 为什么是流程引擎 skill？
 
-| 维度 | 传统 Skill | 本引擎 (Meta-Skill) |
-|------|-----------|-------------------|
+| 维度 | 传统 Skill | 本引擎 |
+|------|-----------|------|
 | **功能** | 单一任务 | 编排 5 个阶段 + 状态管理 |
 | **代码规模** | ~100-500 行 | ~5500 行 |
 | **状态管理** | 无 | 完整状态机 + 断点续传 |
