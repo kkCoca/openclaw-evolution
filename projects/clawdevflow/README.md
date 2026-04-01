@@ -198,6 +198,41 @@ clawdevflow/
 
 ## 配置说明
 
+### 环境变量配置
+
+clawdevflow 支持通过环境变量配置运行时参数，优先级高于配置文件。
+
+| 环境变量 | 说明 | 默认值 | 示例 |
+|---------|------|--------|------|
+| `OPENCLAW_WORKSPACE_ROOT` | OpenClaw 工作区根目录 | `../../..` (相对路径) | `/home/ouyp/.openclaw/workspace` |
+| `CDF_LOG_LEVEL` | 日志级别 | `info` | `debug` / `info` / `warn` / `error` |
+| `CDF_DEFAULT_AI_TOOL` | 默认 AI 工具 | `opencode` | `opencode` / `claude-code` / `custom` |
+
+**配置方式**：
+
+```bash
+# 方式 1：临时设置（当前终端会话有效）
+export OPENCLAW_WORKSPACE_ROOT=/home/ouyp/.openclaw/workspace
+export CDF_LOG_LEVEL=debug
+
+# 方式 2：写入 ~/.bashrc 或 ~/.zshrc（永久生效）
+echo 'export OPENCLAW_WORKSPACE_ROOT=/home/ouyp/.openclaw/workspace' >> ~/.bashrc
+source ~/.bashrc
+
+# 方式 3：在调用时设置
+OPENCLAW_WORKSPACE_ROOT=/path/to/workspace /sessions_spawn clawdevflow
+```
+
+**config.yaml 中使用环境变量**：
+
+```yaml
+global:
+  # 使用环境变量，支持默认值语法 ${VAR:-default}
+  workspaceRoot: ${OPENCLAW_WORKSPACE_ROOT:-../../..}
+  logLevel: ${CDF_LOG_LEVEL:-info}
+  defaultAITool: ${CDF_DEFAULT_AI_TOOL:-opencode}
+```
+
 ### config.yaml
 
 ```yaml
@@ -363,6 +398,67 @@ cat ~/.openclaw/skills/clawdevflow/logs/{workflowId}.log | jq 'select(.stage == 
 **Q: 审阅请求未响应**
 - 检查 QQ 消息是否正常接收
 - 审阅结论格式：`pass` / `conditional` / `reject` / `clarify` / `terminate`
+
+---
+
+## 测试与覆盖率
+
+### 运行测试
+
+```bash
+cd 04_coding/src
+
+# 运行全量测试
+npm test
+
+# 运行特定测试
+npm run test:state       # State Manager 测试
+npm run test:adapter     # AI Tool Adapter 测试
+npm run test:workflow    # Workflow Orchestrator 测试
+npm run test:review      # Review 系统测试
+```
+
+### 覆盖率报告
+
+clawdevflow 使用 nyc 进行代码覆盖率测量，目标覆盖率为 80%+。
+
+```bash
+cd 04_coding/src
+
+# 运行测试并生成覆盖率报告
+npm run test:coverage
+
+# 查看文本覆盖率报告
+# 输出到终端
+
+# 生成 HTML 可视化报告
+npm run report:coverage
+
+# 在浏览器中打开 HTML 报告
+# Linux/macOS:
+xdg-open coverage/index.html  # Linux
+open coverage/index.html      # macOS
+
+# Windows:
+start coverage/index.html
+```
+
+**覆盖率报告说明**：
+
+| 报告类型 | 位置 | 说明 |
+|---------|------|------|
+| 文本报告 | 终端输出 | 快速查看各文件覆盖率 |
+| HTML 报告 | `coverage/index.html` | 交互式可视化报告，支持点击查看详情 |
+| 摘要报告 | `coverage/coverage-summary.json` | JSON 格式，便于 CI 集成 |
+
+**覆盖率门槛**：
+
+| 指标 | 目标 | 说明 |
+|------|------|------|
+| Lines | 80%+ | 代码行覆盖率 |
+| Functions | 80%+ | 函数覆盖率 |
+| Branches | 80%+ | 分支覆盖率 |
+| Statements | 80%+ | 语句覆盖率 |
 
 ---
 

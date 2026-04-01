@@ -14,6 +14,7 @@ const testsDir = __dirname;
 const testFiles = [
   'test-state-manager.js',        // State Manager 测试
   'test-ai-tool-adapter.js',      // AI Tool Adapter 测试
+  'test-substitute-env.js',       // substituteEnvVars 测试 (v3.3.0 新增)
   'test-cdf-workflow.js',         // Workflow Orchestrator 测试
   'test-review-agents.js',        // Review Agents 测试
   'test-review-code.js',          // Review Code 测试

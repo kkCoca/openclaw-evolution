@@ -122,7 +122,9 @@ function loadConfig() {
   
   try {
     if (fs.existsSync(configPath)) {
-      const yamlContent = fs.readFileSync(configPath, 'utf8');
+      let yamlContent = fs.readFileSync(configPath, 'utf8');
+      // 替换环境变量
+      yamlContent = substituteEnvVars(yamlContent);
       // 简单 YAML 解析（仅支持基本结构）
       const config = parseSimpleYaml(yamlContent);
       return { ...defaultConfig, ...config };
@@ -132,6 +134,55 @@ function loadConfig() {
   }
   
   return defaultConfig;
+}
+
+/**
+ * 替换字符串中的环境变量
+ * 
+ * 支持以下语法：
+ * - ${VAR_NAME} - 替换为环境变量值，未设置时替换为空字符串
+ * - ${VAR_NAME:-default} - 替换为环境变量值，未设置时使用默认值
+ * - ${VAR_NAME:=default} - 替换为环境变量值，未设置时使用默认值并设置环境变量
+ * 
+ * @function substituteEnvVars
+ * @param {string} str - 包含环境变量占位符的字符串
+ * @returns {string} 替换后的字符串
+ * 
+ * @example
+ * // 假设环境变量 OPENCLAW_WORKSPACE_ROOT 未设置
+ * substituteEnvVars('${OPENCLAW_WORKSPACE_ROOT:-../../..}')
+ * // 返回：'../../..'
+ * 
+ * @example
+ * // 假设环境变量 CUSTOM_API_KEY 已设置为 'abc123'
+ * substituteEnvVars('${CUSTOM_API_KEY}')
+ * // 返回：'abc123'
+ * 
+ * @author openclaw-ouyp
+ * @since 3.3.0
+ */
+function substituteEnvVars(str) {
+  if (typeof str !== 'string') return str;
+  
+  // 匹配 ${VAR_NAME} 或 ${VAR_NAME:-default} 或 ${VAR_NAME:=default}
+  const envRegex = /\$\{([^}:]+?)(?::(-|=)([^}]*))?\}/g;
+  
+  return str.replace(envRegex, (match, varName, operator, defaultValue) => {
+    let value = process.env[varName];
+    
+    if (value === undefined || value === '') {
+      if (defaultValue !== undefined) {
+        value = defaultValue;
+        if (operator === '=') {
+          process.env[varName] = value;
+        }
+      } else {
+        value = '';
+      }
+    }
+    
+    return value;
+  });
 }
 
 /**

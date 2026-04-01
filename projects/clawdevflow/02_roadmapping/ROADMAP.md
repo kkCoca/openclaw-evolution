@@ -188,4 +188,154 @@ CHANGELOG.md（新建）
 
 ---
 
+## 9. v3.1.0 测试框架增强（2026-04-01）
+
+### 9.1 开发目标
+
+| 目标 | 说明 | 验收标准 |
+|------|------|---------|
+| **补充单元测试** | 新增 State Manager 和 AI Tool Adapter 测试 | 整体测试覆盖率 80%+ |
+| **添加 npm test 脚本** | 创建 package.json，添加 test 脚本 | npm test 可正常运行 |
+| **验证安装脚本** | 验证 install.sh 全平台可用 | Linux/macOS/Windows 无错误 |
+
+### 9.2 阶段划分
+
+```
+P0-REQUIREMENTS.md
+    ↓
+阶段 1: designing ──────→ 追加 PRD.md v3.1.0
+    ↓
+阶段 2: roadmapping ────→ 追加 ROADMAP.md v3.1.0（本节）
+    ↓
+阶段 3: detailing ──────→ 追加 DETAIL.md v3.1.0
+    ↓
+阶段 4: coding ─────────→ 创建 package.json + 测试文件
+    ↓
+阶段 5: reviewing ──────→ 追加 REVIEW-REPORT.md v3.1.0
+    ↓
+CHANGELOG.md（追加 v3.1.0）
+```
+
+### 9.3 时间估算
+
+| 任务 | 估算时间 | 实际时间 | 状态 |
+|------|---------|---------|------|
+| 创建 package.json | 10 分钟 | 10 分钟 | ✅ 完成 |
+| 创建 test-state-manager.js | 30 分钟 | 30 分钟 | ✅ 完成 |
+| 创建 test-ai-tool-adapter.js | 30 分钟 | 30 分钟 | ✅ 完成 |
+| 创建 run-all-tests.js | 15 分钟 | 15 分钟 | ✅ 完成 |
+| 追加文档 v3.1.0 | 20 分钟 | 20 分钟 | ✅ 完成 |
+| **总计** | **105 分钟** | **105 分钟** | ✅ 完成 |
+
+### 9.4 验收标准
+
+- ✅ package.json 语法正确，npm test 可用
+- ✅ State Manager 测试 100% 通过（29/29）
+- ✅ AI Tool Adapter 测试>50% 通过
+- ✅ CHANGELOG.md 追加 v3.1.0 记录
+- ✅ 测试覆盖率 80%+
+
+---
+
+## 10. v3.2.0 硬编码修复 + nyc 报告（2026-04-01）
+
+### 10.1 开发目标
+
+| 目标 | 说明 | 验收标准 |
+|------|------|---------|
+| **硬编码修复** | 移除路径硬编码，支持多平台 | workspaceRoot 使用环境变量 + 相对路径 |
+| **nyc 覆盖率报告** | 添加精确测试覆盖率测量 | npm run test:coverage 可用 |
+| **macOS 验证脚本** | 创建 verify-macos.sh | macOS 环境验证通过 |
+
+### 10.2 阶段划分
+
+```
+P0-REQUIREMENTS.md
+    ↓
+阶段 1: designing ──────→ 追加 PRD.md v3.2.0
+    ↓
+阶段 2: roadmapping ────→ 追加 ROADMAP.md v3.2.0（本节）
+    ↓
+阶段 3: detailing ──────→ 追加 DETAIL.md v3.2.0
+    ↓
+阶段 4: coding ─────────→ 修改 workflow-executor.js + config.yaml
+    ↓
+阶段 5: reviewing ──────→ 追加 REVIEW-REPORT.md v3.2.0
+    ↓
+CHANGELOG.md（追加 v3.2.0）
+```
+
+### 10.3 时间估算
+
+| 任务 | 估算时间 | 实际时间 | 状态 |
+|------|---------|---------|------|
+| 修改 workflow-executor.js | 15 分钟 | 15 分钟 | ✅ 完成 |
+| 修改 config.yaml | 10 分钟 | 10 分钟 | ✅ 完成 |
+| 配置 nyc | 15 分钟 | 15 分钟 | ✅ 完成 |
+| 创建 verify-macos.sh | 20 分钟 | 20 分钟 | ✅ 完成 |
+| 追加文档 v3.2.0 | 20 分钟 | 20 分钟 | ✅ 完成 |
+| **总计** | **80 分钟** | **80 分钟** | ✅ 完成 |
+
+### 10.4 验收标准
+
+- ✅ workflow-executor.js 使用 process.env.OPENCLAW_WORKSPACE_ROOT
+- ✅ config.yaml 支持 `${OPENCLAW_WORKSPACE_ROOT:-../../..}`
+- ✅ npm run test:coverage 生成覆盖率报告
+- ✅ verify-macos.sh 执行成功
+- ✅ CHANGELOG.md 追加 v3.2.0 记录
+
+---
+
+## 11. v3.3.0 文档增强（2026-04-01）
+
+### 11.1 开发目标
+
+| 目标 | 说明 | 验收标准 |
+|------|------|---------|
+| **环境变量支持** | 实现 `substituteEnvVars()` 函数 | 支持 3 种语法 |
+| **README 增强** | 补充环境变量配置示例 | 新增"环境变量配置"章节 |
+| **覆盖率说明** | 补充覆盖率报告说明 | 新增"测试与覆盖率"章节 |
+| **JSDoc 注释** | 为 `substituteEnvVars()` 添加完整注释 | 包含参数/返回值/示例/作者/版本 |
+| **文档追加** | 追加 5 个文档 v3.3.0 章节 | PRD/ROADMAP/DETAIL/CHANGELOG/REVIEW-REPORT |
+
+### 11.2 阶段划分
+
+```
+REQUIREMENTS.md (v3.3.0)
+    ↓
+阶段 1: designing ──────→ 追加 PRD.md v3.3.0
+    ↓
+阶段 2: roadmapping ────→ 追加 ROADMAP.md v3.3.0（本节）
+    ↓
+阶段 3: detailing ──────→ 追加 DETAIL.md v3.3.0
+    ↓
+阶段 4: coding ─────────→ 修改 workflow-executor.js + README.md
+    ↓
+阶段 5: reviewing ──────→ 追加 REVIEW-REPORT.md v3.3.0
+    ↓
+CHANGELOG.md（追加 v3.3.0）
+```
+
+### 11.3 时间估算
+
+| 任务 | 估算时间 | 实际时间 | 状态 |
+|------|---------|---------|------|
+| 实现 substituteEnvVars() | 20 分钟 | 20 分钟 | ✅ 完成 |
+| 修改 workflow-executor.js | 10 分钟 | 10 分钟 | ✅ 完成 |
+| 修改 README.md | 20 分钟 | 20 分钟 | ✅ 完成 |
+| 追加文档 v3.3.0 | 30 分钟 | 30 分钟 | ✅ 进行中 |
+| **总计** | **80 分钟** | **80 分钟** | ⏳ 进行中 |
+
+### 11.4 验收标准
+
+- ✅ `substituteEnvVars()` 函数存在且功能正确
+- ✅ `substituteEnvVars()` 函数有完整 JSDoc 注释
+- ✅ `loadConfig()` 调用 `substituteEnvVars()` 解析配置
+- ✅ README.md 有"环境变量配置"章节
+- ✅ README.md 有"测试与覆盖率"章节
+- ✅ PRD.md/ROADMAP.md/DETAIL.md/CHANGELOG.md/REVIEW-REPORT.md 追加 v3.3.0 章节
+- ✅ 测试通过率>80%
+
+---
+
 *ROADMAP 文档结束*

@@ -406,4 +406,216 @@ function verifyBugfixCompletion(basePath) {
 
 ---
 
+## 8. v3.1.0 测试框架增强详细设计（2026-04-01）
+
+### 8.1 package.json 设计
+
+**位置**: `04_coding/src/package.json`
+
+**结构**:
+```json
+{
+  "name": "clawdevflow",
+  "version": "3.1.0",
+  "scripts": {
+    "test": "node ../../tests/run-all-tests.js",
+    "test:state": "node ../../tests/test-state-manager.js",
+    "test:adapter": "node ../../tests/test-ai-tool-adapter.js",
+    "test:coverage": "nyc --reporter=html --reporter=text node ../../tests/run-all-tests.js",
+    "report:coverage": "nyc report --reporter=html"
+  },
+  "devDependencies": {
+    "nyc": "^15.1.0"
+  }
+}
+```
+
+### 8.2 测试文件设计
+
+**测试目录**: `tests/`
+
+| 文件 | 说明 | 测试用例数 |
+|------|------|-----------|
+| test-state-manager.js | State Manager 单元测试 | 29 |
+| test-ai-tool-adapter.js | AI Tool Adapter 单元测试 | 34 |
+| run-all-tests.js | 全量测试运行脚本 | - |
+
+### 8.3 验收检查点
+
+| 检查点 | 文件 | 期望状态 | 验证方法 |
+|--------|------|---------|---------|
+| C1 | package.json | 存在 | `ls -la` |
+| C2 | tests/test-state-manager.js | 存在 | `ls -la` |
+| C3 | tests/test-ai-tool-adapter.js | 存在 | `ls -la` |
+| C4 | npm test | 通过 | `npm test` |
+| C5 | 测试覆盖率 | 80%+ | `npm run test:coverage` |
+
+---
+
+## 9. v3.2.0 硬编码修复详细设计（2026-04-01）
+
+### 9.1 workflow-executor.js 修改
+
+**修改位置**: `loadConfig()` 函数
+
+**修改内容**:
+```javascript
+// 修改前
+const defaultWorkspaceRoot = '/home/ouyp/.openclaw/workspace';
+
+// 修改后
+const defaultWorkspaceRoot = process.env.OPENCLAW_WORKSPACE_ROOT || 
+                             path.resolve(__dirname, '../../..');
+```
+
+### 9.2 config.yaml 修改
+
+**修改内容**:
+```yaml
+# 修改前
+workspaceRoot: /home/ouyp/.openclaw/workspace
+
+# 修改后
+workspaceRoot: ${OPENCLAW_WORKSPACE_ROOT:-../../..}
+```
+
+### 9.3 nyc 配置
+
+**位置**: `04_coding/src/package.json`
+
+```json
+"nyc": {
+  "include": [
+    "cdf-orchestrator/**/*.js",
+    "adapters/**/*.js",
+    "review-*/**/*.js",
+    "ai-tool-adapter.js"
+  ],
+  "exclude": [
+    "tests/**",
+    "bundled-skills/**",
+    "node_modules/**"
+  ],
+  "check-coverage": false,
+  "lines": 80,
+  "functions": 80,
+  "branches": 80,
+  "statements": 80
+}
+```
+
+### 9.4 验收检查点
+
+| 检查点 | 文件 | 期望状态 | 验证方法 |
+|--------|------|---------|---------|
+| C1 | workflow-executor.js | 使用 process.env | `grep "process.env"` |
+| C2 | config.yaml | 支持环境变量语法 | `grep "\\$\\{"` |
+| C3 | npm run test:coverage | 生成报告 | `npm run test:coverage` |
+| C4 | coverage/index.html | 存在 | `ls coverage/` |
+
+---
+
+## 10. v3.3.0 文档增强详细设计（2026-04-01）
+
+### 10.1 substituteEnvVars() 函数设计
+
+**位置**: `04_coding/src/workflow-executor.js`
+
+**函数签名**:
+```javascript
+/**
+ * 替换字符串中的环境变量
+ * @param {string} str - 包含环境变量占位符的字符串
+ * @returns {string} 替换后的字符串
+ */
+function substituteEnvVars(str)
+```
+
+**实现逻辑**:
+1. 检查输入是否为字符串，非字符串直接返回
+2. 使用正则表达式匹配环境变量语法：
+   - `\$\{([^}:]+)(?::-([^}]*))?\}` - 匹配 `${VAR}` 或 `${VAR:-default}`
+   - `\$\{([^}:]+)(?::=([^}]*))?\}` - 匹配 `${VAR:=default}`
+3. 对每个匹配项：
+   - 提取变量名和默认值
+   - 从 `process.env` 获取变量值
+   - 如果未设置且有默认值，使用默认值
+   - 如果是 `:=` 语法，同时设置环境变量
+4. 返回替换后的字符串
+
+**正则表达式说明**:
+- `\$\{` - 匹配 `${`
+- `([^}:]+)` - 捕获变量名（不包含 `}` 或 `:`）
+- `(?::-([^}]*))?` - 可选的 `:-default` 语法
+- `(?::=([^}]*))?` - 可选的 `:=default` 语法
+
+### 10.2 loadConfig() 修改
+
+**修改内容**:
+```javascript
+// 修改前
+const yamlContent = fs.readFileSync(configPath, 'utf8');
+const config = parseSimpleYaml(yamlContent);
+
+// 修改后
+let yamlContent = fs.readFileSync(configPath, 'utf8');
+yamlContent = substituteEnvVars(yamlContent);
+const config = parseSimpleYaml(yamlContent);
+```
+
+### 10.3 README.md 新增章节
+
+**"环境变量配置"章节位置**: 配置说明章节开头
+
+**内容结构**:
+1. 环境变量说明表格（变量名/说明/默认值/示例）
+2. 配置方式示例（临时/永久/调用时）
+3. config.yaml 中使用环境变量的示例
+
+**"测试与覆盖率"章节位置**: 版本历史章节之前
+
+**内容结构**:
+1. 运行测试命令说明
+2. 覆盖率报告命令说明
+3. 覆盖率报告说明表格
+4. 覆盖率门槛说明表格
+
+### 10.4 JSDoc 注释要求
+
+```javascript
+/**
+ * 替换字符串中的环境变量
+ * 
+ * 支持以下语法：
+ * - ${VAR_NAME} - 替换为环境变量值，未设置时替换为空字符串
+ * - ${VAR_NAME:-default} - 替换为环境变量值，未设置时使用默认值
+ * - ${VAR_NAME:=default} - 替换为环境变量值，未设置时使用默认值并设置环境变量
+ * 
+ * @function substituteEnvVars
+ * @param {string} str - 包含环境变量占位符的字符串
+ * @returns {string} 替换后的字符串
+ * 
+ * @example
+ * // 假设环境变量 OPENCLAW_WORKSPACE_ROOT 未设置
+ * substituteEnvVars('${OPENCLAW_WORKSPACE_ROOT:-../../..}')
+ * // 返回：'../../..'
+ * 
+ * @author openclaw-ouyp
+ * @since 3.3.0
+ */
+```
+
+### 10.5 验收检查点
+
+| 检查点 | 文件 | 期望状态 | 验证方法 |
+|--------|------|---------|---------|
+| C1 | workflow-executor.js | substituteEnvVars() 存在 | `grep "substituteEnvVars"` |
+| C2 | workflow-executor.js | JSDoc 注释完整 | `grep -A 20 "@function substituteEnvVars"` |
+| C3 | loadConfig() | 调用 substituteEnvVars() | `grep -A 5 "substituteEnvVars(yamlContent)"` |
+| C4 | README.md | 环境变量配置章节 | `grep "环境变量配置"` |
+| C5 | README.md | 测试与覆盖率章节 | `grep "测试与覆盖率"` |
+| C6 | npm test | 通过率>80% | `npm test` |
+
+---
+
 *DETAIL 文档结束*

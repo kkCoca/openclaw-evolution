@@ -9,6 +9,33 @@
 
 ---
 
+## [v3.3.0] - 2026-04-01
+
+### Added
+
+- **环境变量配置支持**: workflow-executor.js 新增 `substituteEnvVars()` 函数
+  - 支持 `${VAR_NAME}` 语法替换环境变量
+  - 支持 `${VAR_NAME:-default}` 语法提供默认值
+  - 支持 `${VAR_NAME:=default}` 语法设置环境变量
+  - 完整的 JSDoc 注释文档
+
+- **README.md 增强**:
+  - 新增"环境变量配置"章节，说明 3 个核心环境变量
+  - 新增"测试与覆盖率"章节，说明测试命令和覆盖率报告
+  - 添加覆盖率报告说明表格（文本/HTML/JSON）
+  - 添加覆盖率门槛说明（Lines/Functions/Branches/Statements 80%+）
+
+### Changed
+
+- workflow-executor.js: `loadConfig()` 函数调用 `substituteEnvVars()` 解析配置
+- 版本号：v3.2.0 → v3.3.0（环境变量支持 + 文档增强）
+
+### Fixed
+
+- 配置文件中环境变量语法 `${VAR:-default}` 现在可以正确解析
+
+---
+
 ## [v3.2.0] - 2026-04-01
 
 ### Fixed

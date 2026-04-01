@@ -419,4 +419,117 @@ clawdevflow v3.0.1 发布评估中发现以下差距：
 
 ---
 
+## 11. v3.3.0 文档增强（2026-04-01）
+
+### 11.1 任务背景
+
+clawdevflow v3.2.0 发布后发现以下文档和配置差距：
+- 配置文件中支持环境变量语法 `${VAR:-default}`，但代码中未实现解析
+- README.md 缺少环境变量配置说明
+- README.md 缺少测试覆盖率报告说明
+- workflow-executor.js 缺少 `substituteEnvVars()` 函数及 JSDoc 注释
+
+### 11.2 任务目标
+
+| 目标 | 说明 | 验收标准 |
+|------|------|---------|
+| **环境变量支持** | 实现 `substituteEnvVars()` 函数 | 支持 `${VAR}` / `${VAR:-default}` / `${VAR:=default}` 语法 |
+| **README 增强** | 补充环境变量配置示例 | 新增"环境变量配置"章节 |
+| **覆盖率说明** | 补充覆盖率报告说明 | 新增"测试与覆盖率"章节 |
+| **JSDoc 注释** | 为 `substituteEnvVars()` 添加完整注释 | 包含参数、返回值、示例、作者、版本 |
+| **文档追加** | 追加 PRD/ROADMAP/DETAIL/CHANGELOG/REVIEW-REPORT v3.3.0 | 所有文档追加 v3.3.0 章节 |
+
+### 11.3 功能需求
+
+#### 11.3.1 实现 substituteEnvVars() 函数
+
+**位置**: `04_coding/src/workflow-executor.js`
+
+**功能要求**:
+- 支持 `${VAR_NAME}` 语法 - 替换为环境变量值，未设置时替换为空字符串
+- 支持 `${VAR_NAME:-default}` 语法 - 替换为环境变量值，未设置时使用默认值
+- 支持 `${VAR_NAME:=default}` 语法 - 替换为环境变量值，未设置时使用默认值并设置环境变量
+- 完整的 JSDoc 注释（参数、返回值、示例、作者、版本）
+
+**JSDoc 要求**:
+```javascript
+/**
+ * 替换字符串中的环境变量
+ * 
+ * 支持以下语法：
+ * - ${VAR_NAME} - 替换为环境变量值，未设置时替换为空字符串
+ * - ${VAR_NAME:-default} - 替换为环境变量值，未设置时使用默认值
+ * - ${VAR_NAME:=default} - 替换为环境变量值，未设置时使用默认值并设置环境变量
+ * 
+ * @function substituteEnvVars
+ * @param {string} str - 包含环境变量占位符的字符串
+ * @returns {string} 替换后的字符串
+ * @example
+ * substituteEnvVars('${OPENCLAW_WORKSPACE_ROOT:-../../..}')
+ * // 返回：'../../..'
+ * @author openclaw-ouyp
+ * @since 3.3.0
+ */
+```
+
+#### 11.3.2 更新 loadConfig() 函数
+
+**修改内容**:
+- 在读取 config.yaml 后，调用 `substituteEnvVars()` 解析环境变量
+- 确保配置文件中的 `${VAR:-default}` 语法正确解析
+
+#### 11.3.3 README.md 新增"环境变量配置"章节
+
+**位置**: 配置说明章节开头
+
+**内容要求**:
+- 3 个核心环境变量说明表格（OPENCLAW_WORKSPACE_ROOT / CDF_LOG_LEVEL / CDF_DEFAULT_AI_TOOL）
+- 3 种配置方式示例（临时设置 / 永久设置 / 调用时设置）
+- config.yaml 中使用环境变量的示例
+
+#### 11.3.4 README.md 新增"测试与覆盖率"章节
+
+**位置**: 版本历史章节之前
+
+**内容要求**:
+- 运行测试命令说明（npm test / npm run test:state / npm run test:adapter 等）
+- 覆盖率报告命令说明（npm run test:coverage / npm run report:coverage）
+- 覆盖率报告说明表格（文本报告 / HTML 报告 / 摘要报告）
+- 覆盖率门槛说明表格（Lines / Functions / Branches / Statements 80%+）
+
+#### 11.3.5 追加文档 v3.3.0 章节
+
+**需要追加的文档**:
+- 01_designing/PRD.md - 追加 v3.3.0 章节（本节）
+- 02_roadmapping/ROADMAP.md - 追加 v3.3.0 章节
+- 03_detailing/DETAIL.md - 追加 v3.3.0 章节
+- CHANGELOG.md - 追加 v3.3.0 记录
+- 05_reviewing/REVIEW-REPORT.md - 追加 v3.3.0 验收报告
+
+### 11.4 验收标准
+
+#### Given
+- 原有项目目录存在
+- v3.2.0 代码和文档完整
+
+#### When
+- 审阅修改后的文件
+
+#### Then
+- ✅ `substituteEnvVars()` 函数存在且功能正确
+- ✅ `substituteEnvVars()` 函数有完整 JSDoc 注释
+- ✅ `loadConfig()` 调用 `substituteEnvVars()` 解析配置
+- ✅ README.md 有"环境变量配置"章节
+- ✅ README.md 有"测试与覆盖率"章节
+- ✅ PRD.md/ROADMAP.md/DETAIL.md/CHANGELOG.md/REVIEW-REPORT.md 追加 v3.3.0 章节
+- ✅ 测试通过率>80%
+
+### 11.5 非功能需求
+
+- **增量修改**: 不覆盖现有文件内容，采用追加式更新
+- **向后兼容**: 不影响现有功能，环境变量语法可选使用
+- **文档一致性**: 所有文档版本历史保持一致
+
+---
+
 *PRD 文档结束*
