@@ -196,12 +196,22 @@ class StateManager {
    * 记录审阅决策
    * @param {string} stageName - 阶段名称
    * @param {string} decision - 审阅结论
-   * @param {string} notes - 审阅意见
+   * @param {string|object} notes - 审阅意见或 v2.0 审阅报告
    * @param {Array} fixItems - 待修复项
    */
   recordReviewDecision(stageName, decision, notes = '', fixItems = []) {
     this.state.stages[stageName].reviewDecision = decision;
-    this.state.stages[stageName].reviewNotes = notes;
+    
+    // 支持 v2.0 审阅报告
+    if (typeof notes === 'object' && notes !== null) {
+      // v2.0 审阅报告
+      this.state.stages[stageName].reviewReport = notes;
+      this.state.stages[stageName].reviewNotes = this.formatV2ReviewNotes(notes);
+    } else {
+      // v1.0 审阅意见
+      this.state.stages[stageName].reviewNotes = notes;
+    }
+    
     this.state.stages[stageName].fixItems = fixItems;
     
     // 根据审阅结论更新状态
@@ -221,6 +231,60 @@ class StateManager {
         break;
     }
     
+    this.save();
+  }
+  
+  /**
+   * 格式化 v2.0 审阅报告为文本
+   * @param {object} report - v2.0 审阅报告
+   * @returns {string} 格式化后的文本
+   */
+  formatV2ReviewNotes(report) {
+    const notes = [];
+    
+    // Freshness Gate
+    if (report.gates?.freshness) {
+      notes.push(`Freshness Gate: ${report.gates.freshness.passed ? '✅' : '❌'}`);
+      if (!report.gates.freshness.passed) {
+        notes.push(`  - ${report.gates.freshness.reason}`);
+      }
+    }
+    
+    // Traceability Gate
+    if (report.gates?.traceability) {
+      notes.push(`Traceability Gate: ${report.gates.traceability.passed ? '✅' : '❌'}`);
+      if (!report.gates.traceability.passed) {
+        notes.push(`  - ${report.gates.traceability.reason}`);
+      }
+    }
+    
+    // 综合评分
+    notes.push(`综合评分：${report.overall?.score || 0}/100`);
+    notes.push(`审阅结论：${report.overall?.recommendation || 'unknown'}`);
+    
+    return notes.join('\n');
+  }
+  
+  /**
+   * 设置审阅报告（v2.0）
+   * @param {string} stageName - 阶段名称
+   * @param {object} report - v2.0 审阅报告
+   */
+  setReviewReport(stageName, report) {
+    this.state.stages[stageName].reviewReport = report;
+    this.save();
+  }
+  
+  /**
+   * 添加待修复项
+   * @param {string} stageName - 阶段名称
+   * @param {Array} items - 待修复项列表
+   */
+  addFixItems(stageName, items) {
+    if (!this.state.stages[stageName].fixItems) {
+      this.state.stages[stageName].fixItems = [];
+    }
+    this.state.stages[stageName].fixItems.push(...items);
     this.save();
   }
 

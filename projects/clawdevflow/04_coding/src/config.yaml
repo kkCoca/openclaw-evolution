@@ -1,6 +1,6 @@
 # 流程引擎配置文件
 
-> **版本**: v2.0.0  
+> **版本**: v2.1.0  
 > **说明**: 流程引擎运行时配置，支持 AI 工具选择、审阅配置、回滚策略等
 
 ---
@@ -24,6 +24,11 @@ global:
   
   # 日志目录
   logDir: ./logs
+  
+  # 审阅 Agent 版本配置（新增）
+  # 可选值：v1.0（原版）| v2.0（优化版，带 Freshness + Traceability Gate）
+  reviewAgent:
+    version: v2.0
 ```
 
 ---

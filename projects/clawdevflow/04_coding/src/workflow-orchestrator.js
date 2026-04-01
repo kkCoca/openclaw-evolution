@@ -8,13 +8,16 @@
  * - 审阅协议执行
  * - 回滚机制
  * 
- * @version 2.0.1
+ * @version 2.1.0
  * @author openclaw-ouyp
  */
 
 const { exec } = require('child_process');
 const { promisify } = require('util');
 const execAsync = promisify(exec);
+
+// 审阅 Agent v2.0（新增）
+const ReviewDesignAgentV2 = require('./review-agents/review-design-v2');
 
 // 阶段定义
 const STAGES = [
@@ -124,12 +127,81 @@ class WorkflowOrchestrator {
     // 6. 更新状态为待审阅
     this.stateManager.updateStage(stageName, 'reviewing');
     
-    // 7. 生成审阅请求
-    await this.sendReviewRequest(stageName, result.outputs);
+    // 7. 执行审阅（v2.0 新增：designing 阶段使用 ReviewDesignAgent v2.0）
+    if (stageName === 'designing' && this.config.reviewAgent?.version === 'v2.0') {
+      console.log('[Orchestrator] 使用 ReviewDesignAgent v2.0 执行审阅...');
+      const reviewResult = await this.executeDesignReviewV2(input);
+      
+      // 处理 v2.0 审阅结果
+      const decision = this.convertV2ReviewToDecision(reviewResult);
+      await this.handleReviewDecision(stageName, decision, reviewResult);
+    } else {
+      // 7b. 发送审阅请求（传统方式）
+      await this.sendReviewRequest(stageName, result.outputs);
+    }
     
     console.log(`[Orchestrator] 阶段 ${stageName} 执行完成`);
     
     return result;
+  }
+  
+  /**
+   * 执行 Design 阶段审阅（v2.0）
+   * @param {object} input - 阶段输入
+   * @returns {Promise<object>} 审阅报告
+   */
+  async executeDesignReviewV2(input) {
+    try {
+      const agent = new ReviewDesignAgentV2(this.config);
+      const report = await agent.executeReview(input);
+      
+      console.log('[Orchestrator] ReviewDesignAgent v2.0 审阅完成');
+      console.log(`[Orchestrator] Freshness Gate: ${report.gates.freshness?.passed ? '✅' : '❌'}`);
+      console.log(`[Orchestrator] Traceability Gate: ${report.gates.traceability?.passed ? '✅' : '❌'}`);
+      console.log(`[Orchestrator] 综合评分：${report.overall.score}/100`);
+      console.log(`[Orchestrator] 审阅结论：${report.overall.recommendation}`);
+      
+      // 保存审阅报告
+      this.stateManager.setReviewReport('designing', report);
+      
+      return report;
+      
+    } catch (error) {
+      console.error('[Orchestrator] ReviewDesignAgent v2.0 执行失败:', error.message);
+      return {
+        error: error.message,
+        overall: { passed: false, score: 0, recommendation: 'error' }
+      };
+    }
+  }
+  
+  /**
+   * 将 v2.0 审阅报告转换为审阅结论
+   * @param {object} reviewResult - v2.0 审阅报告
+   * @returns {string} 审阅结论
+   */
+  convertV2ReviewToDecision(reviewResult) {
+    if (reviewResult.error) {
+      return ReviewDecision.CLARIFY; // 错误需要澄清
+    }
+    
+    // Freshness Gate 或 Traceability Gate 失败 → 直接驳回
+    if (!reviewResult.gates.freshness?.passed || !reviewResult.gates.traceability?.passed) {
+      return ReviewDecision.REJECT;
+    }
+    
+    // 根据综合评分转换
+    switch (reviewResult.overall.recommendation) {
+      case 'approve_excellent':
+      case 'approve':
+        return ReviewDecision.PASS;
+      case 'conditional':
+        return ReviewDecision.CONDITIONAL;
+      case 'reject':
+        return ReviewDecision.REJECT;
+      default:
+        return ReviewDecision.CLARIFY;
+    }
   }
   
   /**
@@ -289,13 +361,14 @@ class WorkflowOrchestrator {
    * 处理审阅结论
    * @param {string} stageName - 阶段名称
    * @param {string} decision - 审阅结论
+   * @param {object} reviewResult - v2.0 审阅报告（可选）
    * @returns {boolean} 是否继续
    */
-  async handleReviewDecision(stageName, decision) {
+  async handleReviewDecision(stageName, decision, reviewResult = null) {
     console.log(`[Orchestrator] 处理审阅结论：${decision}`);
     
     // 记录审阅决策
-    this.stateManager.recordReviewDecision(stageName, decision);
+    this.stateManager.recordReviewDecision(stageName, decision, reviewResult);
     
     switch (decision) {
       case ReviewDecision.PASS:
@@ -306,13 +379,20 @@ class WorkflowOrchestrator {
       case ReviewDecision.CONDITIONAL:
         console.log(`[Orchestrator] 阶段 ${stageName} 条件通过`);
         this.stateManager.updateStage(stageName, 'conditional_passed');
+        // 记录待修复项
+        if (reviewResult?.qualityChecks) {
+          const issues = Object.values(reviewResult.qualityChecks)
+            .flatMap(c => c.issues || []);
+          this.stateManager.addFixItems(stageName, issues);
+        }
         return true;
         
       case ReviewDecision.REJECT:
         console.log(`[Orchestrator] 阶段 ${stageName} 驳回，重新执行`);
         // 策略 A：重新执行当前阶段
         this.stateManager.updateStage(stageName, 'pending', {
-          retryCount: (this.stateManager.getStage(stageName).retryCount || 0) + 1
+          retryCount: (this.stateManager.getStage(stageName).retryCount || 0) + 1,
+          rejectReason: reviewResult ? this.formatRejectReason(reviewResult) : '审阅未通过'
         });
         await this.executeStage(stageName, this.stateManager.state.workflow);
         return true;
@@ -320,6 +400,9 @@ class WorkflowOrchestrator {
       case ReviewDecision.CLARIFY:
         console.log(`[Orchestrator] 阶段 ${stageName} 需澄清`);
         // TODO: 等待用户澄清
+        if (reviewResult) {
+          console.log('[Orchestrator] 审阅报告:', JSON.stringify(reviewResult, null, 2));
+        }
         return false;
         
       case ReviewDecision.TERMINATE:
@@ -330,6 +413,38 @@ class WorkflowOrchestrator {
       default:
         throw new Error(`未知审阅结论：${decision}`);
     }
+  }
+  
+  /**
+   * 格式化驳回原因（v2.0）
+   * @param {object} reviewResult - v2.0 审阅报告
+   * @returns {string} 驳回原因
+   */
+  formatRejectReason(reviewResult) {
+    const reasons = [];
+    
+    // Freshness Gate 失败
+    if (!reviewResult.gates.freshness?.passed) {
+      reasons.push(`Freshness Gate: ${reviewResult.gates.freshness.reason}`);
+    }
+    
+    // Traceability Gate 失败
+    if (!reviewResult.gates.traceability?.passed) {
+      reasons.push(`Traceability Gate: ${reviewResult.gates.traceability.reason}`);
+    }
+    
+    // 质量检查失败
+    if (reviewResult.overall.recommendation === 'reject') {
+      const failedChecks = Object.values(reviewResult.qualityChecks)
+        .filter(c => !c.passed)
+        .map(c => `${c.checkpoint}: ${c.score}/100`);
+      
+      if (failedChecks.length > 0) {
+        reasons.push(`质量检查：${failedChecks.join(', ')}`);
+      }
+    }
+    
+    return reasons.join('; ');
   }
 }
 
