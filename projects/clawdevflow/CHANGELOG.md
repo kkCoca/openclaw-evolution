@@ -9,6 +9,35 @@
 
 ---
 
+## [v3.2.0] - 2026-04-01
+
+### Fixed
+
+- **硬编码修复**: 移除路径硬编码，支持多平台
+  - workspaceRoot: 从绝对路径改为环境变量 + 相对路径
+  - workflow-executor.js: 使用 process.env.OPENCLAW_WORKSPACE_ROOT
+  - config.yaml: 支持 `${OPENCLAW_WORKSPACE_ROOT:-../../..}`
+
+### Added
+
+- **nyc 覆盖率报告**: 添加精确测试覆盖率测量
+  - `npm run test:coverage`: 运行测试并生成覆盖率报告
+  - `npm run report:coverage`: 生成 HTML 报告
+  - 配置目标：80% 覆盖率门槛
+
+- **macOS 验证脚本**: verify-macos.sh
+  - 系统信息检查
+  - Node.js 环境检查
+  - install.sh 执行验证
+  - bundled skills 检查
+  - npm test 运行
+
+### Changed
+
+- 版本号：v3.1.0 → v3.2.0（硬编码修复 + nyc 报告）
+
+---
+
 ## [v3.1.0] - 2026-04-01
 
 ### Added

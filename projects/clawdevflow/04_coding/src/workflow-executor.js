@@ -97,10 +97,14 @@ async function executeWorkflow(taskConfig) {
 function loadConfig() {
   const configPath = path.join(__dirname, 'config.yaml');
   
+  // 使用环境变量或相对路径
+  const defaultWorkspaceRoot = process.env.OPENCLAW_WORKSPACE_ROOT || 
+                               path.resolve(__dirname, '../../..');
+  
   const defaultConfig = {
     global: {
       defaultAITool: 'opencode',
-      workspaceRoot: '/home/ouyp/Learning/Practice/openclaw-universe',
+      workspaceRoot: defaultWorkspaceRoot,
       logLevel: 'info'
     },
     stages: {

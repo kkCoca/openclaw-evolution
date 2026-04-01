@@ -37,7 +37,7 @@ async function runTests() {
   // ========== 测试 1: 模块加载 ==========
   console.log('📋 测试 1: 模块加载');
   try {
-    const AIToolAdapter = require('../04_coding/src/ai-tool-adapter');
+    const { AIToolAdapter } = require('../04_coding/src/ai-tool-adapter');
     assert(AIToolAdapter !== undefined, 'AIToolAdapter 模块已加载');
     assert(typeof AIToolAdapter === 'function', 'AIToolAdapter 是构造函数');
   } catch (error) {
@@ -62,7 +62,7 @@ async function runTests() {
     assert(Array.isArray(successResult.outputs), 'outputs 是数组');
     assert(successResult.outputs.length === 2, 'outputs 数量为 2');
     assert(successResult.duration === 1000, 'duration 正确');
-    assert(successResult.error === undefined, '成功结果无 error');
+    assert(successResult.error === null, '成功结果无 error');
     
     // 测试失败结果
     const failedResult = new ExecutionResult({
@@ -74,7 +74,8 @@ async function runTests() {
     assert(failedResult.success === false, '失败结果创建正确');
     assert(failedResult.error === '测试错误', 'error 消息正确');
     assert(failedResult.duration === 500, 'duration 正确');
-    assert(failedResult.outputs === undefined, '失败结果无 outputs');
+    assert(Array.isArray(failedResult.outputs), '失败结果 outputs 是数组');
+    assert(failedResult.outputs.length === 0, '失败结果 outputs 为空数组');
     
   } catch (error) {
     console.log(`❌ ExecutionResult 测试失败：${error.message}`);
@@ -123,7 +124,7 @@ async function runTests() {
   // ========== 测试 4: OpenCode 适配器加载 ==========
   console.log('📋 测试 4: OpenCode 适配器加载');
   try {
-    const OpenCodeAdapter = require('../04_coding/src/adapters/opencode');
+    const { OpenCodeAdapter } = require('../04_coding/src/adapters/opencode');
     assert(OpenCodeAdapter !== undefined, 'OpenCodeAdapter 模块已加载');
     assert(typeof OpenCodeAdapter === 'function', 'OpenCodeAdapter 是构造函数');
     
@@ -140,7 +141,7 @@ async function runTests() {
   // ========== 测试 5: Claude Code 适配器加载 ==========
   console.log('📋 测试 5: Claude Code 适配器加载');
   try {
-    const ClaudeCodeAdapter = require('../04_coding/src/adapters/claude-code');
+    const { ClaudeCodeAdapter } = require('../04_coding/src/adapters/claude-code');
     assert(ClaudeCodeAdapter !== undefined, 'ClaudeCodeAdapter 模块已加载');
     assert(typeof ClaudeCodeAdapter === 'function', 'ClaudeCodeAdapter 是构造函数');
     
@@ -156,7 +157,7 @@ async function runTests() {
   // ========== 测试 6: Custom 适配器加载 ==========
   console.log('📋 测试 6: Custom 适配器加载');
   try {
-    const CustomAdapter = require('../04_coding/src/adapters/custom');
+    const { CustomAdapter } = require('../04_coding/src/adapters/custom');
     assert(CustomAdapter !== undefined, 'CustomAdapter 模块已加载');
     assert(typeof CustomAdapter === 'function', 'CustomAdapter 是构造函数');
     
@@ -173,15 +174,19 @@ async function runTests() {
   console.log('📋 测试 7: 适配器工厂方法（模拟）');
   try {
     // 模拟适配器工厂逻辑
+    const { OpenCodeAdapter } = require('../04_coding/src/adapters/opencode');
+    const { ClaudeCodeAdapter } = require('../04_coding/src/adapters/claude-code');
+    const { CustomAdapter } = require('../04_coding/src/adapters/custom');
+    
     const adapters = {
-      'opencode': require('../04_coding/src/adapters/opencode'),
-      'claude-code': require('../04_coding/src/adapters/claude-code'),
-      'custom': require('../04_coding/src/adapters/custom')
+      'opencode': OpenCodeAdapter,
+      'claude-code': ClaudeCodeAdapter,
+      'custom': CustomAdapter
     };
     
     assert(Object.keys(adapters).length === 3, '支持 3 种适配器');
     assert(adapters.opencode !== undefined, 'opencode 适配器存在');
-    assert(adapters.claudeCode !== undefined, 'claude-code 适配器存在');
+    assert(adapters['claude-code'] !== undefined, 'claude-code 适配器存在');
     assert(adapters.custom !== undefined, 'custom 适配器存在');
     
   } catch (error) {

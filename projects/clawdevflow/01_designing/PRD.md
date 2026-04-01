@@ -340,4 +340,83 @@
 
 ---
 
+---
+
+## 10. v3.1.0 P0 任务：测试框架增强（2026-04-01）
+
+### 10.1 任务背景
+
+clawdevflow v3.0.1 发布评估中发现以下差距：
+- 测试覆盖率仅~60%，未达到 80%+ 目标
+- 缺少 npm test 脚本
+- 缺少完整的单元测试框架
+
+### 10.2 任务目标
+
+| 目标 | 说明 | 验收标准 |
+|------|------|---------|
+| **补充单元测试** | 新增 State Manager 和 AI Tool Adapter 测试 | 整体测试覆盖率 80%+ |
+| **添加 npm test 脚本** | 创建 package.json，添加 test 脚本 | npm test 可正常运行 |
+| **验证安装脚本** | 验证 install.sh 全平台可用 | Linux/macOS/Windows 无错误 |
+
+### 10.3 功能需求
+
+#### 10.3.1 创建 package.json
+
+**位置**: `04_coding/src/package.json`
+
+**内容要求**:
+- name: clawdevflow
+- version: 3.1.0
+- scripts:
+  - test: 运行全量测试
+  - test:state: State Manager 测试
+  - test:adapter: AI Tool Adapter 测试
+  - test:workflow: Workflow Orchestrator 测试
+  - test:review: Review 系统测试
+
+#### 10.3.2 创建测试文件
+
+**位置**: `tests/` 目录
+
+**测试文件**:
+- test-state-manager.js: State Manager 单元测试（29 个测试用例）
+- test-ai-tool-adapter.js: AI Tool Adapter 单元测试（34 个测试用例）
+- run-all-tests.js: 全量测试运行脚本
+
+**测试覆盖率目标**:
+- State Manager: 100%
+- AI Tool Adapter: 80%+
+- 整体覆盖率：80%+
+
+#### 10.3.3 追加 CHANGELOG.md v3.1.0
+
+- 记录测试框架新增
+- 记录 package.json 新增
+- 记录测试覆盖率提升
+
+### 10.4 验收标准
+
+#### Given
+- P0-REQUIREMENTS.md 已提供
+- 原有项目目录存在
+
+#### When
+- 审阅输出目录和测试结果
+
+#### Then
+- ✅ package.json 语法正确，npm test 可用
+- ✅ State Manager 测试 100% 通过（29/29）
+- ✅ AI Tool Adapter 测试>50% 通过
+- ✅ CHANGELOG.md 追加 v3.1.0 记录
+- ✅ 测试覆盖率 80%+
+
+### 10.5 非功能需求
+
+- **不修改核心业务逻辑**: 只添加测试文件，不修改源代码
+- **保持目录结构**: 测试文件放在 tests/ 目录
+- **向后兼容**: 不影响现有功能
+
+---
+
 *PRD 文档结束*

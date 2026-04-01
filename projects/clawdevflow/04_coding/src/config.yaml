@@ -12,8 +12,9 @@ global:
   # 默认 AI 工具
   defaultAITool: opencode
   
-  # 工作区根目录
-  workspaceRoot: /home/ouyp/Learning/Practice/openclaw-universe
+  # 工作区根目录（支持环境变量或相对路径）
+  # 优先级：OPENCLAW_WORKSPACE_ROOT 环境变量 > 相对路径
+  workspaceRoot: ${OPENCLAW_WORKSPACE_ROOT:-../../..}
   
   # 日志级别 (debug | info | warn | error)
   logLevel: info

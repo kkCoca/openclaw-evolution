@@ -8,7 +8,7 @@
  * @author openclaw-ouyp
  */
 
-const { AIToolAdapter, ExecutionResult } = require('./ai-tool-adapter');
+const { AIToolAdapter, ExecutionResult } = require('../ai-tool-adapter');
 const { exec } = require('child_process');
 const { promisify } = require('util');
 const execAsync = promisify(exec);
