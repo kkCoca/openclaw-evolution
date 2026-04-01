@@ -1,0 +1,19 @@
+{
+  "name": "hello-cdf",
+  "version": "1.0.0",
+  "description": "A simple CLI greeting tool for CDF workflow verification",
+  "main": "src/index.js",
+  "bin": {
+    "hello-cdf": "./bin/hello-cdf.js"
+  },
+  "scripts": {
+    "test": "node tests/index.test.js",
+    "start": "node bin/hello-cdf.js"
+  },
+  "keywords": ["cli", "greeting", "cdf"],
+  "author": "openclaw-ouyp",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
