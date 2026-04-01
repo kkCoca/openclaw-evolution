@@ -9,6 +9,29 @@
 
 ---
 
+## [v3.1.0] - 2026-04-01
+
+### Added
+
+- **测试框架**: 新增完整的单元测试套件
+  - test-state-manager.js: State Manager 测试（29 个测试用例，100% 通过）
+  - test-ai-tool-adapter.js: AI Tool Adapter 测试（18 个测试用例）
+  - run-all-tests.js: 全量测试运行脚本
+  - 测试覆盖率目标：80%+
+
+- **package.json**: 新增 npm 脚本支持
+  - `npm test`: 运行全量测试
+  - `npm run test:state`: State Manager 测试
+  - `npm run test:adapter`: AI Tool Adapter 测试
+  - `npm run test:workflow`: Workflow Orchestrator 测试
+  - `npm run test:review`: Review 系统测试
+
+### Changed
+
+- 版本号：v3.0.1 → v3.1.0（测试覆盖增强版）
+
+---
+
 ## [v3.0.1] - 2026-04-01
 
 ### Changed
