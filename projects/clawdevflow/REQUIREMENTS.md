@@ -5,8 +5,8 @@
 | 字段 | 值 |
 |------|-----|
 | 版本 | v3.1.0 |
-| 哈希 | sha256:f2fa49a12b40a068835063c5bba377b1fd23f256 |
-| Git Commit | f2fa49a |
+| 哈希 | sha256:f0e44912d5778703c30ce7921ceb25a81a454672 |
+| Git Commit | f0e4491 |
 | 最后更新 | 2026-04-02 |
 | 作者 | openclaw-ouyp |
 
