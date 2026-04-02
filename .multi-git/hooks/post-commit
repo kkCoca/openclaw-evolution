@@ -1,0 +1,59 @@
+#!/bin/bash
+# post-commit - 提交后 Hook
+# 提交后自动同步到镜像仓库
+
+# 获取脚本真实所在目录（解决软链接问题）
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# 如果是软链接，找到真实目录
+if [ -L "$SCRIPT_DIR/post-commit" ]; then
+    REAL_PATH=$(readlink -f "$SCRIPT_DIR/post-commit")
+    SCRIPT_DIR="$(dirname "$REAL_PATH")"
+fi
+
+# 备选方案：使用 .multi-git 目录
+if [ ! -f "$SCRIPT_DIR/logger.sh" ]; then
+    GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
+    SCRIPT_DIR="$GIT_DIR/../.multi-git/hooks"
+fi
+
+# 加载日志模块
+source "$SCRIPT_DIR/logger.sh"
+
+# 加载配置模块
+source "$SCRIPT_DIR/config.sh"
+
+# 加载配置
+if ! load_config; then
+    log_error "无法加载配置文件，请检查 .multi-git/config.json"
+    exit 0  # 不阻塞提交流程
+fi
+
+# 初始化日志级别
+LOG_LEVEL=$(get_log_level)
+init_logger "$LOG_LEVEL"
+
+log_debug "post-commit Hook 触发"
+
+# 检查同步模式
+SYNC_MODE=$(get_sync_mode)
+if [ "$SYNC_MODE" = "manual" ]; then
+    log_debug "手动同步模式，跳过自动同步"
+    exit 0
+fi
+
+# 获取当前分支
+CURRENT_BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null)
+if [ -z "$CURRENT_BRANCH" ]; then
+    log_debug "不在分支上，跳过同步"
+    exit 0
+fi
+
+log_debug "当前分支：$CURRENT_BRANCH"
+
+# 加载同步模块并执行
+source "$SCRIPT_DIR/sync.sh"
+sync_all_mirrors
+
+# 不阻塞提交流程，始终返回 0
+exit 0

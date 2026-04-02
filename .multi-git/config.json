@@ -1,0 +1,15 @@
+{
+  "primary": "origin",
+  "mirrors": [
+    {
+      "name": "github",
+      "url": "github",
+      "branches": ["master", "main"],
+      "enabled": true
+    }
+  ],
+  "syncMode": "auto",
+  "retryCount": 3,
+  "retryDelay": 1000,
+  "logLevel": "debug"
+}
