@@ -551,8 +551,10 @@ templates/
 | v3.1.1 | 2026-04-02 | BUG-005 修复：PRD/TRD 文档修复（满足 v3.1.0 审阅标准） | REQ-007 |
 | v3.1.2 | 2026-04-02 | BUG-006 修复：PRD/TRD 审查问题修复（哈希对齐 + 异常处理完善） | REQ-008 |
 | **v3.1.3** | **2026-04-02** | **FEATURE-005：DESIGNING 阶段用户确认签字优化（不生成额外文件）** | **REQ-009** |
+| **v3.1.4** | **2026-04-02** | **BUG-007 修复：PRD/TRD 描述 AI 工具为 config.yaml 配置（不硬编码 OpenCode）** | **REQ-010** |
+| **v3.1.5** | **2026-04-02** | **FEATURE-006：ROADMAPPING 审阅 Agent 规则优化（Freshness/Traceability/MVP/风险）** | **REQ-011** |
 
-**当前版本**: v3.1.3（最新）
+**当前版本**: v3.1.5（最新）
 
 ---
 
@@ -569,10 +571,121 @@ templates/
 | REQ-007 | v3.1.1 | Bugfix | REQ-003 | ✅ 已完成 | ✅ 已映射 | ✅ 已映射 |
 | REQ-008 | v3.1.2 | Bugfix | REQ-007 | ✅ 已完成 | ✅ 已映射 | ✅ 已映射 |
 | REQ-009 | v3.1.3 | 增量需求 | REQ-003 | ✅ 已完成 | ✅ 已映射 | ✅ 已映射 |
+| REQ-010 | v3.1.4 | BUG-007 | REQ-003 | ✅ 已完成 | ✅ 已映射 | ✅ 已映射 |
+| REQ-011 | v3.1.5 | FEATURE-006 | REQ-005 | ⏳ 进行中 | 待映射 | 待映射 |
 
-**覆盖率**: 9/9 = 100%
+**覆盖率**: 10/11 = 91%（REQ-011 进行中）
+
+---
+
+## REQ-010: PRD/TRD 描述 AI 工具为 config.yaml 配置（不硬编码 OpenCode）
+
+**位置**: L580-630
+
+**版本**: v3.1.4 (2026-04-02)
+
+**类型**: Bugfix（基于 REQ-003）
+
+**父需求**: REQ-003
+
+**问题描述**:
+PRD.md 和 TRD.md 中硬编码描述"使用 OpenCode"，应该描述为"根据 config.yaml 配置选择 AI 工具"。
+
+**当前问题**:
+- ❌ PRD.md 描述："使用 OpenCode 执行 designing skill"
+- ❌ TRD.md 描述："使用 OpenCode 生成代码"
+- ❌ 无法灵活切换 AI 工具
+
+**修复方案**:
+1. PRD.md 修改为："根据 config.yaml 配置选择 AI 工具（默认 opencode，可配置为 claude-code/custom）"
+2. TRD.md 修改为："根据 config.yaml 配置选择 AI 工具（默认 opencode，可配置为 claude-code/custom）"
+3. 更新 PRD-template.md 和 TRD-template.md
+
+**验收标准**:
+### Given
+- PRD.md v3.1.3 和 TRD.md v3.1.3 存在
+- config.yaml 包含 AI 工具配置
+
+### When
+- 执行 designing 阶段修复
+- 审阅 PRD.md 和 TRD.md
+
+### Then
+- ✅ PRD.md v3.1.4 描述 AI 工具为"根据 config.yaml 配置选择"
+- ✅ TRD.md v3.1.4 描述 AI 工具为"根据 config.yaml 配置选择"
+- ✅ PRD-template.md 更新为"根据 config.yaml 配置选择"
+- ✅ TRD-template.md 更新为"根据 config.yaml 配置选择"
+- ✅ ReviewDesignAgent 审查得分 >= 90%
+- ✅ 用户验收通过
+
+---
+
+## REQ-011: ROADMAPPING 审阅 Agent 规则优化（Freshness/Traceability/MVP/风险）
+
+**位置**: L630-700
+
+**版本**: v3.1.5 (2026-04-02)
+
+**类型**: 增量需求（基于 REQ-005）
+
+**父需求**: REQ-005
+
+**问题背景**:
+当前 roadmapping 审阅 Agent 只有 10 项检查清单，缺少关键的质量控制规则：
+- ❌ 无 Freshness 对齐检查（文档不更新到最新）
+- ❌ 无显式需求引用（Traceability 不足）
+- ❌ 无 MVP 可交付性检查（空泛计划）
+- ❌ 无依赖检查（只检查风险）
+- ❌ 无范围膨胀预警
+
+**需求目标**:
+| 目标 | 说明 | 验收标准 |
+|------|------|---------|
+| **Freshness** | 对齐最新需求 | ROADMAP.md 包含 alignedTo + requirementsHash |
+| **Traceability** | 能追溯到 PRD/需求 | ROADMAP 显式引用需求 ID（覆盖率 100%） |
+| **Deliverability** | 具备可交付性 | 有 MVP/里程碑 1 段落（scope/验收/工作量） |
+| **风险管理** | 依赖与风险完整 | 有 Dependencies/Risks 段落 |
+| **范围控制** | 预警范围膨胀 | 检测"可能/可选/未来"关键词（warning） |
+
+**新增规则**（4 项 critical + 1 项 non-critical）:
+| 规则 | 检查点 | 关键性 | 说明 |
+|------|--------|--------|------|
+| R0 | Freshness 对齐 | critical | ROADMAP.md 必须包含 alignedTo + requirementsHash |
+| R1 | Traceability（需求引用） | critical | ROADMAP 必须显式引用需求 ID（覆盖率 100%） |
+| R2 | MVP 可交付性 | critical | 必须存在 MVP/Phase 1/里程碑 1 段落 |
+| R3 | 依赖与风险 | critical | ROADMAP 必须有 Dependencies/Risks 段落 |
+| R4 | 范围膨胀风险 | non-critical | 检测"可能/可选/未来"等关键词（warning） |
+
+**输出要求**:
+```
+bundled-skills/roadmapping/
+└── SKILL.md                  # 更新 10 项检查清单为 12 项
+
+adapters/
+└── opencode.js               # 更新 roadmapping 任务描述
+
+tests/
+└── test-roadmap-review.js    # 新增测试用例
+```
+
+**验收标准**:
+### Given
+- REQUIREMENTS.md 已追加 REQ-011（v3.1.5）
+- bundled-skills/roadmapping/SKILL.md 存在
+
+### When
+- 执行完整 clawdevflow 流程（designing→roadmapping→detailing→coding→reviewing）
+- 审阅所有产出文档
+
+### Then
+- ✅ PRD.md v3.1.5 包含新规则说明
+- ✅ TRD.md v3.1.5 包含技术实现方案
+- ✅ bundled-skills/roadmapping/SKILL.md 更新 10 项检查清单为 12 项
+- ✅ adapters/opencode.js 更新 roadmapping 任务描述
+- ✅ ReviewDesignAgent 审查得分 >= 90%
+- ✅ 用户验收通过
 
 ---
 
 *需求说明文档 by openclaw-ouyp*  
-**版本**: v3.1.0 | **日期**: 2026-04-02 | **Git Commit**: f2fa49a
+**版本**: v3.1.5 | **日期**: 2026-04-02 | **Git Commit**: 待计算
