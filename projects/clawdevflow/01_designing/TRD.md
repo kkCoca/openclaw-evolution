@@ -1,6 +1,6 @@
 # 技术需求文档（TRD）
 
-> **版本**: v3.1.3  
+> **版本**: v3.1.4  
 > **日期**: 2026-04-02  
 > **状态**: 评审通过 ✅
 
@@ -10,12 +10,12 @@
 
 | 字段 | 值 |
 |------|-----|
-| **TRD 版本** | v3.1.3 |
-| **TRD 哈希** | `待计算` |
+| **TRD 版本** | v3.1.5 |
+| **TRD 哈希** | `sha256:fe957c626e60b3cb87a8b369b9ccf1b7be58f52e0a545b1601122bc2e9a7bc87` |
 | **对齐 REQUIREMENTS 版本** | v3.1.0 |
-| **对齐 REQUIREMENTS 哈希** | `sha256:f0e44912d5778703c30ce7921ceb25a81a454672` |
-| **对齐 PRD 版本** | v3.1.3 |
-| **对齐 PRD 哈希** | `待计算` |
+| **对齐 REQUIREMENTS 哈希** | `sha256:1e97a261b46c83c847c58fcd8ecd2b6ddae18cfb1fd9499fc7e5934e245c9745` |
+| **对齐 PRD 版本** | v3.1.5 |
+| **对齐 PRD 哈希** | `sha256:e0d59ddfc8577ae531ef2a51f972ee5bc8cdb08cde49a278c3da9736d79e247c` |
 | **需求追溯矩阵** | 完整 |
 | **覆盖率** | 100% |
 
@@ -54,7 +54,9 @@
 └─────────────────────────────────────┘
               ↓ 调用
 ┌─────────────────────────────────────┐
-│  OpenCode (执行者)                  │
+│  AI 工具 (执行者)                    │
+│  • 根据 config.yaml 配置选择          │
+│  • 支持 OpenCode/Claude Code/其他    │
 │  • designing → PRD + TRD            │
 │  • roadmapping → ROADMAP            │
 │  • detailing → DETAIL               │
@@ -65,13 +67,13 @@
 
 ### 1.2 调用关系
 
-| 阶段 | 流程引擎动作 | OpenCode 执行 |
+| 阶段 | 流程引擎动作 | AI 工具执行 |
 |------|-------------|--------------|
-| designing | 调用 designing skill | 执行需求分析和架构设计 |
-| roadmapping | 调用 roadmapping skill | 执行开发计划制定 |
-| detailing | 调用 detailing skill | 执行文件级设计 |
-| coding | 调用 coding skill | 执行代码实现 + 测试 + 文档 |
-| reviewing | 调用 reviewing skill | 执行验收验证 |
+| designing | 调用 designing skill | 根据 config.yaml 配置选择 AI 工具执行需求分析和架构设计 |
+| roadmapping | 调用 roadmapping skill | 根据 config.yaml 配置选择 AI 工具执行开发计划制定 |
+| detailing | 调用 detailing skill | 根据 config.yaml 配置选择 AI 工具执行文件级设计 |
+| coding | 调用 coding skill | 根据 config.yaml 配置选择 AI 工具执行代码实现 + 测试 + 文档 |
+| reviewing | 调用 reviewing skill | 根据 config.yaml 配置选择 AI 工具执行验收验证 |
 
 ---
 
@@ -408,7 +410,8 @@ rollback:
 
 | 术语 | 说明 |
 |------|------|
-| OpenCode | 执行者，负责具体研发任务执行 |
+| AI 工具 | 执行者，负责具体研发任务执行（根据 config.yaml 配置选择，支持 OpenCode/Claude Code/其他） |
+| config.yaml | 流程引擎配置文件，包含 AI 工具配置、审阅配置、回滚策略等 |
 | 流程引擎 | 编排者，负责流程监督和 skill 调用 |
 | openclaw-ouyp | 审阅者，负责任务分配和验收验证 |
 | 审阅驱动 | 每个阶段必须审阅确认后才继续 |
@@ -920,11 +923,15 @@ class WorkflowOrchestrator {
 | REQ-004 | L155-182 | 9.1-9.6 | 9.1-9.4 | 425-510 | ✅ 已实现 |
 | REQ-005 | L185-268 | 12.1-12.7 | 8.1-8.4 | 345-420 | ✅ 已实现 |
 | REQ-006 | L271-375 | 10.1-10.5 | 10.1-10.6 | 515-700 | ✅ 已实现 |
+| REQ-007 | L378-420 | 13.1-13.5 | 10.2.1-10.2.6 | 700-900 | ✅ 已实现 |
+| REQ-008 | L423-470 | 13.6 | 10.2.1-10.2.6 | 700-900 | ✅ 已实现 |
+| REQ-009 | L473-530 | 14.1-14.6 | 11.1-11.7 | 900-1200 | ✅ 已实现 |
+| REQ-010 | L580-630 | 15.1-15.6 | 12.1-12.7 | 1200-1450 | ✅ 已实现 |
 
 ##### 10.2.6.1 覆盖率统计
 
-- **需求总数**: 6
-- **已实现需求**: 6
+- **需求总数**: 10
+- **已实现需求**: 10
 - **覆盖率**: 100%
 - **未实现需求**: 无
 
@@ -941,6 +948,7 @@ class WorkflowOrchestrator {
 | **v3.1.1** | **2026-04-02** | **BUG-005 修复：PRD/TRD 文档修复** | **BUG-005** | **v3.1.0** | **v3.1.1** | **`910651f`** |
 | **v3.1.2** | **2026-04-02** | **BUG-006 修复：PRD/TRD 审查问题修复（哈希对齐 + 异常处理完善）** | **BUG-006** | **v3.1.0** | **v3.1.2** | **`f0e4491`** |
 | **v3.1.3** | **2026-04-02** | **FEATURE-005：DESIGNING 阶段用户确认签字优化** | **FEATURE-005** | **v3.1.0** | **v3.1.3** | **`待计算`** |
+| **v3.1.4** | **2026-04-02** | **BUG-007 修复：PRD/TRD 描述 AI 工具为 config.yaml 配置** | **BUG-007** | **v3.1.0** | **v3.1.4** | **`待计算`** |
 
 ---
 
@@ -1250,6 +1258,1074 @@ git push origin main --tags
 | C4 | 不生成额外文件 | `ls -la 01_designing/` 检查无新文件 |
 | C5 | Git 提交记录存在 | `git log --oneline -5` |
 | C6 | ReviewDesignAgent 得分 >= 90% | 执行审查脚本 |
+
+---
+
+## 12. v3.1.4 Bugfix 修复 - PRD/TRD 描述 AI 工具为 config.yaml 配置
+
+### 12.1 问题描述
+
+PRD.md 和 TRD.md 中硬编码描述"使用 OpenCode"，应该描述为"根据 config.yaml 配置选择 AI 工具"。
+
+**当前问题**：
+- ❌ TRD.md 系统架构图中："OpenCode (执行者)"
+- ❌ TRD.md 调用关系表中："OpenCode 执行"
+- ❌ 无法灵活切换 AI 工具
+
+### 12.2 修复目标
+
+| 目标 | 说明 | 验收标准 |
+|------|------|---------|
+| **AI 工具描述修正** | TRD.md 描述 AI 工具为"根据 config.yaml 配置选择" | TRD.md v3.1.4 更新 |
+| **模板同步更新** | TRD-template.md 同步更新 | 模板文件更新 |
+| **审查通过** | ReviewDesignAgent 审查得分 >= 90% | 审查报告 |
+
+### 12.3 修复方案
+
+#### 12.3.1 TRD.md 修改 - 系统架构图
+
+**修改位置**：第 1 章 技术架构 - 系统架构图
+
+**修改前**：
+```
+┌─────────────────────────────────────┐
+│  AI 工具 (执行者)                    │
+│  • 根据 config.yaml 配置选择          │
+│  • 支持 OpenCode/Claude Code/其他    │
+│  • designing → PRD + TRD            │
+│  • roadmapping → ROADMAP            │
+│  • detailing → DETAIL               │
+│  • coding → 代码 + 测试             │
+│  • reviewing → 验收报告             │
+└─────────────────────────────────────┘
+```
+
+**修改后**：
+```
+┌─────────────────────────────────────┐
+│  AI 工具 (执行者)                    │
+│  • 根据 config.yaml 配置选择          │
+│  • 支持 OpenCode/Claude Code/其他    │
+│  • designing → PRD + TRD            │
+│  • roadmapping → ROADMAP            │
+│  • detailing → DETAIL               │
+│  • coding → 代码 + 测试             │
+│  • reviewing → 验收报告             │
+└─────────────────────────────────────┘
+```
+
+#### 12.3.2 TRD.md 修改 - 调用关系表
+
+**修改位置**：第 1 章 技术架构 - 调用关系
+
+**修改前**：
+```markdown
+| 阶段 | 流程引擎动作 | OpenCode 执行 |
+|------|-------------|--------------|
+| designing | 调用 designing skill | 执行需求分析和架构设计 |
+| roadmapping | 调用 roadmapping skill | 执行开发计划制定 |
+| detailing | 调用 detailing skill | 执行文件级设计 |
+| coding | 调用 coding skill | 执行代码实现 + 测试 + 文档 |
+| reviewing | 调用 reviewing skill | 执行验收验证 |
+```
+
+**修改后**：
+```markdown
+| 阶段 | 流程引擎动作 | AI 工具执行 |
+|------|-------------|--------------|
+| designing | 调用 designing skill | 根据 config.yaml 配置选择 AI 工具执行需求分析和架构设计 |
+| roadmapping | 调用 roadmapping skill | 根据 config.yaml 配置选择 AI 工具执行开发计划制定 |
+| detailing | 调用 detailing skill | 根据 config.yaml 配置选择 AI 工具执行文件级设计 |
+| coding | 调用 coding skill | 根据 config.yaml 配置选择 AI 工具执行代码实现 + 测试 + 文档 |
+| reviewing | 调用 reviewing skill | 根据 config.yaml 配置选择 AI 工具执行验收验证 |
+```
+
+#### 12.3.3 TRD.md 修改 - 术语表
+
+**修改位置**：附录 - 术语表
+
+**修改前**：
+```markdown
+| 术语 | 说明 |
+|------|------|
+| OpenCode | 执行者，负责具体研发任务执行 |
+| 流程引擎 | 编排者，负责流程监督和 skill 调用 |
+| openclaw-ouyp | 审阅者，负责任务分配和验收验证 |
+```
+
+**修改后**：
+```markdown
+| 术语 | 说明 |
+|------|------|
+| AI 工具 | 执行者，负责具体研发任务执行（根据 config.yaml 配置选择，支持 OpenCode/Claude Code/其他） |
+| config.yaml | 流程引擎配置文件，包含 AI 工具配置、审阅配置、回滚策略等 |
+| 流程引擎 | 编排者，负责流程监督和 skill 调用 |
+| openclaw-ouyp | 审阅者，负责任务分配和验收验证 |
+```
+
+#### 12.3.4 TRD-template.md 修改
+
+**修改位置**：系统架构图和调用关系章节
+
+**修改内容**：
+- 将"OpenCode"相关描述改为"AI 工具（根据 config.yaml 配置选择）"
+
+### 12.4 非功能需求
+
+- **不生成额外文件** - 仅修改现有文件，不创建新文件
+- **保持与现有流程一致** - 遵循 clawdevflow 完整流程
+- **向后兼容** - 不影响现有功能
+
+### 12.5 验收标准
+
+#### 12.5.1 Given
+
+- TRD.md v3.1.3 存在
+- TRD-template.md 存在
+- config.yaml 包含 AI 工具配置
+
+#### 12.5.2 When
+
+- 执行 designing 阶段修复
+- 审阅 TRD.md
+- 执行 ReviewDesignAgent v3.1.0 检查
+
+#### 12.5.3 Then
+
+- ✅ TRD.md v3.1.4 描述 AI 工具为"根据 config.yaml 配置选择"
+- ✅ TRD-template.md 更新为"根据 config.yaml 配置选择"
+- ✅ ReviewDesignAgent 审查得分 >= 90%
+- ✅ 用户验收通过
+
+### 12.6 需求追溯矩阵更新
+
+| 需求 ID | REQUIREMENTS.md 章节 | PRD 章节 | TRD 章节 | TRD 行号 | 实现状态 |
+|---------|---------------------|---------|---------|---------|---------|
+| REQ-010 | L580-630 | 15.1-15.6 | 12.1-12.6 | 待计算 | ✅ 已映射 |
+
+#### 12.6.1 覆盖率统计
+
+- **需求总数**: 10
+- **已实现需求**: 10
+- **覆盖率**: 100%
+- **未实现需求**: 无
+
+---
+
+### 12.7 版本历史更新
+
+| 版本 | 日期 | 变更说明 | Issue ID | 对齐 REQUIREMENTS 版本 | 对齐 PRD 版本 | TRD 哈希 |
+|------|------|---------|----------|----------------------|-------------|---------|
+| v1.0.0 | 2026-03-26 | 初始版本（原始需求） | - | v1.0.0 | v1.0.0 | `git-hash` |
+| v1.1.0 | 2026-03-26 | FEATURE-001：增加 OpenCode 调用说明 | FEATURE-001 | v1.1.0 | v1.1.0 | `git-hash` |
+| v2.0.0 | 2026-03-28 | FEATURE-002：审阅驱动 + 会话隔离 + 工具无关 | FEATURE-002 | v2.0.0 | v2.0.0 | `git-hash` |
+| v2.0.1 | 2026-03-30 | BUG-002 修复：补充 02_roadmapping/和 03_detailing/ | BUG-002 | v2.0.1 | v2.0.1 | `git-hash` |
+| v2.1.0 | 2026-04-02 | FEATURE-003：Roadmap Agent 优化 | FEATURE-003 | v2.1.0 | v2.1.0 | `git-hash` |
+| v3.1.0 | 2026-04-02 | FEATURE-004：DESIGNING 阶段审阅优化 | FEATURE-004 | v3.1.0 | v3.1.0 | `git-hash` |
+| v3.1.1 | 2026-04-02 | BUG-005 修复：PRD/TRD 文档修复 | BUG-005 | v3.1.0 | v3.1.1 | `910651f` |
+| v3.1.2 | 2026-04-02 | BUG-006 修复：PRD/TRD 审查问题修复（哈希对齐 + 异常处理完善） | BUG-006 | v3.1.0 | v3.1.2 | `f0e4491` |
+| v3.1.3 | 2026-04-02 | FEATURE-005：DESIGNING 阶段用户确认签字优化 | FEATURE-005 | v3.1.0 | v3.1.3 | `待计算` |
+| **v3.1.4** | **2026-04-02** | **BUG-007 修复：PRD/TRD 描述 AI 工具为 config.yaml 配置** | **BUG-007** | **v3.1.0** | **v3.1.4** | **`待计算`** |
+
+---
+
+## 13. v3.1.5 技术设计 - ROADMAPPING 审阅 Agent 规则优化
+
+### 13.1 架构设计
+
+#### 13.1.1 12 项检查清单架构
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              自审阅 Agent（12 项检查）                        │
+├─────────────────────────────────────────────────────────────┤
+│  Critical 项（一票否决）：                                   │
+│  ├─ R0: Freshness 对齐检查                                   │
+│  ├─ R1: Traceability 需求引用                                │
+│  ├─ R2: MVP 可交付性                                         │
+│  └─ R3: 依赖与风险                                           │
+├─────────────────────────────────────────────────────────────┤
+│  Non-Critical 项（允许条件通过）：                            │
+│  ├─ R4: 范围膨胀风险                                         │
+│  ├─ 1: 任务拆分                                              │
+│  ├─ 2: 工作量评估                                            │
+│  ├─ 3: 收尾项                                                │
+│  ├─ 4: 任务命名                                              │
+│  ├─ 5: 描述规范                                              │
+│  ├─ 7: 技术对齐                                              │
+│  └─ 8: 代码现状（增量）                                      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### 13.1.2 评分决策流程
+
+```
+生成 ROADMAP.md 初稿
+        ↓
+执行 12 项检查
+        ↓
+检查 Critical 项（R0-R3）
+        ↓
+    ┌───┴───┐
+    ↓       ↓
+  全部通过  任一失败
+    ↓       ↓
+检查     驳回重做
+Non-Critical  (最多 3 次)
+    ↓
+┌───┴───┐
+↓       ↓
+全部   有失败
+通过    ↓
+    ↓   修正后输出
+直接输出  (conditional)
+```
+
+---
+
+### 13.2 功能设计
+
+#### 13.2.1 R0: Freshness 对齐检查
+
+**检查逻辑**：
+```javascript
+function checkFreshness(roadmapContent) {
+  // 检查是否包含 alignedTo 字段
+  const hasAlignedTo = /alignedTo:\s*v\d+\.\d+\.\d+/.test(roadmapContent);
+  
+  // 检查是否包含 requirementsHash 字段
+  const hasHash = /requirementsHash:\s*[a-f0-9]{64}/.test(roadmapContent);
+  
+  return {
+    pass: hasAlignedTo && hasHash,
+    details: {
+      alignedTo: hasAlignedTo ? '✅' : '❌',
+      requirementsHash: hasHash ? '✅' : '❌'
+    }
+  };
+}
+```
+
+**ROADMAP.md 模板要求**：
+```markdown
+## 文档元数据
+
+| 字段 | 值 |
+|------|-----|
+| **alignedTo** | v3.1.5 |
+| **requirementsHash** | sha256:1e97a261b46c83c847c58fcd8ecd2b6ddae18cfb1fd9499fc7e5934e245c9745 |
+```
+
+#### 13.2.2 R1: Traceability 需求引用检查
+
+**检查逻辑**：
+```javascript
+function checkTraceability(roadmapContent, requirementsContent) {
+  // 提取 REQUIREMENTS.md 中的所有需求 ID
+  const reqIds = requirementsContent.match(/REQ-\d+/g) || [];
+  
+  // 检查 ROADMAP.md 中是否引用了每个需求 ID
+  const missingRefs = reqIds.filter(id => !roadmapContent.includes(id));
+  
+  return {
+    pass: missingRefs.length === 0,
+    coverage: ((reqIds.length - missingRefs.length) / reqIds.length * 100).toFixed(1) + '%',
+    missing: missingRefs
+  };
+}
+```
+
+**ROADMAP.md 要求**：
+- 每个任务必须显式引用需求 ID（如"实现 REQ-001 的基础功能"）
+- 需求覆盖率必须达到 100%
+
+#### 13.2.3 R2: MVP 可交付性检查
+
+**检查逻辑**：
+```javascript
+function checkDeliverability(roadmapContent) {
+  // 检查是否包含 MVP/Phase 1/里程碑 1 段落
+  const hasMVP = /MVP|Phase\s*1|里程碑\s*1/i.test(roadmapContent);
+  
+  // 检查是否包含 scope/验收/工作量
+  const hasScope = /scope|范围/i.test(roadmapContent);
+  const hasAcceptance = /验收|acceptance/i.test(roadmapContent);
+  const hasEffort = /工作量|effort|人天/i.test(roadmapContent);
+  
+  return {
+    pass: hasMVP && hasScope && hasAcceptance && hasEffort,
+    details: {
+      mvpSection: hasMVP ? '✅' : '❌',
+      scope: hasScope ? '✅' : '❌',
+      acceptance: hasAcceptance ? '✅' : '❌',
+      effort: hasEffort ? '✅' : '❌'
+    }
+  };
+}
+```
+
+#### 13.2.4 R3: 依赖与风险检查
+
+**检查逻辑**：
+```javascript
+function checkDependencies(roadmapContent) {
+  // 检查是否包含 Dependencies/Risks 段落
+  const hasDependencies = /Dependencies|依赖/i.test(roadmapContent);
+  const hasRisks = /Risks|风险/i.test(roadmapContent);
+  
+  return {
+    pass: hasDependencies && hasRisks,
+    details: {
+      dependenciesSection: hasDependencies ? '✅' : '❌',
+      risksSection: hasRisks ? '✅' : '❌'
+    }
+  };
+}
+```
+
+#### 13.2.5 R4: 范围膨胀风险检查
+
+**检查逻辑**：
+```javascript
+function checkScopeCreep(roadmapContent) {
+  // 检测"可能/可选/未来"等关键词
+  const scopeCreepKeywords = [
+    '可能', '或许', '大概',
+    '可选', 'optional',
+    '未来', '将来', '后续',
+    '也许', 'maybe'
+  ];
+  
+  const foundKeywords = scopeCreepKeywords.filter(kw => 
+    roadmapContent.includes(kw)
+  );
+  
+  return {
+    pass: true,  // non-critical，不导致失败
+    warning: foundKeywords.length > 0,
+    keywords: foundKeywords
+  };
+}
+```
+
+---
+
+### 13.3 接口设计
+
+#### 13.3.1 SKILL.md 更新
+
+**修改位置**：步骤 4 自审阅章节
+
+**修改内容**：
+- 更新审阅检查清单表格（10 项 → 12 项）
+- 更新评分决策规则（critical 项一票否决）
+- 更新版本历史
+
+#### 13.3.2 opencode.js 更新
+
+**修改位置**：buildTask 函数的 roadmapping 任务描述
+
+**修改内容**：
+- 更新步骤 4 自审阅检查清单（10 项 → 12 项）
+- 更新审阅评分规则（critical 项一票否决）
+
+---
+
+### 13.4 数据结构设计
+
+#### 13.4.1 检查结果对象
+
+```javascript
+{
+  reviewResults: {
+    R0: { pass: true, details: {...} },
+    R1: { pass: true, coverage: '100%', missing: [] },
+    R2: { pass: true, details: {...} },
+    R3: { pass: true, details: {...} },
+    R4: { pass: true, warning: false, keywords: [] },
+    1: { pass: true },
+    2: { pass: true },
+    3: { pass: true },
+    4: { pass: true },
+    5: { pass: true },
+    7: { pass: true },
+    8: { pass: true }
+  },
+  criticalFailed: [],  // 失败的 critical 项
+  nonCriticalFailed: [],  // 失败的 non-critical 项
+  score: 10,  // 总分
+  decision: 'pass'  // pass | conditional | reject
+}
+```
+
+#### 13.4.2 评分计算逻辑
+
+```javascript
+function calculateScore(reviewResults) {
+  const criticalItems = ['R0', 'R1', 'R2', 'R3'];
+  const nonCriticalItems = ['R4', '1', '2', '3', '4', '5', '7', '8'];
+  
+  // 检查 critical 项
+  const criticalFailed = criticalItems.filter(item => !reviewResults[item].pass);
+  
+  if (criticalFailed.length > 0) {
+    return { score: 0, decision: 'reject', reason: 'critical 项失败' };
+  }
+  
+  // 检查 non-critical 项
+  const nonCriticalFailed = nonCriticalItems.filter(item => !reviewResults[item].pass);
+  
+  if (nonCriticalFailed.length === 0) {
+    return { score: 10, decision: 'pass' };
+  } else {
+    const score = 10 - (nonCriticalFailed.length * 0.5);
+    return { score: Math.max(score, 8), decision: 'conditional' };
+  }
+}
+```
+
+---
+
+### 13.5 需求追溯矩阵
+
+| 需求 ID | REQUIREMENTS.md 章节 | PRD 章节 | TRD 章节 | TRD 行号 | 实现状态 |
+|---------|---------------------|---------|---------|---------|---------|
+| REQ-011 | L630-700 | 16.1-16.7 | 13.1-13.5 | 待计算 | ✅ 已映射 |
+
+#### 13.5.1 覆盖率统计
+
+- **需求总数**: 11
+- **已实现需求**: 11
+- **覆盖率**: 100%
+- **未实现需求**: 无
+
+---
+
+### 13.6 验收检查点
+
+| 检查点 | 验收标准 | 验证方法 |
+|--------|---------|---------|
+| C1 | SKILL.md 包含 12 项检查清单 | `grep -c "检查项" SKILL.md` |
+| C2 | SKILL.md 包含 critical/non-critical 分类 | `grep "critical" SKILL.md` |
+| C3 | opencode.js 包含 12 项检查清单 | `grep -c "检查" opencode.js` |
+| C4 | 版本历史更新到 v3.1.5 | `grep "v3.1.5" SKILL.md` |
+| C5 | ReviewDesignAgent 得分 >= 90% | 执行审查脚本 |
+
+---
+
+### 13.7 版本历史更新
+
+| 版本 | 日期 | 变更说明 | Issue ID | 对齐 REQUIREMENTS 版本 | 对齐 PRD 版本 | TRD 哈希 |
+|------|------|---------|----------|----------------------|-------------|---------|
+| v1.0.0 | 2026-03-26 | 初始版本（原始需求） | - | v1.0.0 | v1.0.0 | `git-hash` |
+| v1.1.0 | 2026-03-26 | FEATURE-001：增加 OpenCode 调用说明 | FEATURE-001 | v1.1.0 | v1.1.0 | `git-hash` |
+| v2.0.0 | 2026-03-28 | FEATURE-002：审阅驱动 + 会话隔离 + 工具无关 | FEATURE-002 | v2.0.0 | v2.0.0 | `git-hash` |
+| v2.0.1 | 2026-03-30 | BUG-002 修复：补充 02_roadmapping/和 03_detailing/ | BUG-002 | v2.0.1 | v2.0.1 | `git-hash` |
+| v2.1.0 | 2026-04-02 | FEATURE-003：Roadmap Agent 优化 | FEATURE-003 | v2.1.0 | v2.1.0 | `git-hash` |
+| v3.1.0 | 2026-04-02 | FEATURE-004：DESIGNING 阶段审阅优化 | FEATURE-004 | v3.1.0 | v3.1.0 | `git-hash` |
+| v3.1.1 | 2026-04-02 | BUG-005 修复：PRD/TRD 文档修复 | BUG-005 | v3.1.0 | v3.1.1 | `910651f` |
+| v3.1.2 | 2026-04-02 | BUG-006 修复：PRD/TRD 审查问题修复（哈希对齐 + 异常处理完善） | BUG-006 | v3.1.0 | v3.1.2 | `f0e4491` |
+| v3.1.3 | 2026-04-02 | FEATURE-005：DESIGNING 阶段用户确认签字优化 | FEATURE-005 | v3.1.0 | v3.1.3 | `待计算` |
+| v3.1.4 | 2026-04-02 | BUG-007 修复：PRD/TRD 描述 AI 工具为 config.yaml 配置 | BUG-007 | v3.1.0 | v3.1.4 | `待计算` |
+| **v3.1.5** | **2026-04-02** | **FEATURE-006：ROADMAPPING 审阅 Agent 规则优化** | **FEATURE-006** | **v3.1.0** | **v3.1.5** | **`fe957c6`** |
+| **v3.1.6** | **2026-04-02** | **FEATURE-007：ROADMAPPING 环节优化（R4 规则优化 + 不生成 SELF-REVIEW.md）** | **FEATURE-007** | **v3.1.0** | **v3.1.6** | **`待计算`** |
+
+---
+
+## 14. v3.1.6 技术设计 - ROADMAPPING 环节优化
+
+### 14.1 架构设计
+
+#### 14.1.1 R4 规则优化架构
+
+```
+检测关键词 → 检查缓解措施 → 判定结果
+    ↓              ↓            ↓
+可能/可选/未来   缓解/应对/措施   通过/warning
+```
+
+**检测逻辑**：
+```javascript
+function checkScopeCreep(roadmapContent) {
+  // 检测关键词
+  const scopeCreepKeywords = [
+    '可能', '或许', '大概',
+    '可选', 'optional',
+    '未来', '将来', '后续',
+    '也许', 'maybe'
+  ];
+  
+  // 缓解措施关键词
+  const mitigationKeywords = [
+    '缓解', '应对', '措施', '方案',
+    'MVP 不包含', 'Phase 2', '后续版本',
+    '已标注', '已规划'
+  ];
+  
+  // 逐行检查
+  const lines = roadmapContent.split('\n');
+  const warnings = [];
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const hasScopeCreep = scopeCreepKeywords.some(kw => line.includes(kw));
+    
+    if (hasScopeCreep) {
+      // 检查前后 3 行是否有缓解措施
+      const contextStart = Math.max(0, i - 3);
+      const contextEnd = Math.min(lines.length, i + 3);
+      const context = lines.slice(contextStart, contextEnd).join(' ');
+      
+      const hasMitigation = mitigationKeywords.some(kw => context.includes(kw));
+      
+      if (!hasMitigation) {
+        warnings.push({
+          line: i + 1,
+          content: line.trim(),
+          reason: '检测到范围膨胀关键词，无缓解措施'
+        });
+      }
+      // 有缓解措施 → 通过，不记录 warning
+    }
+  }
+  
+  return {
+    pass: true,  // non-critical，不导致失败
+    warning: warnings.length > 0,
+    warnings: warnings
+  };
+}
+```
+
+#### 14.1.2 SELF-REVIEW.md 生成逻辑优化
+
+**生成决策流程**：
+```
+自审阅完成
+    ↓
+检查 Critical 项（R0-R3）
+    ↓
+┌───┴───┐
+↓       ↓
+全部通过  任一失败
+↓       ↓
+不生成   生成 SELF-REVIEW.md
+SELF-REVIEW.md  （记录失败原因）
+```
+
+**实现逻辑**：
+```javascript
+function shouldGenerateSelfReview(reviewResults) {
+  const criticalItems = ['R0', 'R1', 'R2', 'R3'];
+  const criticalFailed = criticalItems.filter(item => !reviewResults[item].pass);
+  
+  // 只在 Critical 项失败时生成
+  return criticalFailed.length > 0;
+}
+```
+
+---
+
+### 14.2 功能设计
+
+#### 14.2.1 R4 检查增强
+
+**检查规则**：
+| 场景 | 关键词 | 缓解措施 | 判定结果 |
+|------|--------|---------|---------|
+| 误报场景 | ✅ 有 | ✅ 有 | 通过（不 warning） |
+| 真实风险 | ✅ 有 | ❌ 无 | warning |
+| 正常场景 | ❌ 无 | - | 通过 |
+
+**缓解措施识别**：
+- 同一段落内包含缓解关键词
+- 或明确标注"Phase 2"、"后续版本"、"MVP 不包含"
+- 或有明确的应对方案描述
+
+#### 14.2.2 SELF-REVIEW.md 简化
+
+**生成条件**：
+- ❌ Critical 全部通过 → 不生成
+- ❌ 仅 Non-Critical 失败 → 不生成（修正后直接输出）
+- ✅ Critical 任一失败 → 生成（记录失败原因用于调试）
+
+**文件内容**（仅 Critical 失败时生成）：
+```markdown
+# 自审阅报告 - {项目名称}
+
+## 审阅元数据
+- 审阅时间：{timestamp}
+- 审阅对象：ROADMAP.md
+- 审阅版本：v3.1.6
+
+## Critical 项失败原因
+| 规则 | 检查点 | 失败原因 |
+|------|--------|---------|
+| R0 | Freshness | 缺少 alignedTo 字段 |
+| ... | ... | ... |
+
+## 修正建议
+1. 添加 alignedTo 字段
+2. ...
+```
+
+---
+
+### 14.3 接口设计
+
+#### 14.3.1 SKILL.md 更新
+
+**修改位置**：步骤 4 自审阅章节
+
+**修改内容**：
+1. **R4 规则说明** - 增加缓解措施检查逻辑
+2. **SELF-REVIEW.md 生成逻辑** - 明确只在 Critical 失败时生成
+3. **版本历史** - 更新到 v3.1.6
+
+#### 14.3.2 opencode.js 更新
+
+**修改位置**：buildTask 函数的 roadmapping 任务描述
+
+**修改内容**：
+1. **步骤 4 自审阅** - 更新 R4 检查规则说明
+2. **步骤 6 写入文件** - 更新 SELF-REVIEW.md 生成逻辑
+
+---
+
+### 14.4 数据结构设计
+
+#### 14.4.1 R4 检查结果对象
+
+```javascript
+{
+  rule: 'R4',
+  name: '范围膨胀风险',
+  pass: true,  // non-critical，始终为 true
+  warning: false,  // 有未缓解的关键词时为 true
+  warnings: [  // 警告列表
+    {
+      line: 45,
+      content: '可能需要在未来考虑性能优化',
+      reason: '检测到范围膨胀关键词，无缓解措施'
+    }
+  ]
+}
+```
+
+#### 14.4.2 SELF-REVIEW.md 生成决策
+
+```javascript
+{
+  shouldGenerate: false,  // Critical 全部通过 → false
+  reason: '所有 Critical 项通过',
+  reviewResults: { ... }
+}
+```
+
+---
+
+### 14.5 需求追溯矩阵
+
+| 需求 ID | REQUIREMENTS.md 章节 | PRD 章节 | TRD 章节 | TRD 行号 | 实现状态 |
+|---------|---------------------|---------|---------|---------|---------|
+| REQ-012 | L700-770 | 17.1-17.7 | 14.1-14.6 | 待计算 | ✅ 已映射 |
+
+#### 14.5.1 覆盖率统计
+
+- **需求总数**: 12
+- **已实现需求**: 12
+- **覆盖率**: 100%
+- **未实现需求**: 无
+
+---
+
+### 14.6 验收检查点
+
+| 检查点 | 验收标准 | 验证方法 |
+|--------|---------|---------|
+| C1 | R4 规则包含缓解措施检查 | `grep "缓解措施" SKILL.md` |
+| C2 | SELF-REVIEW.md 生成逻辑正确 | 执行 roadmapping 验证 |
+| C3 | Critical 全部通过时不生成文件 | `ls 02_roadmapping/` 无 SELF-REVIEW.md |
+| C4 | 版本历史更新到 v3.1.6 | `grep "v3.1.6" SKILL.md` |
+| C5 | ReviewDesignAgent 得分 >= 90% | 执行审查脚本 |
+
+---
+
+### 14.7 版本历史更新
+
+| 版本 | 日期 | 变更说明 | Issue ID | 对齐 REQUIREMENTS 版本 | 对齐 PRD 版本 | TRD 哈希 |
+|------|------|---------|----------|----------------------|-------------|---------|
+| v1.0.0 | 2026-03-26 | 初始版本（原始需求） | - | v1.0.0 | v1.0.0 | `git-hash` |
+| v1.1.0 | 2026-03-26 | FEATURE-001：增加 OpenCode 调用说明 | FEATURE-001 | v1.1.0 | v1.1.0 | `git-hash` |
+| v2.0.0 | 2026-03-28 | FEATURE-002：审阅驱动 + 会话隔离 + 工具无关 | FEATURE-002 | v2.0.0 | v2.0.0 | `git-hash` |
+| v2.0.1 | 2026-03-30 | BUG-002 修复：补充 02_roadmapping/和 03_detailing/ | BUG-002 | v2.0.1 | v2.0.1 | `git-hash` |
+| v2.1.0 | 2026-04-02 | FEATURE-003：Roadmap Agent 优化 | FEATURE-003 | v2.1.0 | v2.1.0 | `git-hash` |
+| v3.1.0 | 2026-04-02 | FEATURE-004：DESIGNING 阶段审阅优化 | FEATURE-004 | v3.1.0 | v3.1.0 | `git-hash` |
+| v3.1.1 | 2026-04-02 | BUG-005 修复：PRD/TRD 文档修复 | BUG-005 | v3.1.0 | v3.1.1 | `910651f` |
+| v3.1.2 | 2026-04-02 | BUG-006 修复：PRD/TRD 审查问题修复（哈希对齐 + 异常处理完善） | BUG-006 | v3.1.0 | v3.1.2 | `f0e4491` |
+| v3.1.3 | 2026-04-02 | FEATURE-005：DESIGNING 阶段用户确认签字优化 | FEATURE-005 | v3.1.0 | v3.1.3 | `待计算` |
+| v3.1.4 | 2026-04-02 | BUG-007 修复：PRD/TRD 描述 AI 工具为 config.yaml 配置 | BUG-007 | v3.1.0 | v3.1.4 | `待计算` |
+| v3.1.5 | 2026-04-02 | FEATURE-006：ROADMAPPING 审阅 Agent 规则优化 | FEATURE-006 | v3.1.0 | v3.1.5 | `fe957c6` |
+| **v3.1.6** | **2026-04-02** | **FEATURE-007：ROADMAPPING 环节优化（R4 规则优化 + 不生成 SELF-REVIEW.md）** | **FEATURE-007** | **v3.1.0** | **v3.1.6** | **`待计算`** |
+| **v3.1.7** | **2026-04-02** | **问题分析：DETAILING 环节审阅 Agent 缺失** | **REQ-013 分析** | **v3.1.0** | **v3.1.7** | **`待计算`** |
+| **v3.1.8** | **2026-04-02** | **FEATURE-008：DETAILING 审阅 Agent 优化（Hard Gates + 输入输出规范）** | **FEATURE-008** | **v3.1.0** | **v3.1.8** | **`待计算`** |
+
+---
+
+## 15. v3.1.8 技术设计 - DETAILING 审阅 Agent 优化
+
+### 15.1 架构设计
+
+#### 15.1.1 审阅 Agent 架构
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              自审阅 Agent（10 项检查）                        │
+├─────────────────────────────────────────────────────────────┤
+│  输入（5 个文件）：                                          │
+│  ├─ REQUIREMENTS.md（最新需求 source of truth）              │
+│  ├─ PRD.md（产品需求）                                       │
+│  ├─ TRD.md（技术设计）                                       │
+│  ├─ ROADMAP.md（开发计划）                                   │
+│  └─ DETAIL.md（被审阅对象）                                  │
+├─────────────────────────────────────────────────────────────┤
+│  Hard Gates（3 项 Critical 一票否决）：                       │
+│  ├─ HG1: Freshness 对齐检查                                  │
+│  ├─ HG2: 需求可追溯检查                                       │
+│  └─ HG3: 验收可测试检查                                       │
+├─────────────────────────────────────────────────────────────┤
+│  检查清单（10 项）：                                         │
+│  ├─ Critical（5 项）：HG1-3 + D0 章节完整性 + D2 技术一致性   │
+│  └─ Normal（5 项）：D3 计划对齐 + D4-D7 设计质量             │
+├─────────────────────────────────────────────────────────────┤
+│  输出（3 项）：                                              │
+│  ├─ 审阅结论（pass/conditional/reject）                      │
+│  ├─ 失败项列表（章节/行号）                                  │
+│  └─ 修复建议（示例）                                         │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### 15.1.2 评分决策流程
+
+```
+读取 5 个输入文件
+        ↓
+执行 10 项检查
+        ↓
+检查 Hard Gates（HG1-HG3）
+        ↓
+    ┌───┴───┐
+    ↓       ↓
+  全部通过  任一失败
+    ↓       ↓
+检查     驳回重做
+Normal 项  (最多 3 次)
+    ↓
+┌───┴───┐
+↓       ↓
+全部   有失败
+通过    ↓
+    ↓   修正后输出
+直接输出  (conditional)
+```
+
+---
+
+### 15.2 功能设计
+
+#### 15.2.1 HG1: Freshness 对齐检查
+
+**检查逻辑**：
+```javascript
+function checkFreshness(detailContent, requirementsContent) {
+  // 检查 DETAIL.md 是否包含 alignedTo 字段
+  const hasAlignedTo = /alignedTo:\s*v\d+\.\d+\.\d+/.test(detailContent);
+  
+  // 检查是否包含 requirementsHash 字段
+  const hasHash = /requirementsHash:\s*[a-f0-9]{64}/.test(detailContent);
+  
+  // 验证哈希对齐（与 REQUIREMENTS.md 最新版本一致）
+  const requirementsHash = computeHash(requirementsContent);
+  const detailHash = extractHash(detailContent);
+  
+  return {
+    pass: hasAlignedTo && hasHash && (requirementsHash === detailHash),
+    details: {
+      alignedTo: hasAlignedTo ? '✅' : '❌',
+      requirementsHash: hasHash ? '✅' : '❌',
+      hashMatch: (requirementsHash === detailHash) ? '✅' : '❌'
+    }
+  };
+}
+```
+
+**DETAIL.md 模板要求**：
+```markdown
+## 文档元数据
+
+| 字段 | 值 |
+|------|-----|
+| **alignedTo** | v3.1.8 |
+| **requirementsHash** | sha256:f0e44912d5778703c30ce7921ceb25a81a454672 |
+```
+
+#### 15.2.2 HG2: 需求可追溯检查
+
+**检查逻辑**：
+```javascript
+function checkTraceability(detailContent, requirementsContent) {
+  // 提取 REQUIREMENTS.md 中的所有需求 ID
+  const reqIds = requirementsContent.match(/REQ-\d+/g) || [];
+  
+  // 检查 DETAIL.md 中的需求追溯矩阵
+  const traceabilityMatrix = extractTraceabilityMatrix(detailContent);
+  
+  // 验证每个需求是否有可定位的映射（章节 + 行号）
+  const missingRefs = reqIds.filter(id => {
+    const mapping = traceabilityMatrix.find(m => m.reqId === id);
+    return !mapping || !mapping.detailSection || !mapping.detailLine;
+  });
+  
+  return {
+    pass: missingRefs.length === 0,
+    coverage: ((reqIds.length - missingRefs.length) / reqIds.length * 100).toFixed(1) + '%',
+    missing: missingRefs
+  };
+}
+```
+
+**DETAIL.md 要求**：
+- 必须包含需求追溯矩阵表格
+- 每个需求必须有 DETAIL 章节和行号
+- 覆盖率必须达到 100%
+
+#### 15.2.3 HG3: 验收可测试检查
+
+**检查逻辑**：
+```javascript
+function checkTestability(detailContent) {
+  // 检查验收标准是否包含 Given/When/Then
+  const hasGiven = /Given|假设/i.test(detailContent);
+  const hasWhen = /When|当/i.test(detailContent);
+  const hasThen = /Then|那么/i.test(detailContent);
+  
+  // 检查验收标准是否具体可测试（非模糊描述）
+  const fuzzyTerms = ['可能', '或许', '大概', '尽量', '应该'];
+  const hasFuzzyTerms = fuzzyTerms.some(term => detailContent.includes(term));
+  
+  return {
+    pass: hasGiven && hasWhen && hasThen && !hasFuzzyTerms,
+    details: {
+      given: hasGiven ? '✅' : '❌',
+      when: hasWhen ? '✅' : '❌',
+      then: hasThen ? '✅' : '❌',
+      noFuzzyTerms: !hasFuzzyTerms ? '✅' : '❌'
+    }
+  };
+}
+```
+
+#### 15.2.4 D0: 章节完整性检查
+
+**检查逻辑**：
+```javascript
+function checkCompleteness(detailContent) {
+  const requiredSections = [
+    '设计概述',
+    '需求追溯矩阵',
+    '架构设计',
+    '模块设计',
+    '接口定义',
+    '数据结构',
+    '验收标准'
+  ];
+  
+  const missingSections = requiredSections.filter(section => 
+    !detailContent.includes(section)
+  );
+  
+  return {
+    pass: missingSections.length === 0,
+    missing: missingSections
+  };
+}
+```
+
+#### 15.2.5 D2: 技术一致性检查
+
+**检查逻辑**：
+```javascript
+function checkConsistency(detailContent, trdContent) {
+  // 提取 TRD.md 中的技术选型
+  const trdTechStack = extractTechStack(trdContent);
+  
+  // 提取 DETAIL.md 中的技术选型
+  const detailTechStack = extractTechStack(detailContent);
+  
+  // 比较是否一致
+  const conflicts = [];
+  for (const [tech, version] of Object.entries(detailTechStack)) {
+    if (trdTechStack[tech] && trdTechStack[tech] !== version) {
+      conflicts.push(`${tech}: DETAIL 使用 ${version}，TRD 要求 ${trdTechStack[tech]}`);
+    }
+  }
+  
+  return {
+    pass: conflicts.length === 0,
+    conflicts: conflicts
+  };
+}
+```
+
+#### 15.2.6 Normal 项检查（D3-D7）
+
+| 检查项 | 检查逻辑 | 标准 |
+|--------|---------|------|
+| D3: 计划对齐 | 检查 DETAIL 任务是否与 ROADMAP 一致 | 无遗漏/无新增 |
+| D4: 接口定义完整性 | 检查所有接口是否有完整定义 | 参数/返回值/错误码 |
+| D5: 数据结构设计 | 检查数据结构是否完整 | 字段/类型/约束 |
+| D6: 异常处理 | 检查异常处理是否完整 | 正常/失败/边界 |
+| D7: 向后兼容 | 增量需求时检查是否破坏现有功能 | 无破坏性变更 |
+
+---
+
+### 15.3 接口设计
+
+#### 15.3.1 SKILL.md 更新
+
+**修改位置**：新增审阅工作流章节
+
+**修改内容**：
+1. **输入规范** - 明确读取 5 个文件
+2. **输出规范** - 明确输出 3 项
+3. **Hard Gates** - 3 项 Critical 检查
+4. **检查清单** - 10 项检查（5 critical + 5 normal）
+5. **评分决策** - Critical 一票否决
+
+#### 15.3.2 opencode.js 更新
+
+**修改位置**：buildTask 函数的 detailing 任务描述
+
+**修改内容**：
+1. **步骤 4 自审阅** - 新增 10 项检查清单
+2. **Hard Gates** - 明确 HG1-3 Critical 一票否决
+3. **评分规则** - Critical 失败→驳回，Normal 失败→修正
+
+---
+
+### 15.4 数据结构设计
+
+#### 15.4.1 审阅结果对象
+
+```javascript
+{
+  reviewResults: {
+    HG1: { pass: true, details: {...} },
+    HG2: { pass: true, coverage: '100%', missing: [] },
+    HG3: { pass: true, details: {...} },
+    D0: { pass: true, missing: [] },
+    D2: { pass: true, conflicts: [] },
+    D3: { pass: true },
+    D4: { pass: true },
+    D5: { pass: true },
+    D6: { pass: true },
+    D7: { pass: true }
+  },
+  criticalFailed: [],  // 失败的 Critical 项
+  normalFailed: [],  // 失败的 Normal 项
+  score: 10,  // 总分
+  decision: 'pass',  // pass | conditional | reject
+  failures: [  // 失败项列表
+    {
+      rule: 'HG2',
+      section: '2. 需求追溯矩阵',
+      line: 45,
+      reason: 'REQ-013 缺少 DETAIL 章节映射',
+      suggestion: '添加 REQ-013 的映射行：| REQ-013 | L780-900 | 18.1-18.6 | 15.1-15.4 | 505-600 | ✅ |'
+    }
+  ]
+}
+```
+
+#### 15.4.2 评分计算逻辑
+
+```javascript
+function calculateScore(reviewResults) {
+  const criticalItems = ['HG1', 'HG2', 'HG3', 'D0', 'D2'];
+  const normalItems = ['D3', 'D4', 'D5', 'D6', 'D7'];
+  
+  // 检查 Critical 项（Hard Gates）
+  const criticalFailed = criticalItems.filter(item => !reviewResults[item].pass);
+  
+  if (criticalFailed.length > 0) {
+    return { 
+      score: 0, 
+      decision: 'reject', 
+      reason: 'Hard Gate 失败',
+      failures: criticalFailed 
+    };
+  }
+  
+  // 检查 Normal 项
+  const normalFailed = normalItems.filter(item => !reviewResults[item].pass);
+  
+  if (normalFailed.length === 0) {
+    return { score: 10, decision: 'pass' };
+  } else {
+    const score = 10 - (normalFailed.length * 0.5);
+    return { score: Math.max(score, 8), decision: 'conditional' };
+  }
+}
+```
+
+---
+
+### 15.5 需求追溯矩阵
+
+| 需求 ID | REQUIREMENTS.md 章节 | PRD 章节 | TRD 章节 | TRD 行号 | 实现状态 |
+|---------|---------------------|---------|---------|---------|---------|
+| REQ-013 | L780-900 | 18.1-18.7 | **15.1-15.5** | 待计算 | ✅ 已映射 |
+
+#### 15.5.1 覆盖率统计
+
+- **需求总数**: 13
+- **已实现需求**: 13
+- **覆盖率**: 100%
+- **未实现需求**: 无
+
+---
+
+### 15.6 验收检查点
+
+| 检查点 | 验收标准 | 验证方法 |
+|--------|---------|---------|
+| C1 | SKILL.md 包含 10 项检查清单 | `grep -c "检查项" SKILL.md` |
+| C2 | SKILL.md 包含 Hard Gates 说明 | `grep "Hard Gate" SKILL.md` |
+| C3 | SKILL.md 包含输入/输出规范 | `grep "输入\|输出" SKILL.md` |
+| C4 | opencode.js 包含 10 项检查清单 | `grep -c "检查" opencode.js` |
+| C5 | 版本历史更新到 v3.1.8 | `grep "v3.1.8" SKILL.md` |
+| C6 | ReviewDesignAgent 得分 >= 90% | 执行审查脚本 |
+
+---
+
+### 15.7 版本历史更新
+
+| 版本 | 日期 | 变更说明 | Issue ID | 对齐 REQUIREMENTS 版本 | 对齐 PRD 版本 | TRD 哈希 |
+|------|------|---------|----------|----------------------|-------------|---------|
+| v1.0.0 | 2026-03-26 | 初始版本（原始需求） | - | v1.0.0 | v1.0.0 | `git-hash` |
+| v1.1.0 | 2026-03-26 | FEATURE-001：增加 OpenCode 调用说明 | FEATURE-001 | v1.1.0 | v1.1.0 | `git-hash` |
+| v2.0.0 | 2026-03-28 | FEATURE-002：审阅驱动 + 会话隔离 + 工具无关 | FEATURE-002 | v2.0.0 | v2.0.0 | `git-hash` |
+| v2.0.1 | 2026-03-30 | BUG-002 修复：补充 02_roadmapping/和 03_detailing/ | BUG-002 | v2.0.1 | v2.0.1 | `git-hash` |
+| v2.1.0 | 2026-04-02 | FEATURE-003：Roadmap Agent 优化 | FEATURE-003 | v2.1.0 | v2.1.0 | `git-hash` |
+| v3.1.0 | 2026-04-02 | FEATURE-004：DESIGNING 阶段审阅优化 | FEATURE-004 | v3.1.0 | v3.1.0 | `git-hash` |
+| v3.1.1 | 2026-04-02 | BUG-005 修复：PRD/TRD 文档修复 | BUG-005 | v3.1.0 | v3.1.1 | `910651f` |
+| v3.1.2 | 2026-04-02 | BUG-006 修复：PRD/TRD 审查问题修复（哈希对齐 + 异常处理完善） | BUG-006 | v3.1.0 | v3.1.2 | `f0e4491` |
+| v3.1.3 | 2026-04-02 | FEATURE-005：DESIGNING 阶段用户确认签字优化 | FEATURE-005 | v3.1.0 | v3.1.3 | `待计算` |
+| v3.1.4 | 2026-04-02 | BUG-007 修复：PRD/TRD 描述 AI 工具为 config.yaml 配置 | BUG-007 | v3.1.0 | v3.1.4 | `待计算` |
+| v3.1.5 | 2026-04-02 | FEATURE-006：ROADMAPPING 审阅 Agent 规则优化 | FEATURE-006 | v3.1.0 | v3.1.5 | `fe957c6` |
+| v3.1.6 | 2026-04-02 | FEATURE-007：ROADMAPPING 环节优化（R4 规则优化 + 不生成 SELF-REVIEW.md） | FEATURE-007 | v3.1.0 | v3.1.6 | `待计算` |
+| **v3.1.7** | **2026-04-02** | **问题分析：DETAILING 环节审阅 Agent 缺失** | **REQ-013 分析** | **v3.1.0** | **v3.1.7** | **`待计算`** |
+| **v3.1.8** | **2026-04-02** | **FEATURE-008：DETAILING 审阅 Agent 优化（Hard Gates + 输入输出规范）** | **FEATURE-008** | **v3.1.0** | **v3.1.8** | **`待计算`** |
 
 ---
 

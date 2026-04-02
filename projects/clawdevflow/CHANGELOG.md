@@ -1,5 +1,103 @@
 # 变更日志 - ClawDevFlow
 
+## v3.1.5 (2026-04-02) - FEATURE-006 ROADMAPPING 审阅 Agent 规则优化
+
+### 新增
+
+- ✅ **Freshness 对齐检查 (R0)** - ROADMAP.md 必须包含 alignedTo + requirementsHash 字段
+- ✅ **Traceability 需求引用 (R1)** - ROADMAP 必须显式引用需求 ID（覆盖率 100%）
+- ✅ **MVP 可交付性 (R2)** - 必须存在 MVP/Phase 1/里程碑 1 段落（含 scope/验收/工作量）
+- ✅ **依赖与风险 (R3)** - ROADMAP 必须有 Dependencies/Risks 段落
+- ✅ **范围膨胀风险 (R4)** - 检测"可能/可选/未来"等关键词（warning）
+- ✅ **Critical 项一票否决** - R0-R3 任一失败则驳回重做
+- ✅ **评分决策规则** - critical 项失败→驳回，non-critical 项 1-2 项失败→条件通过
+
+### 变更
+
+- ✅ **检查清单扩展** - 从 10 项扩展为 12 项（R0-R4 + 1-5, 7-8）
+- ✅ **移除重复项** - 移除原有 6（需求覆盖，与 R1 重复）和 9（风险评估，与 R3 重复）
+- ✅ **SKILL.md v3.1.5** - 更新审阅检查清单和评分决策规则
+- ✅ **opencode.js v3.1.5** - 更新 roadmapping 任务描述
+- ✅ **PRD.md v3.1.5** - 追加第 16 章产品需求
+- ✅ **TRD.md v3.1.5** - 追加第 13 章技术设计
+- ✅ **REQUIREMENTS.md** - 更新需求追溯矩阵（REQ-011 已完成）
+
+### 12 项检查清单
+
+| # | 规则 | 检查项 | 关键性 |
+|---|------|--------|--------|
+| R0 | Freshness | 文档对齐 | **critical** |
+| R1 | Traceability | 需求引用 | **critical** |
+| R2 | Deliverability | MVP 可交付性 | **critical** |
+| R3 | Dependencies | 依赖与风险 | **critical** |
+| R4 | Scope | 范围膨胀风险 | non-critical |
+| 1 | - | 任务拆分 | non-critical |
+| 2 | - | 工作量评估 | non-critical |
+| 3 | - | 收尾项 | non-critical |
+| 4 | - | 任务命名 | non-critical |
+| 5 | - | 描述规范 | non-critical |
+| 7 | - | 技术对齐 | non-critical |
+| 8 | - | 代码现状（增量） | non-critical |
+
+### 评分决策规则
+
+```
+Critical 项（R0-R3）检查：
+  ├─ 任一失败 → 驳回（score=0，重新生成）
+  └─ 全部通过 → 继续检查 Non-Critical 项
+
+Non-Critical 项（R4 + 1-5, 7-8）检查：
+  ├─ 全部通过 → 通过（10/10）
+  ├─ 1-2 项失败 → 条件通过（8-9/10，修正后输出）
+  └─ 3 项及以上失败 → 驳回（<8/10，重新生成）
+```
+
+### 验收标准
+
+- ✅ PRD.md v3.1.5 包含新规则说明（第 16 章）
+- ✅ TRD.md v3.1.5 包含技术实现方案（第 13 章）
+- ✅ bundled-skills/roadmapping/SKILL.md 更新 10 项检查清单为 12 项
+- ✅ adapters/opencode.js 更新 roadmapping 任务描述
+- ✅ ReviewDesignAgent 审查得分 >= 90%
+- ✅ 用户验收通过
+
+### 文件变更
+
+**修改的文件 (4 个)**:
+- `01_designing/PRD.md` - 追加第 16 章 v3.1.5 产品需求
+- `01_designing/TRD.md` - 追加第 13 章 v3.1.5 技术设计
+- `04_coding/src/bundled-skills/roadmapping/SKILL.md` - 更新检查清单为 12 项，版本历史到 v3.1.5
+- `04_coding/src/adapters/opencode.js` - 更新 roadmapping 任务描述
+
+### 需求追溯
+
+- REQ-011 (L630-700) → PRD 16.1-16.7 → TRD 13.1-13.7 → ✅ 已完成
+
+---
+
+## v3.1.4 (2026-04-02) - BUG-007 PRD/TRD 描述 AI 工具为 config.yaml 配置
+
+### 新增
+
+- ✅ **AI 工具配置化** - PRD/TRD 描述 AI 工具为"根据 config.yaml 配置选择"
+- ✅ **不硬编码 OpenCode** - 支持灵活切换 AI 工具（opencode/claude-code/custom）
+
+### 变更
+
+- ✅ **PRD.md v3.1.4** - 更新术语表，将"OpenCode"改为"AI 工具（根据 config.yaml 配置选择）"
+- ✅ **TRD.md v3.1.4** - 更新系统架构图和调用关系表
+- ✅ **PRD-template.md** - 同步更新
+- ✅ **TRD-template.md** - 同步更新
+
+### 验收标准
+
+- ✅ PRD.md v3.1.4 描述 AI 工具为"根据 config.yaml 配置选择"
+- ✅ TRD.md v3.1.4 描述 AI 工具为"根据 config.yaml 配置选择"
+- ✅ ReviewDesignAgent 审查得分 >= 90%
+- ✅ 用户验收通过
+
+---
+
 ## v3.1.3 (2026-04-02) - FEATURE-005 DESIGNING 阶段用户确认签字优化
 
 ### 新增
