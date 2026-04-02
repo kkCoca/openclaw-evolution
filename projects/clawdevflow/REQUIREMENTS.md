@@ -227,6 +227,98 @@ bundled-skills/roadmapping/
 
 **父需求**: REQ-003
 
+---
+
+### REQ-007: PRD/TRD 文档修复（满足 v3.1.0 审阅标准）
+
+**位置**: L378-420
+
+**版本**: v3.1.1 (2026-04-02)
+
+**类型**: Bugfix（基于 REQ-003）
+
+**父需求**: REQ-003
+
+**问题描述**:
+DESIGNING 阶段审查报告（DESIGNING-REVIEW-REPORT-PRD-TRD.md）显示当前 PRD.md 和 TRD.md 不满足 v3.1.0 审阅标准。
+
+**审查结果**:
+- ❌ D1 需求覆盖率：13%（版本对齐❌ 追溯矩阵❌ 可定位映射❌）
+- ❌ D2 文档完整性：TRD 缺少数据库/接口/安全设计章节
+- ❌ D4 技术选型：无比较表和决策依据
+- ❌ D6 异常处理：无异常处理章节
+- ❌ D7 验收标准：无 Given/When/Then 格式
+
+**修复需求**:
+1. **PRD.md 修复** - 添加文档元数据、需求追溯矩阵、非功能需求章节、验收标准（Given/When/Then）
+2. **TRD.md 修复** - 添加文档元数据、需求追溯矩阵、数据库设计、接口设计、安全设计、技术选型、异常处理章节
+
+**验收标准**:
+- Given PRD/TRD 已按照 templates 模板修复
+- When 执行 ReviewDesignAgent v3.1.0 检查
+- Then D1 版本对齐✅ 追溯矩阵✅ 可定位映射✅
+- Then D2 文档章节完整✅
+- Then D4 技术选型有比较表和决策依据✅
+- Then D6 异常处理完整✅
+- Then D7 验收标准可测试✅
+- Then 审查得分 >= 90%
+
+---
+
+## v3.1.1 Bugfix 需求说明 - PRD/TRD 文档修复
+
+**Issue ID**: BUG-005
+**需求类型**: Bugfix
+**版本升级**: v3.1.0 → v3.1.1
+
+### 问题背景
+
+DESIGNING 阶段审查报告显示 PRD.md 和 TRD.md 不满足 v3.1.0 审阅标准，审查得分仅 13%。
+
+### 修复方案
+
+按照 templates/ 目录下的模板修复 PRD.md 和 TRD.md。
+
+### 输出要求
+
+```
+01_designing/
+├── PRD.md              # 修复（v3.1.1）
+└── TRD.md              # 修复（v3.1.1）
+```
+
+### 验收标准
+
+### Given
+- templates/REQUIREMENTS-template.md 存在
+- templates/PRD-template.md 存在
+- templates/TRD-template.md 存在
+
+### When
+- 执行 designing 阶段
+- 执行 REVIEWING 阶段审查
+
+### Then
+- ✅ PRD.md 包含文档元数据（对齐的 REQUIREMENTS 版本/哈希）
+- ✅ PRD.md 包含需求追溯矩阵（覆盖 REQ-001 ~ REQ-006）
+- ✅ PRD.md 包含非功能需求章节
+- ✅ PRD.md 包含验收标准（Given/When/Then 格式）
+- ✅ TRD.md 包含文档元数据（对齐的 REQUIREMENTS+PRD 版本/哈希）
+- ✅ TRD.md 包含需求追溯矩阵
+- ✅ TRD.md 包含数据库设计章节
+- ✅ TRD.md 包含接口设计章节
+- ✅ TRD.md 包含安全设计章节
+- ✅ TRD.md 包含技术选型章节（比较表 + 决策依据）
+- ✅ TRD.md 包含异常处理章节
+- ✅ ReviewDesignAgent 审查得分 >= 90%
+
+### 版本历史
+
+| 版本 | 日期 | 变更说明 |
+|------|------|---------|
+| v3.1.0 | 2026-04-02 | FEATURE-004：DESIGNING 阶段审阅优化 |
+| **v3.1.1** | **2026-04-02** | **BUG-005 修复：PRD/TRD 文档修复（满足 v3.1.0 审阅标准）** |
+
 **问题背景**:
 在 DESIGNING 阶段审阅使用过程中发现以下问题：
 1. **需求追溯性不足** - PRD/TRD 未声明对齐的 REQUIREMENTS 版本/哈希
@@ -318,9 +410,10 @@ templates/
 | REQ-003 | v2.0.0 | 增量需求 | REQ-001 | ✅ 已完成 | 待映射 | 待映射 |
 | REQ-004 | v2.0.1 | Bugfix | REQ-003 | ✅ 已完成 | 待映射 | 待映射 |
 | REQ-005 | v2.1.0 | 增量需求 | REQ-003 | ✅ 已完成 | 待映射 | 待映射 |
-| REQ-006 | v3.1.0 | 增量需求 | REQ-003 | ✅ 进行中 | 待映射 | 待映射 |
+| REQ-006 | v3.1.0 | 增量需求 | REQ-003 | ✅ 已完成 | 待映射 | 待映射 |
+| REQ-007 | v3.1.1 | Bugfix | REQ-003 | ⏳ 进行中 | 待映射 | 待映射 |
 
-**覆盖率**: 0/6 = 0%（需要 PRD/TRD 完成后更新）
+**覆盖率**: 0/7 = 0%（需要 PRD/TRD 完成后更新）
 
 ---
 
