@@ -239,6 +239,7 @@ class WorkflowOrchestrator {
     // 根据阶段添加特定输入
     switch (stageName) {
       case Stage.ROADMAPPING:
+        input.designingPath = path.join(projectPath, '01_designing');
         input.prdFile = path.join(projectPath, '01_designing/PRD.md');
         input.trdFile = path.join(projectPath, '01_designing/TRD.md');
         break;

@@ -150,6 +150,7 @@ class StageExecutor {
     console.log('[Stage-Executor] ════════════════════════════════════════');
     
     const roadmappingPath = path.join(projectPath, '02_roadmapping');
+    const designingPath = path.join(projectPath, '01_designing');
     
     if (!fs.existsSync(roadmappingPath)) {
       fs.mkdirSync(roadmappingPath, { recursive: true });
