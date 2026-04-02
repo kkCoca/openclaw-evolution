@@ -554,8 +554,10 @@ templates/
 | **v3.1.4** | **2026-04-02** | **BUG-007 修复：PRD/TRD 描述 AI 工具为 config.yaml 配置（不硬编码 OpenCode）** | **REQ-010** |
 | **v3.1.5** | **2026-04-02** | **FEATURE-006：ROADMAPPING 审阅 Agent 规则优化（Freshness/Traceability/MVP/风险）** | **REQ-011** |
 | **v3.1.6** | **2026-04-02** | **FEATURE-007：ROADMAPPING 环节优化（解决 R4 范围膨胀 + 不生成 SELF-REVIEW.md）** | **REQ-012** |
+| **v3.1.7** | **2026-04-02** | **问题分析：DETAILING 环节审阅 Agent 缺失** | **REQ-013 分析** |
+| **v3.1.8** | **2026-04-02** | **FEATURE-008：DETAILING 审阅 Agent 优化（Hard Gates + 输入输出规范）** | **REQ-013** |
 
-**当前版本**: v3.1.6（最新）
+**当前版本**: v3.1.8（最新）
 
 ---
 
@@ -574,9 +576,10 @@ templates/
 | REQ-009 | v3.1.3 | 增量需求 | REQ-003 | ✅ 已完成 | ✅ 已映射 | ✅ 已映射 |
 | REQ-010 | v3.1.4 | BUG-007 | REQ-003 | ✅ 已完成 | ✅ 已映射 | ✅ 已映射 |
 | REQ-011 | v3.1.5 | FEATURE-006 | REQ-005 | ✅ 已完成 | ✅ 已映射 | ✅ 已映射 |
-| REQ-012 | v3.1.6 | FEATURE-007 | REQ-011 | ⏳ 进行中 | 待映射 | 待映射 |
+| REQ-012 | v3.1.6 | FEATURE-007 | REQ-011 | ✅ 已完成 | ✅ 已映射 | ✅ 已映射 |
+| REQ-013 | v3.1.8 | FEATURE-008 | REQ-012 | ⏳ 进行中 | 待映射 | 待映射 |
 
-**覆盖率**: 11/12 = 92%（REQ-012 进行中）
+**覆盖率**: 12/13 = 92%（REQ-013 进行中）
 
 ---
 
@@ -748,5 +751,81 @@ adapters/
 
 ---
 
+## REQ-013: DETAILING 审阅 Agent 优化（Hard Gates + 输入输出规范）
+
+**位置**: L780-900
+
+**版本**: v3.1.8 (2026-04-02)
+
+**类型**: 增量需求（基于 REQ-012）
+
+**父需求**: REQ-012
+
+**问题背景**:
+DETAILING 环节不存在审阅 Agent，导致：
+- ❌ DETAIL.md 质量无法保证
+- ❌ 可能遗漏关键设计细节
+- ❌ 可能与 PRD/TRD/ROADMAP 不一致
+- ❌ CODING 阶段发现设计问题，需要返工
+- ❌ 不符合"审阅驱动"设计理念
+
+**需求目标**:
+| 目标 | 说明 | 验收标准 |
+|------|------|---------|
+| **输入/输出规范** | 明确审阅 Agent 输入输出 | 读取 5 个文件，输出 3 项 |
+| **Hard Gates** | 3 项 Critical 强门禁 | HG1 Freshness/HG2 可追溯/HG3 可测试 |
+| **检查清单** | 10 项检查（5 critical + 5 normal） | Critical 一票否决 |
+| **输出格式** | 审阅结论 + 失败项 + 修复建议 | JSON 格式，明确到章节/行号 |
+
+**核心设计**:
+1. **输入**（必须读取 5 个文件）:
+   - REQUIREMENTS.md（最新需求 source of truth）
+   - PRD.md（产品需求）
+   - TRD.md（技术设计）
+   - ROADMAP.md（开发计划）
+   - DETAIL.md（被审阅对象）
+
+2. **输出**（必须生成 3 项）:
+   - 审阅结论（pass/conditional/reject）
+   - 失败项列表（明确到章节/行号）
+   - 修复建议（指出示例）
+
+3. **Hard Gates**（3 项 Critical）:
+   - HG1 Freshness 对齐（防止上游变了 DETAIL 还在写旧版本）
+   - HG2 需求可追溯（可定位映射，不能凭描述匹配）
+   - HG3 验收可测试（否则 coding 只能靠感觉）
+
+4. **检查清单**（10 项）:
+   - Critical（5 项）: HG1-3 + D0 章节完整性 + D2 技术一致性
+   - Normal（5 项）: D3 计划对齐 + D4-D7 设计质量
+
+**输出要求**:
+```
+bundled-skills/detailing/
+└── SKILL.md                  # 新增审阅 Agent（10 项检查清单）
+
+adapters/
+└── opencode.js               # 更新 detailing 任务描述
+```
+
+**验收标准**:
+### Given
+- REQUIREMENTS.md 已追加 REQ-013（v3.1.8）
+- bundled-skills/detailing/SKILL.md 存在
+
+### When
+- 执行完整 clawdevflow 流程（designing→roadmapping→detailing→coding→reviewing）
+- 审阅所有产出文档
+
+### Then
+- ✅ PRD.md v3.1.8 包含 DETAILING 审阅 Agent 说明
+- ✅ TRD.md v3.1.8 包含技术实现方案
+- ✅ bundled-skills/detailing/SKILL.md 新增 10 项检查清单
+- ✅ adapters/opencode.js 更新 detailing 任务描述
+- ✅ ReviewDesignAgent 审查得分 >= 90%
+- ✅ 用户验收通过
+
+---
+
 *需求说明文档 by openclaw-ouyp*  
-**版本**: v3.1.6 | **日期**: 2026-04-02 | **Git Commit**: 待计算
+**版本**: v3.1.8 | **日期**: 2026-04-02 | **Git Commit**: 待计算
