@@ -198,15 +198,33 @@ class OpenCodeAdapter extends AIToolAdapter {
     const stageTasks = {
       designing: `你是一个产品设计专家。请执行 designing skill：
 
-1. 阅读需求文件：${input.requirementsFile || 'REQUIREMENTS.md'}
-2. 分析需求并生成 PRD.md 和 TRD.md 文档
-3. 输出到目录：${input.outputDir || '01_designing'}
+## AI 工具配置
+**重要**: 根据 config.yaml 配置选择 AI 工具，不要硬编码"OpenCode"
+- 配置文件：04_coding/src/config.yaml
+- 配置项：global.defaultAITool 或 stages.designing.aiTool
+- 可选值：opencode / claude-code / custom
 
-要求：
+## 执行步骤
+1. 阅读需求文件：${input.requirementsFile || 'REQUIREMENTS.md'}
+2. 根据 config.yaml 配置选择 AI 工具（默认 opencode，可配置为 claude-code/custom）
+3. 分析需求并生成 PRD.md 和 TRD.md 文档
+4. 输出到目录：${input.outputDir || '01_designing'}
+
+## 输出要求
 - PRD.md 包含完整的产品需求、用户故事、验收标准
 - TRD.md 包含技术选型、架构设计、接口定义
+- **AI 工具描述**: 使用"根据 config.yaml 配置选择 AI 工具"，不要硬编码"OpenCode"
 - 所有描述必须具体可测试，禁止模糊术语
-- 直接创建文件到指定目录`,
+- 直接创建文件到指定目录
+
+## 示例（正确）
+✅ "根据 config.yaml 配置选择 AI 工具（默认 opencode）"
+✅ "使用 AI 工具执行 designing skill"
+
+## 示例（错误）
+❌ "使用 OpenCode 执行 designing skill"
+❌ "OpenCode 分析需求并生成文档"
+`,
 
       roadmapping: `你是一个技术项目经理。请执行 roadmapping skill（纯自动化模式 + 自审阅，无用户交互）：
 
