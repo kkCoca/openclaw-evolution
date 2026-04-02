@@ -553,8 +553,9 @@ templates/
 | **v3.1.3** | **2026-04-02** | **FEATURE-005：DESIGNING 阶段用户确认签字优化（不生成额外文件）** | **REQ-009** |
 | **v3.1.4** | **2026-04-02** | **BUG-007 修复：PRD/TRD 描述 AI 工具为 config.yaml 配置（不硬编码 OpenCode）** | **REQ-010** |
 | **v3.1.5** | **2026-04-02** | **FEATURE-006：ROADMAPPING 审阅 Agent 规则优化（Freshness/Traceability/MVP/风险）** | **REQ-011** |
+| **v3.1.6** | **2026-04-02** | **FEATURE-007：ROADMAPPING 环节优化（解决 R4 范围膨胀 + 不生成 SELF-REVIEW.md）** | **REQ-012** |
 
-**当前版本**: v3.1.5（最新）
+**当前版本**: v3.1.6（最新）
 
 ---
 
@@ -572,9 +573,10 @@ templates/
 | REQ-008 | v3.1.2 | Bugfix | REQ-007 | ✅ 已完成 | ✅ 已映射 | ✅ 已映射 |
 | REQ-009 | v3.1.3 | 增量需求 | REQ-003 | ✅ 已完成 | ✅ 已映射 | ✅ 已映射 |
 | REQ-010 | v3.1.4 | BUG-007 | REQ-003 | ✅ 已完成 | ✅ 已映射 | ✅ 已映射 |
-| REQ-011 | v3.1.5 | FEATURE-006 | REQ-005 | ⏳ 进行中 | 待映射 | 待映射 |
+| REQ-011 | v3.1.5 | FEATURE-006 | REQ-005 | ✅ 已完成 | ✅ 已映射 | ✅ 已映射 |
+| REQ-012 | v3.1.6 | FEATURE-007 | REQ-011 | ⏳ 进行中 | 待映射 | 待映射 |
 
-**覆盖率**: 10/11 = 91%（REQ-011 进行中）
+**覆盖率**: 11/12 = 92%（REQ-012 进行中）
 
 ---
 
@@ -687,5 +689,64 @@ tests/
 
 ---
 
+## REQ-012: ROADMAPPING 环节优化（解决 R4 范围膨胀 + 不生成 SELF-REVIEW.md）
+
+**位置**: L700-770
+
+**版本**: v3.1.6 (2026-04-02)
+
+**类型**: 增量需求（基于 REQ-011）
+
+**父需求**: REQ-011
+
+**问题背景**:
+ROADMAPPING 环节 v3.1.5 执行发现两个问题：
+1. ⚠️ R4 范围膨胀风险误报（检测到"可选"关键词，但已标注缓解措施）
+2. ❌ 生成 SELF-REVIEW.md（增加额外文件，不符合"不生成额外文件"原则）
+
+**需求目标**:
+| 目标 | 说明 | 验收标准 |
+|------|------|---------|
+| **解决 R4 范围膨胀** | 优化 R4 检查规则，减少误报 | R4 检查通过（无误报） |
+| **不生成 SELF-REVIEW.md** | 简化输出，只在 critical 项失败时生成 | 无 SELF-REVIEW.md 文件 |
+
+**优化方案**:
+1. **R4 规则优化**：
+   - 检测到"可能/可选/未来"关键词时，检查是否有缓解措施
+   - 如有缓解措施，不判定为问题
+   - 只 warning，不影响评分
+
+2. **SELF-REVIEW.md 生成逻辑优化**：
+   - critical 项（R0-R3）任一失败 → 生成 SELF-REVIEW.md
+   - 全部通过 → 不生成 SELF-REVIEW.md
+   - 简化输出，符合"不生成额外文件"原则
+
+**输出要求**:
+```
+bundled-skills/roadmapping/
+└── SKILL.md                  # 更新 R4 规则和 SELF-REVIEW.md 生成逻辑
+
+adapters/
+└── opencode.js               # 更新 roadmapping 任务描述
+```
+
+**验收标准**:
+### Given
+- REQUIREMENTS.md 已追加 REQ-012（v3.1.6）
+- bundled-skills/roadmapping/SKILL.md v3.1.5 存在
+
+### When
+- 重新执行 roadmapping 环节
+- 审阅 ROADMAP.md v3.1.6
+
+### Then
+- ✅ R4 范围膨胀风险通过（无误报）
+- ✅ 不生成 SELF-REVIEW.md
+- ✅ 自审阅得分 >= 90%
+- ✅ ReviewDesignAgent 审查得分 >= 90%
+- ✅ 用户验收通过
+
+---
+
 *需求说明文档 by openclaw-ouyp*  
-**版本**: v3.1.5 | **日期**: 2026-04-02 | **Git Commit**: 待计算
+**版本**: v3.1.6 | **日期**: 2026-04-02 | **Git Commit**: 待计算
