@@ -889,5 +889,59 @@ adapters/
 
 ---
 
+## REQ-015: Designing 环节 Policy 优化（v3.3.0）
+
+**位置**: L851-900
+
+**版本**: v3.3.0 (2026-04-07)
+
+**类型**: 增量需求（基于 REQ-003）
+
+**父需求**: REQ-003 (审阅驱动 + 会话隔离 + 工具无关)
+
+**问题背景**:
+在 v3.1.x 系列修复完成后，需要提升流程的可维护性和用户体验：
+1. 配置写死后难以调整（需要改代码）
+2. 小需求也要两次确认，流程繁琐
+3. conditional 一律阻断，不够灵活
+4. 配置错误难以发现
+
+**增量需求**:
+1. **Policy 配置化** - 将决策规则移到 config.yaml
+2. **小需求合并确认** - <=2 个需求可以 one_step 模式
+3. **conditional 分级** - blocker vs warning 分级处理
+4. **Policy 验证器** - 启动时验证配置合法性
+
+**功能需求**:
+- ✅ config.yaml 新增 designing.policy 配置
+- ✅ 支持 auto/one_step/two_step 三种模式
+- ✅ severity_model 定义 blocker 和 warning 列表
+- ✅ 小需求标准：max_requirements/max_prd_lines/max_trd_lines
+- ✅ Policy 验证器启动时验证配置
+
+**验收标准**:
+### Given
+- REQUIREMENTS.md 已追加 REQ-015（v3.3.0）
+- config.yaml 已配置 designing.policy
+
+### When
+- 执行 clawdevflow 流程引擎
+- 启动 WorkflowOrchestrator
+
+### Then
+- ✅ Policy 配置正确加载
+- ✅ 启动时自动验证 policy 配置
+- ✅ 小需求自动使用 one_step 模式
+- ✅ blocker 阻断流程，warning 只记录
+- ✅ 配置错误时抛出友好提示
+
+**需求追溯矩阵**:
+
+| 需求 ID | PRD.md 章节 | TRD.md 章节 | 状态 |
+|--------|------------|------------|------|
+| REQ-015 | 待映射 | 待映射 | ⚪ 待映射 |
+
+---
+
 *需求说明文档 by openclaw-ouyp*  
-**版本**: v3.1.9 | **日期**: 2026-04-07 | **Git Commit**: 待计算
+**版本**: v3.3.0 | **日期**: 2026-04-07 | **Git Commit**: 待计算

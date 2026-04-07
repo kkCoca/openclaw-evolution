@@ -2594,4 +2594,507 @@ extractFullSectionContent(content, startLine) {
 
 ---
 
+## 17. v3.3.0 技术设计 - Designing Policy 优化
+
+### 17.1 架构设计
+
+#### 17.1.1 Policy 配置架构
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    config.yaml                               │
+│                                                             │
+│  stages:                                                     │
+│    designing:                                                │
+│      policy:                                                 │
+│        approvals:                                            │
+│          mode: auto | one_step | two_step                    │
+│          small_scope:                                        │
+│            max_requirements: 2                               │
+│            max_prd_lines: 200                                │
+│            max_trd_lines: 300                                │
+│            no_complex_tech: true                             │
+│        conditional_blocks_progress: true                     │
+│        blocking_rule: blocking_issues_nonempty               │
+│        severity_model:                                       │
+│          blocker: [FG_HASH_MISMATCH, ...]                    │
+│          warning: [DOCUMENT_FORMAT, ...]                     │
+│        retry: {...}                                          │
+│        escalation: {...}                                     │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│              DesigningPolicyValidator                        │
+│  • validate() - 验证配置合法性                               │
+│  • validateOrThrow() - 验证失败抛异常                        │
+│  • 验证规则：类型检查/范围检查/完整性检查                    │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│              WorkflowOrchestrator                            │
+│  • 构造函数中调用 validateOrThrow()                          │
+│  • isSmallScope() - 小需求检测                               │
+│  • approvePRD() - 支持小需求合并确认                         │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│              ReviewDesignAgentV2                             │
+│  • makeDecision(report, policy)                              │
+│  • 根据 severity_model 分级处理                              │
+│  • blocker → BLOCK, warning → PASS                          │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### 17.1.2 小需求检测流程
+
+```
+读取 REQUIREMENTS.md
+        ↓
+统计需求数量（### REQ- 匹配）
+        ↓
+    ┌───┴───┐
+    ↓       ↓
+<= 2     > 2
+    ↓       ↓
+检查    检查 PRD 行数
+PRD 行数      ↓
+    ↓       ┌───┴───┐
+┌───┴───┐   ↓       ↓
+↓       ↓  <=200   >200
+是     否   ↓       ↓
+    ↓   检查   是     否
+返回   TRD 行数   ↓       ↓
+true      ↓   检查    检查
+        ┌───┴───┐  技术复杂度
+        ↓       ↓   ↓
+     <=300   >300  ┌─┴─┐
+        ↓       ↓  是   否
+     是     否   ↓   ↓
+        ↓       ↓  true false
+     返回   返回
+     true   false
+```
+
+---
+
+### 17.2 功能设计
+
+#### 17.2.1 Policy 验证器
+
+**位置**：`04_coding/src/utils/designing-policy-validator.js`
+
+**验证规则**：
+```javascript
+class DesigningPolicyValidator {
+  static validate(policy) {
+    const errors = [];
+    const warnings = [];
+
+    // 1. 验证 approvals 配置
+    if (!policy.approvals) {
+      errors.push('缺少 approvals 配置');
+    } else {
+      // 验证 mode
+      const validModes = ['two_step', 'one_step', 'auto'];
+      if (!validModes.includes(policy.approvals.mode)) {
+        errors.push(`approvals.mode 必须是 ${validModes.join(' | ')}`);
+      }
+
+      // 验证 small_scope
+      if (policy.approvals.small_scope) {
+        if (typeof policy.approvals.small_scope.max_requirements !== 'number' ||
+            policy.approvals.small_scope.max_requirements < 1) {
+          errors.push('small_scope.max_requirements 必须是 >= 1 的数字');
+        }
+        // ... 其他验证
+      }
+    }
+
+    // 2. 验证 severity_model
+    if (policy.severity_model) {
+      if (!Array.isArray(policy.severity_model.blocker)) {
+        errors.push('severity_model.blocker 必须是数组');
+      }
+      if (!Array.isArray(policy.severity_model.warning)) {
+        errors.push('severity_model.warning 必须是数组');
+      }
+      // 检查重复
+      const blockerSet = new Set(policy.severity_model.blocker);
+      const warningSet = new Set(policy.severity_model.warning);
+      const intersection = [...blockerSet].filter(x => warningSet.has(x));
+      if (intersection.length > 0) {
+        warnings.push(`blocker 和 warning 有重复项：${intersection.join(', ')}`);
+      }
+    }
+
+    return { valid: errors.length === 0, errors, warnings };
+  }
+}
+```
+
+#### 17.2.2 小需求检测
+
+**位置**：`04_coding/src/workflow-orchestrator.js`
+
+**实现逻辑**：
+```javascript
+async isSmallScope(input) {
+  const policy = this.config.stages.designing.policy.approvals;
+  const smallScopeConfig = policy.small_scope;
+  
+  // 1. 检查需求数量
+  const requirementsContent = input.requirementsFile ? 
+    this.stateManager.readFile(input.requirementsFile) : '';
+  const reqCount = (requirementsContent.match(/### REQ-/g) || []).length;
+  
+  if (reqCount <= smallScopeConfig.max_requirements) {
+    console.log(`小需求检测：需求数量 ${reqCount} <= ${smallScopeConfig.max_requirements} ✅`);
+    return true;
+  }
+  
+  // 2. 检查 PRD 行数
+  if (input.prdFile) {
+    const prdContent = this.stateManager.readFile(input.prdFile);
+    const prdLines = prdContent.split('\n').length;
+    
+    if (prdLines <= smallScopeConfig.max_prd_lines) {
+      console.log(`小需求检测：PRD 行数 ${prdLines} <= ${smallScopeConfig.max_prd_lines} ✅`);
+      return true;
+    }
+  }
+  
+  // 3. 检查 TRD 行数
+  if (input.trdFile) {
+    const trdContent = this.stateManager.readFile(input.trdFile);
+    const trdLines = trdContent.split('\n').length;
+    
+    if (trdLines <= smallScopeConfig.max_trd_lines) {
+      console.log(`小需求检测：TRD 行数 ${trdLines} <= ${smallScopeConfig.max_trd_lines} ✅`);
+      return true;
+    }
+  }
+  
+  // 4. 检查技术复杂度
+  if (smallScopeConfig.no_complex_tech) {
+    const complexTechKeywords = ['微服务', '分布式', '集群', '高并发', '负载均衡', '消息队列'];
+    const hasComplexTech = complexTechKeywords.some(keyword => 
+      requirementsContent.includes(keyword)
+    );
+    
+    if (!hasComplexTech) {
+      console.log(`小需求检测：不涉及复杂技术选型 ✅`);
+      return true;
+    }
+  }
+  
+  console.log(`小需求检测：不满足小需求标准，使用 two_step 模式`);
+  return false;
+}
+```
+
+#### 17.2.3 makeDecision() 分级处理
+
+**位置**：`04_coding/src/review-agents/review-design-v2.js`
+
+**实现逻辑**：
+```javascript
+makeDecision(report, policy) {
+  const severityModel = policy.severity_model || {};
+  const blockerList = severityModel.blocker || [];
+  const warningList = severityModel.warning || [];
+  
+  // 1. 检查 Gate 是否通过
+  if (!report.gates.freshness.passed || !report.gates.traceability.passed) {
+    return {
+      decision: 'BLOCK',
+      reason: 'Gate 检查失败',
+      blockingIssues: [{
+        id: !report.gates.freshness.passed ? 'FG_FAILED' : 'TG_FAILED',
+        severity: 'blocker',
+        message: !report.gates.freshness.passed ? 'Freshness Gate 失败' : 'Traceability Gate 失败'
+      }],
+      warnings: []
+    };
+  }
+  
+  // 2. 分级处理 blockingIssues
+  const blockingIssues = report.blockingIssues || [];
+  const blockerIssues = [];
+  const warningIssues = [];
+  
+  for (const issue of blockingIssues) {
+    if (blockerList.includes(issue.id) || issue.severity === 'blocker') {
+      blockerIssues.push(issue);
+    } else if (warningList.includes(issue.id) || issue.severity === 'warning') {
+      warningIssues.push(issue);
+    } else {
+      // 默认视为 blocker
+      blockerIssues.push({ ...issue, severity: 'blocker' });
+    }
+  }
+  
+  // 3. 有 blocker → BLOCK
+  if (blockerIssues.length > 0) {
+    return {
+      decision: 'BLOCK',
+      reason: '存在阻断性问题',
+      blockingIssues: blockerIssues,
+      warnings: warningIssues
+    };
+  }
+  
+  // 4. 只有 warning → PASS（记录 warning）
+  if (warningIssues.length > 0) {
+    console.log(`发现 ${warningIssues.length} 个 warning，但不阻断流程`);
+    return {
+      decision: 'PASS',
+      reason: '只有 warning 级别问题',
+      blockingIssues: [],
+      warnings: warningIssues
+    };
+  }
+  
+  // 5. 通过
+  return {
+    decision: 'PASS',
+    reason: '所有检查通过',
+    blockingIssues: [],
+    warnings: []
+  };
+}
+```
+
+#### 17.2.4 小需求合并确认
+
+**位置**：`04_coding/src/workflow-orchestrator.js`
+
+**实现逻辑**：
+```javascript
+async approvePRD(payload) {
+  const policy = this.config.stages.designing.policy.approvals;
+  
+  // ... 验证状态和哈希
+  
+  // 检查是否为小需求
+  const isSmall = await this.isSmallScope({
+    requirementsFile: state.requirementsContent,
+    prdFile: state.stages.designing.lastPrdContent,
+    trdFile: state.stages.designing.lastTrdContent
+  });
+  
+  // 小需求合并确认（PRD+TRD 一起）
+  if (isSmall && policy.mode === 'auto') {
+    console.log('[Orchestrator] 小需求模式：合并确认 PRD+TRD');
+    
+    const currentTrdHash = this.stateManager.calculateHash(state.stages.designing.lastTrdContent);
+    
+    // 合并确认
+    this.stateManager.approvePRD(
+      payload.userId,
+      payload.requirementsHash,
+      payload.prdHash,
+      payload.notes + '（小需求合并确认 PRD+TRD）'
+    );
+    
+    this.stateManager.approveTRD(
+      payload.userId,
+      payload.requirementsHash,
+      currentTrdHash,
+      '小需求合并确认'
+    );
+    
+    // 直接进入下一阶段
+    console.log('[Orchestrator] Designing 阶段完成（小需求合并确认），进入 Roadmapping 阶段...');
+    
+    return {
+      success: true,
+      message: '小需求合并确认成功（PRD+TRD），Designing 阶段完成'
+    };
+  }
+  
+  // ... 正常流程
+}
+```
+
+---
+
+### 17.3 数据结构设计
+
+#### 17.3.1 Policy 配置对象
+
+```javascript
+{
+  approvals: {
+    mode: 'auto',  // 'auto' | 'one_step' | 'two_step'
+    small_scope: {
+      max_requirements: 2,
+      max_prd_lines: 200,
+      max_trd_lines: 300,
+      no_complex_tech: true
+    },
+    timeout: {
+      prd_confirmation: 3600,
+      trd_confirmation: 3600
+    },
+    on_timeout: 'notify_user'
+  },
+  conditional_blocks_progress: true,
+  blocking_rule: 'blocking_issues_nonempty',
+  severity_model: {
+    blocker: [
+      'FG_HASH_MISMATCH',
+      'FG_FAILED',
+      'TG_FAILED',
+      'TG_MISSING_MAPPING',
+      'D7_AC_MISSING'
+    ],
+    warning: [
+      'DOCUMENT_FORMAT',
+      'NON_CRITICAL_SECTION',
+      'CODE_STYLE'
+    ]
+  },
+  retry: {
+    max_total_retries: 5,
+    max_retries_per_issue: {
+      FG_HASH_MISMATCH: 2,
+      TG_MISSING_MAPPING: 3,
+      D7_AC_MISSING: 3,
+      DEFAULT: 3
+    },
+    same_issue_streak_limit: 3
+  },
+  escalation: {
+    on_retry_exhausted: 'clarify_required'
+  }
+}
+```
+
+#### 17.3.2 验证结果对象
+
+```javascript
+{
+  valid: true/false,
+  errors: [
+    '缺少 approvals 配置',
+    'approvals.mode 必须是 auto | one_step | two_step'
+  ],
+  warnings: [
+    'severity_model 中 blocker 和 warning 有重复项：DOCUMENT_FORMAT'
+  ]
+}
+```
+
+#### 17.3.3 决策结果对象
+
+```javascript
+{
+  decision: 'BLOCK' | 'PASS',
+  reason: '存在阻断性问题' | '只有 warning 级别问题' | '所有检查通过',
+  blockingIssues: [
+    {
+      id: 'FG_HASH_MISMATCH',
+      severity: 'blocker',
+      message: '文档声明的哈希与 REQUIREMENTS 实际哈希不匹配'
+    }
+  ],
+  warnings: [
+    {
+      id: 'DOCUMENT_FORMAT',
+      severity: 'warning',
+      message: '文档格式建议'
+    }
+  ]
+}
+```
+
+---
+
+### 17.4 接口设计
+
+#### 17.4.1 WorkflowOrchestrator 构造函数
+
+**修改内容**：
+```javascript
+constructor(config, stateManager) {
+  this.config = config;
+  this.stateManager = stateManager;
+  this.currentStageIndex = 0;
+  
+  // v3.3.0：启动时验证 policy 配置
+  if (config.stages?.designing?.policy) {
+    DesigningPolicyValidator.validateOrThrow(config.stages.designing.policy);
+  }
+}
+```
+
+#### 17.4.2 ReviewDesignAgentV2.makeDecision()
+
+**方法签名**：
+```javascript
+/**
+ * 新的决策逻辑（v3.2.0 基础版，v3.3.0 增加 severity 分级）
+ * 
+ * @param {object} report - 审阅报告
+ * @param {object} policy - policy 配置
+ * @returns {{decision: string, reason: string, blockingIssues: array, warnings: array}}
+ */
+makeDecision(report, policy)
+```
+
+---
+
+### 17.5 需求追溯矩阵
+
+| 需求 ID | REQUIREMENTS.md 章节 | PRD 章节 | TRD 章节 | TRD 行号 | 实现状态 |
+|---------|---------------------|---------|---------|---------|---------|
+| REQ-015 | L851-900 | 20.1-20.7 | **17.1-17.5** | 待计算 | ✅ 已映射 |
+
+#### 17.5.1 覆盖率统计
+
+- **需求总数**: 15
+- **已实现需求**: 15
+- **覆盖率**: 100%
+- **未实现需求**: 无
+
+---
+
+### 17.6 验收检查点
+
+| 检查点 | 验收标准 | 验证方法 |
+|--------|---------|---------|
+| C1 | config.yaml 包含 designing.policy 配置 | `grep "policy:" config.yaml` |
+| C2 | DesigningPolicyValidator 已实现 | `ls utils/designing-policy-validator.js` |
+| C3 | WorkflowOrchestrator 启动时验证 policy | `grep "validateOrThrow" workflow-orchestrator.js` |
+| C4 | isSmallScope() 方法已实现 | `grep "isSmallScope" workflow-orchestrator.js` |
+| C5 | makeDecision() 使用 severity_model | `grep "severity_model" review-design-v2.js` |
+| C6 | 小需求检测逻辑正确 | 运行小需求测试用例 |
+| C7 | blocker 阻断流程，warning 只记录 | 运行分级处理测试用例 |
+| C8 | 配置错误时抛出友好提示 | 运行配置验证测试用例 |
+
+---
+
+### 17.7 版本历史更新
+
+| 版本 | 日期 | 变更说明 | Issue ID | 对齐 REQUIREMENTS 版本 | 对齐 PRD 版本 | TRD 哈希 |
+|------|------|---------|----------|----------------------|-------------|---------|
+| v1.0.0 | 2026-03-26 | 初始版本（原始需求） | - | v1.0.0 | v1.0.0 | `git-hash` |
+| v1.1.0 | 2026-03-26 | FEATURE-001：增加 OpenCode 调用说明 | FEATURE-001 | v1.1.0 | v1.1.0 | `git-hash` |
+| v2.0.0 | 2026-03-28 | FEATURE-002：审阅驱动 + 会话隔离 + 工具无关 | FEATURE-002 | v2.0.0 | v2.0.0 | `git-hash` |
+| v2.0.1 | 2026-03-30 | BUG-002 修复：补充 02_roadmapping/和 03_detailing/ | BUG-002 | v2.0.1 | v2.0.1 | `git-hash` |
+| v2.1.0 | 2026-04-02 | FEATURE-003：Roadmap Agent 优化 | FEATURE-003 | v2.1.0 | v2.1.0 | `git-hash` |
+| v3.1.0 | 2026-04-02 | FEATURE-004：DESIGNING 阶段审阅优化 | FEATURE-004 | v3.1.0 | v3.1.0 | `git-hash` |
+| v3.1.1 | 2026-04-02 | BUG-005 修复：PRD/TRD 文档修复 | BUG-005 | v3.1.0 | v3.1.1 | `910651f` |
+| v3.1.2 | 2026-04-02 | BUG-006 修复：PRD/TRD 审查问题修复（哈希对齐 + 异常处理完善） | BUG-006 | v3.1.0 | v3.1.2 | `f0e4491` |
+| v3.1.3 | 2026-04-02 | FEATURE-005：DESIGNING 阶段用户确认签字优化 | FEATURE-005 | v3.1.0 | v3.1.3 | `待计算` |
+| v3.1.4 | 2026-04-02 | BUG-007 修复：PRD/TRD 描述 AI 工具为 config.yaml 配置 | BUG-007 | v3.1.0 | v3.1.4 | `待计算` |
+| v3.1.5 | 2026-04-02 | FEATURE-006：ROADMAPPING 审阅 Agent 规则优化 | FEATURE-006 | v3.1.0 | v3.1.5 | `fe957c6` |
+| v3.1.6 | 2026-04-02 | FEATURE-007：ROADMAPPING 环节优化（R4 规则优化 + 不生成 SELF-REVIEW.md） | FEATURE-007 | v3.1.0 | v3.1.6 | `待计算` |
+| v3.1.7 | 2026-04-02 | 问题分析：DETAILING 环节审阅 Agent 缺失 | REQ-013 分析 | v3.1.0 | v3.1.7 | `待计算` |
+| v3.1.8 | 2026-04-02 | FEATURE-008：DETAILING 审阅 Agent 优化（Hard Gates + 输入输出规范） | FEATURE-008 | v3.1.0 | v3.1.8 | `待计算` |
+| v3.1.9 | 2026-04-07 | BUG-008 修复：DESIGNING 审阅 Agent 修复（Freshness 哈希校验 + 需求 ID 正则+D7 逐条检查） | BUG-008 | v3.1.9 | v3.1.9 | `待计算` |
+| **v3.3.0** | **2026-04-07** | **FEATURE-009：DESIGNING Policy 优化（配置化 + 小需求合并确认+conditional 分级）** | **REQ-015** | **v3.3.0** | **v3.3.0** | **`待计算`** |
+
+---
+
 *TRD 文档结束*

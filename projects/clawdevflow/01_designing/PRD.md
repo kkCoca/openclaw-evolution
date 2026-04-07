@@ -1966,4 +1966,257 @@ async checkAcceptanceCriteriaPerRequirement(input) {
 
 ---
 
+## 20. v3.3.0 产品需求 - Designing Policy 优化
+
+### 20.1 需求背景
+
+#### 20.1.1 问题描述
+
+在 v3.1.x 系列修复完成后，需要提升流程的可维护性和用户体验：
+
+1. **配置写死后难以调整** - 决策规则硬编码在代码中，需要改代码才能调整
+2. **小需求也要两次确认** - 简单需求也要 PRD+TRD 分两次确认，流程繁琐
+3. **conditional 一律阻断** - 所有 conditional 结论都阻断流程，不够灵活
+4. **配置错误难以发现** - 配置错误只在运行时暴露，缺乏启动时验证
+
+#### 20.1.2 影响范围
+
+- config.yaml 需要新增 designing.policy 配置
+- workflow-orchestrator.js 需要支持 policy 配置加载
+- review-design-v2.js 的 makeDecision() 需要使用 severity_model
+- 需要新增 DesigningPolicyValidator 验证器
+
+---
+
+### 20.2 产品目标
+
+#### 20.2.1 核心目标
+
+将 Designing 阶段的决策规则配置化，支持智能确认模式和分级阻断。
+
+#### 20.2.2 具体目标
+
+| 目标 | 说明 | 验收标准 |
+|------|------|---------|
+| **Policy 配置化** | 将决策规则移到 config.yaml | config.yaml 新增 designing.policy 配置 |
+| **小需求合并确认** | <=2 个需求可以 one_step 模式 | 小需求自动使用 one_step 模式 |
+| **conditional 分级** | blocker vs warning 分级处理 | blocker 阻断流程，warning 只记录 |
+| **Policy 验证器** | 启动时验证配置合法性 | 配置错误时抛出友好提示 |
+
+---
+
+### 20.3 功能需求
+
+#### 20.3.1 Policy 配置化
+
+**需求描述**：将 Designing 阶段的决策规则从代码移到 config.yaml。
+
+**配置结构**：
+```yaml
+stages:
+  designing:
+    policy:
+      # 审批模式
+      approvals:
+        mode: auto  # auto | one_step | two_step
+        
+        # 小需求标准
+        small_scope:
+          max_requirements: 2
+          max_prd_lines: 200
+          max_trd_lines: 300
+          no_complex_tech: true
+        
+        # 超时配置
+        timeout:
+          prd_confirmation: 3600
+          trd_confirmation: 3600
+        
+        # 超时处理
+        on_timeout: notify_user
+      
+      # conditional 阻断配置
+      conditional_blocks_progress: true
+      
+      # 阻断规则
+      blocking_rule: blocking_issues_nonempty
+      
+      # 严重性模型
+      severity_model:
+        blocker:
+          - FG_HASH_MISMATCH
+          - FG_FAILED
+          - TG_FAILED
+          - TG_MISSING_MAPPING
+          - D7_AC_MISSING
+        warning:
+          - DOCUMENT_FORMAT
+          - NON_CRITICAL_SECTION
+          - CODE_STYLE
+      
+      # 重试配置
+      retry:
+        max_total_retries: 5
+        max_retries_per_issue:
+          FG_HASH_MISMATCH: 2
+          TG_MISSING_MAPPING: 3
+          D7_AC_MISSING: 3
+          DEFAULT: 3
+        same_issue_streak_limit: 3
+      
+      # 升级处理
+      escalation:
+        on_retry_exhausted: clarify_required
+```
+
+#### 20.3.2 小需求合并确认
+
+**需求描述**：需求数量 <=2 时，自动使用 one_step 模式合并确认 PRD+TRD。
+
+**小需求标准**（满足任一即为小需求）：
+- 需求数量 <= 2
+- PRD 行数 <= 200
+- TRD 行数 <= 300
+- 不涉及复杂技术选型（微服务、分布式、高并发等）
+
+**确认流程**：
+```
+小需求检测 → 是 → 合并确认 PRD+TRD → 进入 Roadmapping
+          → 否 → 两次确认 PRD → TRD → 进入 Roadmapping
+```
+
+#### 20.3.3 conditional 分级处理
+
+**需求描述**：根据 severity_model 将问题分为 blocker 和 warning 两级。
+
+**分级规则**：
+| 级别 | 说明 | 处理策略 |
+|------|------|---------|
+| **blocker** | 必须修复的严重问题 | 阻断流程，必须修复后重试 |
+| **warning** | 建议修复的非严重问题 | 记录到日志，不阻断流程 |
+
+**blocker 列表**：
+- FG_HASH_MISMATCH - 哈希不匹配
+- FG_FAILED - Freshness Gate 失败
+- TG_FAILED - Traceability Gate 失败
+- TG_MISSING_MAPPING - 需求未映射
+- D7_AC_MISSING - 验收标准缺失
+
+**warning 列表**：
+- DOCUMENT_FORMAT - 文档格式建议
+- NON_CRITICAL_SECTION - 非关键章节缺失
+- CODE_STYLE - 代码风格建议
+
+#### 20.3.4 Policy 验证器
+
+**需求描述**：启动时验证 config.yaml 中的 designing.policy 配置合法性。
+
+**验证规则**：
+1. approvals.mode 必须是 auto/one_step/two_step
+2. small_scope.max_requirements 必须是 >= 1 的数字
+3. small_scope.max_prd_lines 必须是 >= 50 的数字
+4. small_scope.max_trd_lines 必须是 >= 50 的数字
+5. conditional_blocks_progress 必须是布尔值
+6. blocking_rule 必须是 blocking_issues_nonempty/score_threshold
+7. severity_model.blocker 和 warning 必须是数组
+8. retry.max_total_retries 必须是 >= 1 的数字
+9. escalation.on_retry_exhausted 必须是 clarify_required/terminate/notify_user
+
+**错误提示**：
+```
+Designing policy 配置错误：
+  - 缺少 approvals 配置
+  - approvals.mode 必须是 auto | one_step | two_step，当前为 "invalid"
+  - severity_model.blocker 必须是数组
+```
+
+---
+
+### 20.4 非功能需求
+
+#### 20.4.1 配置可维护性
+
+- 配置集中管理（config.yaml）
+- 配置变更无需修改代码
+- 配置错误友好提示
+
+#### 20.4.2 性能要求
+
+- Policy 验证时间 < 100ms
+- 小需求检测时间 < 500ms
+- 不增加流程执行时间
+
+#### 20.4.3 向后兼容
+
+- 保持与 v3.1.x 配置格式兼容
+- 默认配置向下兼容
+- 不影响现有功能
+
+---
+
+### 20.5 验收标准
+
+#### 20.5.1 Given
+
+- REQUIREMENTS.md 已追加 REQ-015（v3.3.0）
+- config.yaml 已配置 designing.policy
+- DesigningPolicyValidator 已实现
+
+#### 20.5.2 When
+
+- 执行 clawdevflow 流程引擎
+- 启动 WorkflowOrchestrator
+- 运行小需求检测
+
+#### 20.5.3 Then
+
+- ✅ Policy 配置正确加载
+- ✅ 启动时自动验证 policy 配置
+- ✅ 小需求自动使用 one_step 模式
+- ✅ blocker 阻断流程，warning 只记录
+- ✅ 配置错误时抛出友好提示
+- ✅ makeDecision() 只看 blockingIssues
+- ✅ ReviewDesignAgent 审查得分 >= 90%
+- ✅ 用户验收通过
+
+---
+
+### 20.6 需求追溯矩阵更新
+
+| 需求 ID | REQUIREMENTS.md 章节 | PRD 章节 | PRD 行号 | 映射状态 |
+|---------|---------------------|---------|---------|---------|
+| REQ-015 | L851-900 | 20.1-20.6 | 待计算 | ✅ 已映射 |
+
+#### 20.6.1 覆盖率统计
+
+- **需求总数**: 15
+- **已映射需求**: 15
+- **覆盖率**: 100%
+- **未映射需求**: 无
+
+---
+
+### 20.7 版本历史更新
+
+| 版本 | 日期 | 变更说明 | Issue ID | 对齐 REQUIREMENTS 版本 | PRD 哈希 |
+|------|------|---------|----------|----------------------|---------|
+| v1.0.0 | 2026-03-26 | 初始版本（原始需求） | - | v1.0.0 | `git-hash` |
+| v1.1.0 | 2026-03-26 | FEATURE-001：增加 OpenCode 调用说明 | FEATURE-001 | v1.1.0 | `git-hash` |
+| v2.0.0 | 2026-03-28 | FEATURE-002：审阅驱动 + 会话隔离 + 工具无关 | FEATURE-002 | v2.0.0 | `git-hash` |
+| v2.0.1 | 2026-03-30 | BUG-002 修复：补充 02_roadmapping/和 03_detailing/ | BUG-002 | v2.0.1 | `git-hash` |
+| v2.1.0 | 2026-04-02 | FEATURE-003：Roadmap Agent 优化 | FEATURE-003 | v2.1.0 | `git-hash` |
+| v3.1.0 | 2026-04-02 | FEATURE-004：DESIGNING 阶段审阅优化 | FEATURE-004 | v3.1.0 | `git-hash` |
+| v3.1.1 | 2026-04-02 | BUG-005 修复：PRD/TRD 文档修复 | BUG-005 | v3.1.0 | `55b2eae` |
+| v3.1.2 | 2026-04-02 | BUG-006 修复：PRD/TRD 审查问题修复（哈希对齐 + 异常处理完善） | BUG-006 | v3.1.0 | `f0e4491` |
+| v3.1.3 | 2026-04-02 | FEATURE-005：DESIGNING 阶段用户确认签字优化 | FEATURE-005 | v3.1.0 | `待计算` |
+| v3.1.4 | 2026-04-02 | BUG-007 修复：PRD/TRD 描述 AI 工具为 config.yaml 配置 | BUG-007 | v3.1.0 | `待计算` |
+| v3.1.5 | 2026-04-02 | FEATURE-006：ROADMAPPING 审阅 Agent 规则优化 | FEATURE-006 | v3.1.0 | `e0d59dd` |
+| v3.1.6 | 2026-04-02 | FEATURE-007：ROADMAPPING 环节优化（R4 规则优化 + 不生成 SELF-REVIEW.md） | FEATURE-007 | v3.1.0 | `待计算` |
+| v3.1.7 | 2026-04-02 | 问题分析：DETAILING 环节审阅 Agent 缺失 | REQ-013 分析 | v3.1.0 | `待计算` |
+| v3.1.8 | 2026-04-02 | FEATURE-008：DETAILING 审阅 Agent 优化（Hard Gates + 输入输出规范） | FEATURE-008 | v3.1.0 | `待计算` |
+| v3.1.9 | 2026-04-07 | BUG-008 修复：DESIGNING 审阅 Agent 修复（Freshness 哈希校验 + 需求 ID 正则+D7 逐条检查） | BUG-008 | v3.1.9 | `待计算` |
+| **v3.3.0** | **2026-04-07** | **FEATURE-009：DESIGNING Policy 优化（配置化 + 小需求合并确认+conditional 分级）** | **REQ-015** | **v3.3.0** | **`待计算`** |
+
+---
+
 *PRD 文档结束*
