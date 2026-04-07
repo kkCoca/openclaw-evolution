@@ -561,41 +561,15 @@ class WorkflowOrchestrator {
     
     // 3. 检查是否为小需求（v3.3.0）
     const isSmall = await this.isSmallScope({
-      requirementsFile: state.requirementsContent,
-      prdFile: state.stages.designing.lastPrdContent,
-      trdFile: state.stages.designing.lastTrdContent
+      requirementsContent: state.requirementsContent,
+      prdContent: state.stages.designing.lastPrdContent,
+      trdContent: state.stages.designing.lastTrdContent
     });
     
-    // 4. 小需求合并确认（PRD+TRD 一起）
-    if (isSmall && policy.mode === 'auto') {
-      console.log('[Orchestrator] 小需求模式：合并确认 PRD+TRD');
-      
-      // 验证 TRD 哈希
-      const currentTrdHash = this.stateManager.calculateHash(state.stages.designing.lastTrdContent);
-      
-      // 合并确认
-      this.stateManager.approvePRD(
-        payload.userId,
-        payload.requirementsHash,
-        payload.prdHash,
-        payload.notes + '（小需求合并确认 PRD+TRD）'
-      );
-      
-      this.stateManager.approveTRD(
-        payload.userId,
-        payload.requirementsHash,
-        currentTrdHash,
-        '小需求合并确认'
-      );
-      
-      // 直接进入下一阶段
-      console.log('[Orchestrator] Designing 阶段完成（小需求合并确认），进入 Roadmapping 阶段...');
-      
-      return {
-        success: true,
-        message: '小需求合并确认成功（PRD+TRD），Designing 阶段完成'
-      };
-    }
+    // 4. v3.3.0 Phase 1：暂时关闭小需求合并确认（P1-1 建议）
+    // if (isSmall && policy.mode === 'auto') { ... }
+    // 当前策略：所有需求都使用两次确认流程
+    if (false && isSmall) {  // 暂时禁用
     
     // 5. 正常流程：只确认 PRD，等待 TRD 确认
     this.stateManager.approvePRD(
@@ -721,11 +695,15 @@ class WorkflowOrchestrator {
       // 2. 执行自动审阅
       console.log('[Orchestrator] 执行自动审阅...');
       const reviewResult = await this.executeDesignReviewV2(input);
-      const decisionResult = this.convertV2ReviewToDecision(reviewResult);
+      
+      // v3.3.0 修复：使用结构化 decisionResult（P0-1）
+      const policy = this.config.stages.designing.policy;
+      const agent = new ReviewDesignAgentV2(this.config);
+      const decisionResult = agent.makeDecision(reviewResult, policy);
       
       // 3. 保存审阅报告
       state.stages.designing.lastAutoReviewReport = reviewResult;
-      state.stages.designing.lastBlockingIssues = decisionResult.blockingIssues;
+      state.stages.designing.lastBlockingIssues = decisionResult.blockingIssues || [];
       this.stateManager.save();
       
       // 4. 判断是否通过
@@ -746,12 +724,12 @@ class WorkflowOrchestrator {
         return { success: true, report: reviewResult };
       }
       
-      // 5. 失败处理
+      // 5. 失败处理（BLOCK 或 CLARIFY）
       retryCount++;
       state.stages.designing.retryCountTotal = retryCount;
       
       // 计算同问题连续次数
-      const firstIssueId = decisionResult.blockingIssues[0]?.id || 'UNKNOWN';
+      const firstIssueId = decisionResult.blockingIssues?.[0]?.id || 'UNKNOWN';
       if (firstIssueId === lastIssueId) {
         sameIssueStreak++;
       } else {
