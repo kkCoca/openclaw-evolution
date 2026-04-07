@@ -146,11 +146,17 @@ class WorkflowOrchestrator {
             }
           }
           
-          // 如果成功完成或重试耗尽，进入下一阶段
-          if (shouldContinueToNext || retryCount >= maxRetries) {
+          // v3.4.0 修复：重试耗尽后不应进入下一阶段（P0-新）
+          if (shouldContinueToNext) {
+            // 成功完成，进入下一阶段
             this.currentStageIndex++;
+          } else if (retryCount >= maxRetries) {
+            // 重试耗尽，阻断在當前阶段（stageStatus=blocked）
+            console.log(`[Orchestrator] 阶段 ${stageName} 重试耗尽，阻断在当前阶段`);
+            break;
           } else {
             // 需要用户澄清或终止
+            console.log(`[Orchestrator] 阶段 ${stageName} 需要用户澄清或终止`);
             break;
           }
         }
