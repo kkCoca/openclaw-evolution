@@ -176,31 +176,44 @@ class WorkflowOrchestrator {
   }
   
   /**
-   * 将 v2.0 审阅报告转换为审阅结论
+   * 将 v2.0 审阅报告转换为审阅结论（v3.2.0 更新：使用 policy 决策）
    * @param {object} reviewResult - v2.0 审阅报告
-   * @returns {string} 审阅结论
+   * @returns {{decision: string, reason: string, blockingIssues: array}}
    */
   convertV2ReviewToDecision(reviewResult) {
     if (reviewResult.error) {
-      return ReviewDecision.CLARIFY; // 错误需要澄清
+      return {
+        decision: 'CLARIFY',
+        reason: '审阅执行错误',
+        blockingIssues: [{ id: 'REVIEW_ERROR', severity: 'blocker', message: reviewResult.error }]
+      };
     }
     
-    // Freshness Gate 或 Traceability Gate 失败 → 直接驳回
-    if (!reviewResult.gates.freshness?.passed || !reviewResult.gates.traceability?.passed) {
-      return ReviewDecision.REJECT;
-    }
+    // 使用新的决策逻辑（v3.2.0）
+    const policy = this.config.stages.designing.policy;
+    const agent = new ReviewDesignAgentV2(this.config);
+    const decisionResult = agent.makeDecision(reviewResult, policy);
     
-    // 根据综合评分转换
-    switch (reviewResult.overall.recommendation) {
-      case 'approve_excellent':
-      case 'approve':
-        return ReviewDecision.PASS;
-      case 'conditional':
-        return ReviewDecision.CONDITIONAL;
-      case 'reject':
-        return ReviewDecision.REJECT;
+    // 转换决策结果为审阅结论
+    switch (decisionResult.decision) {
+      case 'PASS':
+        return {
+          decision: 'PASS',
+          reason: decisionResult.reason,
+          blockingIssues: []
+        };
+      case 'BLOCK':
+        return {
+          decision: 'REJECT',
+          reason: decisionResult.reason,
+          blockingIssues: decisionResult.blockingIssues
+        };
       default:
-        return ReviewDecision.CLARIFY;
+        return {
+          decision: 'CLARIFY',
+          reason: '未知决策',
+          blockingIssues: []
+        };
     }
   }
   
@@ -445,6 +458,225 @@ class WorkflowOrchestrator {
     }
     
     return reasons.join('; ');
+  }
+
+  // =========================================================================
+  // v3.2.0 新增：两次确认入口
+  // =========================================================================
+
+  /**
+   * 确认 PRD（v3.2.0 新增）
+   * @param {object} payload - 确认载荷
+   * @returns {Promise<{success: boolean, message: string}>}
+   */
+  async approvePRD(payload) {
+    const state = this.stateManager.state;
+    
+    // 1. 验证状态
+    if (state.stages.designing.stageStatus !== 'prd_confirm_pending') {
+      return {
+        success: false,
+        message: `当前状态为 ${state.stages.designing.stageStatus}，无法确认 PRD`
+      };
+    }
+    
+    // 2. 验证哈希绑定
+    const currentReqHash = this.stateManager.calculateHash(state.requirementsContent);
+    if (payload.requirementsHash !== currentReqHash) {
+      return {
+        success: false,
+        message: `REQUIREMENTS 已变更，请重新审阅（期望：${currentReqHash}, 实际：${payload.requirementsHash}）`
+      };
+    }
+    
+    const currentPrdHash = this.stateManager.calculateHash(state.stages.designing.lastPrdContent);
+    if (payload.prdHash !== currentPrdHash) {
+      return {
+        success: false,
+        message: `PRD 已变更，请重新确认（期望：${currentPrdHash}, 实际：${payload.prdHash}）`
+      };
+    }
+    
+    // 3. 记录确认
+    this.stateManager.approvePRD(
+      payload.userId,
+      payload.requirementsHash,
+      payload.prdHash,
+      payload.notes
+    );
+    
+    // 4. 通知用户确认 TRD
+    await this.notifyUser('TRD 确认', {
+      type: 'TRD_CONFIRMATION_REQUEST',
+      message: 'PRD 已确认，请确认 TRD.md 技术方案',
+      trdFile: '01_designing/TRD.md'
+    });
+    
+    return {
+      success: true,
+      message: 'PRD 确认成功，等待 TRD 确认'
+    };
+  }
+
+  /**
+   * 确认 TRD（v3.2.0 新增）
+   * @param {object} payload - 确认载荷
+   * @returns {Promise<{success: boolean, message: string}>}
+   */
+  async approveTRD(payload) {
+    const state = this.stateManager.state;
+    
+    // 1. 验证状态
+    if (state.stages.designing.stageStatus !== 'trd_confirm_pending') {
+      return {
+        success: false,
+        message: `当前状态为 ${state.stages.designing.stageStatus}，无法确认 TRD`
+      };
+    }
+    
+    // 2. 验证哈希绑定
+    const currentReqHash = this.stateManager.calculateHash(state.requirementsContent);
+    if (payload.requirementsHash !== currentReqHash) {
+      return {
+        success: false,
+        message: `REQUIREMENTS 已变更，请重新审阅（期望：${currentReqHash}, 实际：${payload.requirementsHash}）`
+      };
+    }
+    
+    const currentTrdHash = this.stateManager.calculateHash(state.stages.designing.lastTrdContent);
+    if (payload.trdHash !== currentTrdHash) {
+      return {
+        success: false,
+        message: `TRD 已变更，请重新确认（期望：${currentTrdHash}, 实际：${payload.trdHash}）`
+      };
+    }
+    
+    // 3. 记录确认
+    this.stateManager.approveTRD(
+      payload.userId,
+      payload.requirementsHash,
+      payload.trdHash,
+      payload.notes
+    );
+    
+    // 4. 进入下一阶段
+    console.log('[Orchestrator] Designing 阶段完成，进入 Roadmapping 阶段...');
+    
+    return {
+      success: true,
+      message: 'TRD 确认成功，Designing 阶段完成'
+    };
+  }
+
+  /**
+   * 执行 Designing 阶段（v3.2.0 更新：消除递归，改为状态驱动）
+   * @param {object} workflow - 工作流配置
+   * @returns {Promise<{success: boolean, report?: object, reason?: string}>}
+   */
+  async executeDesigning(workflow) {
+    const policy = this.config.stages.designing.policy;
+    const state = this.stateManager.state;
+    
+    // 更新尝试次数
+    state.stages.designing.attempt++;
+    this.stateManager.save();
+    
+    // 1. 执行单次生成
+    console.log(`[Orchestrator] Designing 阶段 - 第 ${state.stages.designing.attempt} 次尝试`);
+    const input = await this.prepareStageInput('designing', workflow);
+    const result = await this.callAITool('designing', input, 'opencode');
+    
+    // 保存 PRD/TRD 内容（用于哈希验证）
+    state.stages.designing.lastPrdContent = result.outputs.find(o => o.includes('PRD.md'))?.content || '';
+    state.stages.designing.lastTrdContent = result.outputs.find(o => o.includes('TRD.md'))?.content || '';
+    state.stages.designing.prdGeneratedAt = Date.now();
+    state.stages.designing.trdGeneratedAt = Date.now();
+    this.stateManager.save();
+    
+    // 2. 执行自动审阅
+    console.log('[Orchestrator] 执行自动审阅...');
+    const reviewResult = await this.executeDesignReviewV2(input);
+    const decisionResult = this.convertV2ReviewToDecision(reviewResult);
+    
+    // 3. 保存审阅报告
+    state.stages.designing.lastAutoReviewReport = reviewResult;
+    state.stages.designing.lastBlockingIssues = decisionResult.blockingIssues;
+    this.stateManager.save();
+    
+    // 4. 判断是否通过
+    if (decisionResult.decision === 'PASS') {
+      // 通过，进入 PRD 确认
+      state.stages.designing.stageStatus = 'prd_confirm_pending';
+      this.stateManager.logTransition('auto_reviewing', 'prd_confirm_pending', 'AUTO_REVIEW_PASS', {
+        attempt: state.stages.designing.attempt
+      });
+      
+      // 发送 PRD 确认请求
+      await this.notifyUser('PRD 确认', {
+        type: 'PRD_CONFIRMATION_REQUEST',
+        message: 'PRD.md 已生成并通过自动审阅，请确认需求范围',
+        prdFile: '01_designing/PRD.md'
+      });
+      
+      return { success: true, report: reviewResult };
+    }
+    
+    // 5. 失败处理
+    state.stages.designing.retryCountTotal++;
+    
+    // 计算同问题连续次数
+    const firstIssueId = decisionResult.blockingIssues[0]?.id || 'UNKNOWN';
+    if (firstIssueId === state.stages.designing.sameIssueStreak.issueId) {
+      state.stages.designing.sameIssueStreak.count++;
+    } else {
+      state.stages.designing.sameIssueStreak = { issueId: firstIssueId, count: 1 };
+    }
+    this.stateManager.save();
+    
+    // 检查是否达到阈值
+    const maxRetriesPerIssue = policy.retry.max_retries_per_issue[firstIssueId] || policy.retry.max_retries_per_issue.DEFAULT;
+    
+    if (
+      state.stages.designing.retryCountTotal >= policy.retry.max_total_retries ||
+      state.stages.designing.sameIssueStreak.count >= policy.retry.same_issue_streak_limit ||
+      state.stages.designing.retryCountTotal >= maxRetriesPerIssue
+    ) {
+      // 超过重试次数，升级处理
+      state.stages.designing.stageStatus = 'blocked';
+      this.stateManager.logTransition('auto_reviewing', 'blocked', 'RETRY_EXHAUSTED', {
+        retryCountTotal: state.stages.designing.retryCountTotal,
+        issueId: firstIssueId
+      });
+      
+      await this.notifyUser('重试耗尽', {
+        type: 'RETRY_EXHAUSTED',
+        message: `Designing 阶段重试 ${state.stages.designing.retryCountTotal} 次后仍然失败，需要人工介入`,
+        issue: decisionResult.blockingIssues[0],
+        suggestion: '建议人工审阅并手动修复 PRD.md/TRD.md'
+      });
+      
+      return {
+        success: false,
+        reason: 'RETRY_EXHAUSTED',
+        issue: decisionResult.blockingIssues[0]
+      };
+    }
+    
+    // 6. 自动返工（注入 regenerateHint）
+    state.stages.designing.stageStatus = 'generating';
+    this.stateManager.logTransition('auto_reviewing', 'generating', 'REWORK_REQUESTED', {
+      attempt: state.stages.designing.attempt,
+      issueId: firstIssueId
+    });
+    
+    // 生成 regenerateHint
+    const regenerateHint = decisionResult.blockingIssues.map(issue => {
+      return `【强制修复】${issue.id}: ${issue.message || '修复失败项'}\n${issue.regenerateHint || ''}`;
+    }).join('\n\n');
+    
+    // 重新执行（循环而非递归）
+    workflow.regenerateHint = regenerateHint;
+    return await this.executeDesigning(workflow);
   }
 }
 
