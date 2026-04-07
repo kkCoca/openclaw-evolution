@@ -81,27 +81,32 @@ class WorkflowOrchestrator {
       
       try {
         // designing 阶段使用专用流程（两次确认）- v3.4.0-alpha6 修复 P0-新 2
+        // v3.4.0-alpha11 修复 P0-1 (新)：统一返回语义
         if (stageName === 'designing') {
           const result = await this.executeDesigning(workflow);
           
-          if (!result.success && result.reason === 'RETRY_EXHAUSTED') {
-            // 重试耗尽，需要用户澄清
-            console.log('[Orchestrator] designing 阶段重试耗尽，等待用户澄清');
-            break;
+          // v3.4.0-alpha11 修复：处理 WAITING_CONFIRMATION 和 BLOCKED
+          if (!result.success) {
+            if (result.reason === 'RETRY_EXHAUSTED') {
+              // 重试耗尽，需要用户澄清
+              console.log('[Orchestrator] designing 阶段重试耗尽，等待用户澄清');
+              break;
+            }
+            if (result.reason === 'BLOCKED') {
+              // 已阻断，需要用户介入
+              console.log('[Orchestrator] designing 阶段已阻断，等待用户介入');
+              break;
+            }
           }
           
-          // v3.4.0-alpha6 修复：检查 stageStatus 是否为 'passed'（两次确认已完成）
-          // executeDesigning() 在 AutoReview PASS 后返回 success=true，但此时两次确认还未完成
-          // 需要检查 stageStatus 是否为 'passed' 来判断两次确认是否完成
-          const designingStageStatus = this.stateManager.state.stages.designing.stageStatus;
-          
-          if (designingStageStatus === 'passed') {
+          // v3.4.0-alpha11 修复：检查 completed 是否为 true（两次确认已完成）
+          if (result.completed === true) {
             // 两次确认已完成，进入下一阶段
             console.log('[Orchestrator] designing 阶段两次确认完成，进入 roadmapping');
             this.currentStageIndex++;
           } else {
-            // 两次确认未完成（prd_confirm_pending 或 trd_confirm_pending）
-            // 阻断，等待用户确认
+            // 两次确认未完成（WAITING_CONFIRMATION 或 stageStatus 不是 passed）
+            const designingStageStatus = this.stateManager.state.stages.designing.stageStatus;
             console.log(`[Orchestrator] designing 阶段等待用户确认（当前状态：${designingStageStatus}）`);
             break;
           }
@@ -749,13 +754,16 @@ class WorkflowOrchestrator {
     const path = require('path');
     
     // v3.4.0-alpha9 修复 P0-2：断点恢复时不得重复生成覆盖
+    // v3.4.0-alpha11 修复 P0-1 (新)：统一返回语义
     const stageStatus = state.stages.designing.stageStatus;
     
     if (stageStatus === 'prd_confirm_pending' || stageStatus === 'trd_confirm_pending') {
       // 等待用户确认中，不得重复生成
+      // v3.4.0-alpha11 修复：返回 success=true（等待确认是正常状态，不是失败）
       console.log(`[Orchestrator] designing 阶段等待用户确认（当前状态：${stageStatus}），跳过生成`);
       return {
-        success: false,
+        success: true,  // ✅ 等待确认是正常状态
+        completed: false,  // ✅ 未完成
         reason: 'WAITING_CONFIRMATION',
         stageStatus
       };
@@ -766,7 +774,7 @@ class WorkflowOrchestrator {
       console.log('[Orchestrator] designing 阶段已完成，跳过生成');
       return {
         success: true,
-        completed: true,
+        completed: true,  // ✅ 已完成
         stageStatus: 'passed'
       };
     }
