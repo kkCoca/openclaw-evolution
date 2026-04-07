@@ -80,16 +80,31 @@ class WorkflowOrchestrator {
       console.log(`[Orchestrator] 开始执行阶段：${stageName}`);
       
       try {
-        // designing 阶段使用专用流程（两次确认）
+        // designing 阶段使用专用流程（两次确认）- v3.4.0-alpha6 修复 P0-新 2
         if (stageName === 'designing') {
           const result = await this.executeDesigning(workflow);
+          
           if (!result.success && result.reason === 'RETRY_EXHAUSTED') {
             // 重试耗尽，需要用户澄清
             console.log('[Orchestrator] designing 阶段重试耗尽，等待用户澄清');
             break;
           }
-          // 成功完成，进入下一阶段
-          this.currentStageIndex++;
+          
+          // v3.4.0-alpha6 修复：检查 stageStatus 是否为 'passed'（两次确认已完成）
+          // executeDesigning() 在 AutoReview PASS 后返回 success=true，但此时两次确认还未完成
+          // 需要检查 stageStatus 是否为 'passed' 来判断两次确认是否完成
+          const designingStageStatus = this.stateManager.state.stages.designing.stageStatus;
+          
+          if (designingStageStatus === 'passed') {
+            // 两次确认已完成，进入下一阶段
+            console.log('[Orchestrator] designing 阶段两次确认完成，进入 roadmapping');
+            this.currentStageIndex++;
+          } else {
+            // 两次确认未完成（prd_confirm_pending 或 trd_confirm_pending）
+            // 阻断，等待用户确认
+            console.log(`[Orchestrator] designing 阶段等待用户确认（当前状态：${designingStageStatus}）`);
+            break;
+          }
         } else {
           // v3.4.0 修复：通用阶段使用外层循环控制重试（P1-1/P1-2）
           const maxRetries = this.config.stages[stageName]?.maxRetries || 3;
