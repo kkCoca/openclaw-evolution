@@ -322,27 +322,31 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
   }
 
   /**
-   * 提取文档版本号
+   * 提取文档版本号（v3.1.13 修复：取最新版本号）
    * @param {string} content - 文档内容
-   * @returns {string} 版本号
+   * @returns {string} 版本号（最新）
+   * 
+   * 修复说明：
+   * - 使用 matchAll 取最后一个版本号（最新）
+   * - 避免多版本文档取到第一个旧版本
    */
   extractVersion(content) {
-    // 匹配格式 1：> **版本**: v1.0.0
+    // 匹配格式 1：> **版本**: v1.0.0（优先级最高，通常是文档元数据）
     const match1 = content.match(/> \*\*版本\*\*: v?([0-9.]+)/i);
     if (match1) {
       return match1[1];
     }
     
-    // 匹配格式 2：| 版本 | v1.0.0 |
+    // 匹配格式 2：| 版本 | v1.0.0 |（表格元数据）
     const match2 = content.match(/\| 版本 \| v?([0-9.]+) \|/i);
     if (match2) {
       return match2[1];
     }
     
-    // 匹配格式 3：## v1.0.0
-    const match3 = content.match(/## v([0-9.]+)/i);
-    if (match3) {
-      return match3[1];
+    // 匹配格式 3：## v1.0.0（取最后一个，最新版本）
+    const matches = [...content.matchAll(/## v([0-9.]+)/gi)];
+    if (matches.length > 0) {
+      return matches[matches.length - 1][1]; // 取最后一个匹配
     }
     
     return 'unknown';
@@ -563,12 +567,17 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
    * 在 PRD 中查找需求映射
    * 
    * v3.1.11 修复：支持多种 PRD 映射格式
+   * v3.1.13 修复：要求映射必须在标题或列表项中，避免目录/追溯表误判
    * 
    * 期望格式：
-   * 1. ### 2.1 注册功能 [REQ-001]（方括号格式）
-   * 2. - **[REQ-001]** 功能描述...（加粗方括号）
-   * 3. ### REQ-001: 功能描述（无方括号，REQUIREMENTS 标准格式）
-   * 4. ### 2.1 注册功能 REQ-001（词边界匹配）
+   * 1. ### 2.1 注册功能 [REQ-001]（标题 + 方括号）
+   * 2. - **[REQ-001]** 功能描述...（列表项 + 方括号）
+   * 3. ### REQ-001: 功能描述（标题 + 冒号）
+   * 
+   * 不认可的格式（避免误判）：
+   * - | REQ-001 | ... |（追溯表中的行）
+   * - 1. REQ-001（纯列表编号）
+   * - 参见 REQ-001（引用而非实现）
    * 
    * @param {string} prdContent - PRD.md 内容
    * @param {string} requirementId - 需求 ID（如 REQ-001）
@@ -577,14 +586,27 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
   findRequirementMapping(prdContent, requirementId) {
     const lines = prdContent.split('\n');
     
-    // 构建多种匹配模式
+    // 构建多种匹配模式（要求标题或列表项）
     const patterns = [
-      // 模式 1：[REQ-001] 方括号格式
-      new RegExp(`\\[${requirementId}\\]`),
-      // 模式 2：REQ-001: 或 REQ-001：（冒号格式）
-      new RegExp(`${requirementId}[：:]`),
-      // 模式 3：REQ-001（词边界匹配，防止误命中 REQ-0011）
-      new RegExp(`\\b${requirementId}\\b`)
+      // 模式 1：标题 + 方括号 ### [REQ-001] 或 ### 功能 [REQ-001]
+      new RegExp(`^#{1,6}.*\\[${requirementId}\\]`),
+      // 模式 2：标题 + 冒号 ### REQ-001: 或 ### REQ-001：
+      new RegExp(`^#{1,6}\\s*${requirementId}[：:]`),
+      // 模式 3：列表项 + 方括号 - **[REQ-001]** 或 - [REQ-001]
+      new RegExp(`^[-*]\\s*(?:\\*\\*)?\\[${requirementId}\\]`),
+      // 模式 4：标题 + 词边界（无括号/冒号）### 功能描述 REQ-001
+      new RegExp(`^#{1,6}.*\\b${requirementId}\\b`)
+    ];
+    
+    // 证据关键词（用于验证章节内容是否真的实现了需求）
+    const evidenceKeywords = [
+      /功能 (描述 | 说明 | 设计)/i,
+      /验收 (标准 | 条件)/i,
+      /(字段 | 数据 | 数据库)/i,
+      /(流程 | 逻辑 | 算法)/i,
+      /(接口|API|参数)/i,
+      /(界面 |UI| 页面)/i,
+      /Given|When|Then|前置条件 | 触发条件 | 预期结果/i
     ];
     
     for (let i = 0; i < lines.length; i++) {
@@ -595,12 +617,21 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
         if (pattern.test(line)) {
           // 找到映射，提取上下文
           const section = this.extractSectionContext(lines, i);
+          const sectionContent = section.content;
           
-          return {
-            section: section.title,
-            line: i + 1,
-            content: section.content.substring(0, 200) // 前 200 字符
-          };
+          // v3.1.13 验证：章节内容必须包含至少一个证据关键词
+          // 避免"目录/追溯表"误判为映射
+          const hasEvidence = evidenceKeywords.some(regex => regex.test(sectionContent));
+          
+          if (hasEvidence) {
+            return {
+              section: section.title,
+              line: i + 1,
+              content: sectionContent.substring(0, 200) // 前 200 字符
+            };
+          } else {
+            console.log(`[Traceability Gate] ⚠️ 找到 ${requirementId} 但章节内容缺少证据关键词，跳过 L${i + 1}`);
+          }
         }
       }
     }
