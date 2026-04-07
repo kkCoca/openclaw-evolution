@@ -101,8 +101,30 @@ class WorkflowOrchestrator {
           
           // v3.4.0-alpha11 修复：检查 completed 是否为 true（两次确认已完成）
           if (result.completed === true) {
+            // v3.5.0 整改 P0-1：roadmapping 入口门禁校验
+            const { validateRoadmappingEntry } = require('./utils/validate-roadmapping-entry');
+            const validation = validateRoadmappingEntry(this.stateManager, this.stateManager.state);
+            
+            if (!validation.ok) {
+              console.error(`[Orchestrator] roadmapping 入口门禁校验失败：${validation.reason}`);
+              console.error('[Orchestrator] 详情:', validation.details);
+              
+              // 阻断并通知用户
+              this.stateManager.updateStage('roadmapping', 'blocked', {
+                reason: validation.reason,
+                details: validation.details
+              });
+              await this.notifyUser('Roadmapping 入口门禁失败', {
+                type: 'ROADMAP_ENTRY_GATE_FAILED',
+                reason: validation.reason,
+                details: validation.details
+              });
+              break;
+            }
+            
             // 两次确认已完成，进入下一阶段
             console.log('[Orchestrator] designing 阶段两次确认完成，进入 roadmapping');
+            console.log('[Orchestrator] roadmapping 入口门禁校验通过');
             this.currentStageIndex++;
           } else {
             // 两次确认未完成（WAITING_CONFIRMATION 或 stageStatus 不是 passed）
@@ -201,6 +223,32 @@ class WorkflowOrchestrator {
       throw new Error('designing 阶段必须使用 executeDesigning()，禁止使用 executeStage()');
     }
     
+    // v3.5.0 整改 P0-1：roadmapping 二次门禁校验（防绕过）
+    if (stageName === 'roadmapping') {
+      const { validateRoadmappingEntry } = require('./utils/validate-roadmapping-entry');
+      const validation = validateRoadmappingEntry(this.stateManager, this.stateManager.state);
+      
+      if (!validation.ok) {
+        console.error(`[Orchestrator] roadmapping 二次门禁校验失败：${validation.reason}`);
+        console.error('[Orchestrator] 详情:', validation.details);
+        
+        // 阻断并通知用户
+        this.stateManager.updateStage('roadmapping', 'blocked', {
+          reason: validation.reason,
+          details: validation.details
+        });
+        await this.notifyUser('Roadmapping 二次门禁失败', {
+          type: 'ROADMAP_ENTRY_GATE_FAILED',
+          reason: validation.reason,
+          details: validation.details
+        });
+        
+        throw new Error(`roadmapping 入口门禁校验失败：${validation.reason}`);
+      }
+      
+      console.log('[Orchestrator] roadmapping 二次门禁校验通过');
+    }
+    
     console.log(`[Orchestrator] 执行阶段：${stageName}`);
     
     // 1. 更新状态为执行中
@@ -224,13 +272,22 @@ class WorkflowOrchestrator {
     // 6. 更新状态为待审阅
     this.stateManager.updateStage(stageName, 'reviewing');
     
-    // 7. 执行审阅（v2.0 新增：designing 阶段使用 ReviewDesignAgent v2.0）
+    // 7. 执行审阅
     if (stageName === 'designing' && this.config.reviewAgent?.version === 'v2.0') {
+      // designing 阶段使用 ReviewDesignAgent v2.0
       console.log('[Orchestrator] 使用 ReviewDesignAgent v2.0 执行审阅...');
       const reviewResult = await this.executeDesignReviewV2(input);
       
       // 处理 v2.0 审阅结果
       const decision = this.convertV2ReviewToDecision(reviewResult);
+      await this.handleReviewDecision(stageName, decision, reviewResult);
+    } else if (stageName === 'roadmapping') {
+      // v3.5.0 整改 P0-4：roadmapping 阶段使用 ReviewRoadmapAgent v1.0
+      console.log('[Orchestrator] 使用 ReviewRoadmapAgent v1.0 执行审阅...');
+      const reviewResult = await this.executeRoadmapReviewV1(input);
+      
+      // 处理 v1.0 审阅结果
+      const decision = this.convertV1ReviewToDecision(reviewResult);
       await this.handleReviewDecision(stageName, decision, reviewResult);
     } else {
       // 7b. 发送审阅请求（传统方式）
@@ -316,9 +373,31 @@ class WorkflowOrchestrator {
         };
         
       case 'roadmapping':
+        // v3.5.0 整改 P0-2：使用 approved content 作为唯一可信输入
+        const approved = this.stateManager.state.stages.designing.approved;
+        const retryCount = this.stateManager.state.stages.roadmapping?.retryCount || 0;
+        
         return {
-          prdFile: projectPath + '/01_designing/PRD.md',
-          trdFile: projectPath + '/01_designing/TRD.md',
+          // approved content（唯一可信输入）
+          requirementsContent: approved?.requirementsContent || '',
+          prdContent: approved?.prdContent || '',
+          trdContent: approved?.trdContent || '',
+          
+          // hashes
+          requirementsHash: approved?.requirementsHash || '',
+          prdHash: approved?.prdHash || '',
+          trdHash: approved?.trdHash || '',
+          
+          // approved 元数据
+          approvedBy: approved?.approvedBy || '',
+          approvedAt: approved?.approvedAt || '',
+          transitionId: approved?.transitionId || '',
+          
+          // 重试相关
+          attempt: retryCount + 1,
+          regenerateHint: this.stateManager.state.stages.roadmapping?.lastRegenerateHint || '',
+          
+          // 输出路径
           outputPath: projectPath + '/02_roadmapping'
         };
         
@@ -393,7 +472,36 @@ class WorkflowOrchestrator {
   buildStageTask(stageName, input) {
     const taskTemplates = {
       designing: `请根据 REQUIREMENTS.md 生成 PRD.md 和 TRD.md`,
-      roadmapping: `请根据 PRD.md 和 TRD.md 生成 ROADMAP.md`,
+      roadmapping: `请根据 PRD.md 和 TRD.md 生成 ROADMAP.md
+
+**强制要求**：
+1. ROADMAP.md 顶部必须写入 YAML front-matter（trace 头部）：
+---
+requirements_hash: ${input.requirementsHash || ''}
+prd_hash: ${input.prdHash || ''}
+trd_hash: ${input.trdHash || ''}
+approved_by: ${input.approvedBy || ''}
+approved_at: ${input.approvedAt || ''}
+transition_id: ${input.transitionId || ''}
+roadmapping_generated_at: ${new Date().toISOString()}
+attempt: ${input.attempt || 1}
+---
+
+2. ROADMAP.md 必须包含以下章节：
+   - 里程碑（Milestone/Phase/阶段）
+   - DoD（Definition of Done/验收标准）
+   - 依赖（Dependencies/前置条件）
+   - 风险（Risks/风险点）
+
+3. 每个需求（REQ-xxx）必须在 ROADMAP 中有对应 item
+
+4. 禁止引入 PRD 未定义的新需求
+
+${input.regenerateHint ? `
+**修复要求**（上次失败原因）：
+${input.regenerateHint}
+请强制修复上述问题，不得扩大范围。
+` : ''}`,
       detailing: `请根据 PRD.md、TRD.md 和 ROADMAP.md 生成 DETAIL.md`,
       coding: `请根据 DETAIL.md 生成源代码`,
       reviewing: `请对所有产出进行验收审查`
