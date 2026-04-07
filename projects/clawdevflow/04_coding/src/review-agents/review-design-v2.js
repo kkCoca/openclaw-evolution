@@ -371,29 +371,40 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
    * 提取版本对齐声明
    * @param {string} content - 文档内容
    * @returns {{version: string, hash: string} | null} 版本信息
+   * 
+   * v3.1.11 修复：
+   * - 哈希必须是完整的 SHA256（64 位 hex），不支持 MD5 或短哈希
+   * - 正则从 [a-f0-9]+ 改为 [a-f0-9]{64}，强制要求 64 位
    */
   extractAlignmentDeclaration(content) {
-    // 匹配格式 1：引用格式
-    // > **对齐版本**: REQUIREMENTS v1.0.0 (abc123def456)
-    const match1 = content.match(/> \*\*对齐版本\*\*: REQUIREMENTS v([0-9.]+) \(([a-f0-9]+)\)/);
+    // 匹配格式 1：引用格式（v3.1.11 更新：强制 64 位 SHA256）
+    // > **对齐版本**: REQUIREMENTS v1.0.0 (abc123def456...)
+    const match1 = content.match(/> \*\*对齐版本\*\*: REQUIREMENTS v([0-9.]+) \(([a-f0-9]{64})\)/);
     if (match1) {
       return { version: match1[1], hash: match1[2] };
     }
     
-    // 匹配格式 2：表格格式
+    // 匹配格式 2：表格格式（v3.1.11 更新：强制 64 位 SHA256）
     // | 对齐版本 | REQUIREMENTS v1.0.0 |
-    // | 对齐哈希 | abc123def456 |
+    // | 对齐哈希 | abc123def456... |
     const match2 = content.match(/\| 对齐版本 \| REQUIREMENTS v([0-9.]+) \|/);
-    const match3 = content.match(/\| 对齐哈希 \| ([a-f0-9]+) \|/);
+    const match3 = content.match(/\| 对齐哈希 \| ([a-f0-9]{64}) \|/);
     if (match2 && match3) {
       return { version: match2[1], hash: match3[1] };
     }
     
-    // 匹配格式 3：简单格式
-    // 对齐版本：v1.0.0
-    const match4 = content.match(/对齐版本 [：:]\s*v?([0-9.]+)/i);
+    // 匹配格式 3：简单格式（v3.1.11 更新：支持 64 位哈希）
+    // 对齐版本：v1.0.0 (abc123def456...)
+    const match4 = content.match(/对齐版本 [：:]\s*v?([0-9.]+)\s*\(([a-f0-9]{64})\)/i);
     if (match4) {
-      return { version: match4[1], hash: null };
+      return { version: match4[1], hash: match4[2] };
+    }
+    
+    // 匹配格式 4：无哈希声明（v3.1.11 标记为无效）
+    const match5 = content.match(/对齐版本 [：:]\s*v?([0-9.]+)/i);
+    if (match5) {
+      // 有版本号但无哈希，返回 null 表示声明不完整
+      return null;
     }
     
     return null;
@@ -550,31 +561,46 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
   /**
    * 在 PRD 中查找需求映射
    * 
+   * v3.1.11 修复：支持多种 PRD 映射格式
+   * 
    * 期望格式：
-   * ### 2.1 注册功能 [REQ-001]
-   * 或
-   * - **[REQ-001]** 功能描述...
+   * 1. ### 2.1 注册功能 [REQ-001]（方括号格式）
+   * 2. - **[REQ-001]** 功能描述...（加粗方括号）
+   * 3. ### REQ-001: 功能描述（无方括号，REQUIREMENTS 标准格式）
+   * 4. ### 2.1 注册功能 REQ-001（词边界匹配）
    * 
    * @param {string} prdContent - PRD.md 内容
-   * @param {string} requirementId - 需求 ID
+   * @param {string} requirementId - 需求 ID（如 REQ-001）
    * @returns {{section: string, line: number, content: string} | null} 映射信息
    */
   findRequirementMapping(prdContent, requirementId) {
     const lines = prdContent.split('\n');
     
+    // 构建多种匹配模式
+    const patterns = [
+      // 模式 1：[REQ-001] 方括号格式
+      new RegExp(`\\[${requirementId}\\]`),
+      // 模式 2：REQ-001: 或 REQ-001：（冒号格式）
+      new RegExp(`${requirementId}[：:]`),
+      // 模式 3：REQ-001（词边界匹配，防止误命中 REQ-0011）
+      new RegExp(`\\b${requirementId}\\b`)
+    ];
+    
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       
-      // 查找需求 ID 在 PRD 中的位置
-      if (line.includes(`[${requirementId}]`)) {
-        // 找到映射，提取上下文
-        const section = this.extractSectionContext(lines, i);
-        
-        return {
-          section: section.title,
-          line: i + 1,
-          content: section.content.substring(0, 200) // 前 200 字符
-        };
+      // 尝试多种匹配模式
+      for (const pattern of patterns) {
+        if (pattern.test(line)) {
+          // 找到映射，提取上下文
+          const section = this.extractSectionContext(lines, i);
+          
+          return {
+            section: section.title,
+            line: i + 1,
+            content: section.content.substring(0, 200) // 前 200 字符
+          };
+        }
       }
     }
     
