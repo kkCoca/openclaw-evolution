@@ -91,22 +91,68 @@ class WorkflowOrchestrator {
           // 成功完成，进入下一阶段
           this.currentStageIndex++;
         } else {
-          // 其他阶段使用通用流程
-          await this.executeStage(stageName, workflow);
+          // v3.4.0 修复：通用阶段使用外层循环控制重试（P1-1/P1-2）
+          const maxRetries = this.config.stages[stageName]?.maxRetries || 3;
+          let retryCount = 0;
+          let shouldContinueToNext = false;
           
-          // 等待审阅
-          const decision = await this.waitForReview(stageName);
-          
-          // 处理审阅结论
-          const shouldContinue = await this.handleReviewDecision(stageName, decision);
-          
-          if (!shouldContinue) {
-            console.log('[Orchestrator] 流程终止');
-            break;
+          while (retryCount < maxRetries && !shouldContinueToNext) {
+            // 执行阶段
+            await this.executeStage(stageName, workflow);
+            
+            // 等待审阅
+            const decision = await this.waitForReview(stageName);
+            
+            // 处理审阅结论
+            const result = await this.handleReviewDecision(stageName, decision);
+            
+            if (!result.shouldContinue) {
+              // 需要用户澄清或终止
+              console.log(`[Orchestrator] 阶段 ${stageName} 需要${result.reason === 'CLARIFY_REQUIRED' ? '用户澄清' : '终止流程'}`);
+              break;
+            }
+            
+            if (result.shouldRetry) {
+              // 需要重试
+              retryCount++;
+              console.log(`[Orchestrator] 阶段 ${stageName} 第 ${retryCount} 次重试（原因：${result.reason}）`);
+              
+              // 检查是否达到重试限制
+              if (retryCount >= maxRetries) {
+                console.log(`[Orchestrator] 阶段 ${stageName} 重试 ${retryCount} 次后仍然失败，升级到 blocked`);
+                this.stateManager.updateStage(stageName, 'blocked', {
+                  retryCount,
+                  maxRetries,
+                  rejectReason: result.reason
+                });
+                
+                // 通知用户
+                await this.notifyUser('阶段重试耗尽', {
+                  type: 'STAGE_RETRY_EXHAUSTED',
+                  stage: stageName,
+                  retryCount,
+                  maxRetries,
+                  reason: result.reason,
+                  suggestion: '建议人工审阅并手动修复'
+                });
+                
+                break;
+              }
+              
+              // 继续重试（循环继续）
+            } else {
+              // 通过，进入下一阶段
+              shouldContinueToNext = true;
+            }
           }
           
-          // 进入下一阶段
-          this.currentStageIndex++;
+          // 如果成功完成或重试耗尽，进入下一阶段
+          if (shouldContinueToNext || retryCount >= maxRetries) {
+            this.currentStageIndex++;
+          } else {
+            // 需要用户澄清或终止
+            break;
+          }
         }
         
       } catch (error) {
@@ -375,11 +421,11 @@ class WorkflowOrchestrator {
   }
   
   /**
-   * 处理审阅结论
+   * 处理审阅结论（v3.4.0 修复：P1-1 去递归，P1-2 引入重试限制）
    * @param {string} stageName - 阶段名称
    * @param {string} decision - 审阅结论
    * @param {object} reviewResult - v2.0 审阅报告（可选）
-   * @returns {boolean} 是否继续
+   * @returns {{shouldContinue: boolean, shouldRetry: boolean, reason?: string}} 决策结果
    */
   async handleReviewDecision(stageName, decision, reviewResult = null) {
     console.log(`[Orchestrator] 处理审阅结论：${decision}`);
@@ -391,38 +437,33 @@ class WorkflowOrchestrator {
       case ReviewDecision.PASS:
         console.log(`[Orchestrator] 阶段 ${stageName} 通过`);
         this.stateManager.updateStage(stageName, 'passed');
-        return true;
+        return { shouldContinue: true, shouldRetry: false };
         
       case ReviewDecision.CONDITIONAL:
         console.log(`[Orchestrator] 阶段 ${stageName} 条件通过`);
-        // v3.3.0 修复：conditional 一律阻断（P0-2）
-        console.log('[Orchestrator] conditional 视同 reject，触发自动再生成');
+        // v3.4.0 修复：conditional 一律阻断，返回重试信号（P1-1）
+        console.log('[Orchestrator] conditional 视同 reject，返回重试信号');
         this.stateManager.updateStage(stageName, 'rejected');
-        await this.executeStage(stageName, this.stateManager.state.workflow);
-        return true;
+        return { shouldContinue: true, shouldRetry: true, reason: 'CONDITIONAL_BLOCKED' };
         
       case ReviewDecision.REJECT:
-        console.log(`[Orchestrator] 阶段 ${stageName} 驳回，重新执行`);
-        // 策略 A：重新执行当前阶段
-        this.stateManager.updateStage(stageName, 'pending', {
-          retryCount: (this.stateManager.getStage(stageName).retryCount || 0) + 1,
-          rejectReason: reviewResult ? this.formatRejectReason(reviewResult) : '审阅未通过'
-        });
-        await this.executeStage(stageName, this.stateManager.state.workflow);
-        return true;
+        console.log(`[Orchestrator] 阶段 ${stageName} 驳回，返回重试信号`);
+        // v3.4.0 修复：返回重试信号，由 execute() 控制重试（P1-1）
+        this.stateManager.updateStage(stageName, 'rejected');
+        return { shouldContinue: true, shouldRetry: true, reason: reviewResult ? this.formatRejectReason(reviewResult) : '审阅未通过' };
         
       case ReviewDecision.CLARIFY:
         console.log(`[Orchestrator] 阶段 ${stageName} 需澄清`);
-        // TODO: 等待用户澄清
         if (reviewResult) {
           console.log('[Orchestrator] 审阅报告:', JSON.stringify(reviewResult, null, 2));
         }
-        return false;
+        // 需要用户澄清，阻断流程
+        return { shouldContinue: false, shouldRetry: false, reason: 'CLARIFY_REQUIRED' };
         
       case ReviewDecision.TERMINATE:
         console.log(`[Orchestrator] 流程终止`);
         this.stateManager.updateStage(stageName, 'terminated');
-        return false;
+        return { shouldContinue: false, shouldRetry: false, reason: 'USER_TERMINATED' };
         
       default:
         throw new Error(`未知审阅结论：${decision}`);
@@ -820,6 +861,17 @@ class WorkflowOrchestrator {
       reason: 'UNEXPECTED_ERROR',
       issue: '循环结束但未触发重试耗尽'
     };
+  }
+
+  /**
+   * 通知用户（v3.4.0 新增）
+   * @param {string} title - 通知标题
+   * @param {object} payload - 通知载荷
+   */
+  async notifyUser(title, payload) {
+    console.log(`[Orchestrator] 通知用户：${title}`, payload);
+    // TODO: 实现实际的通知机制（邮件/消息/界面提示等）
+    // 当前仅记录日志
   }
 }
 
