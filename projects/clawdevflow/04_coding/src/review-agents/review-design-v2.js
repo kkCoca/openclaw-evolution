@@ -515,13 +515,24 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
   extractRequirementsWithIds(content) {
     const requirements = [];
     const lines = content.split('\n');
-    // 匹配格式：### **[REQ-001]** 或 - **[REQ-001]** 或 ### [REQ-001]
+    // 匹配格式：
+    // 1. ### **[REQ-001]** 或 - **[REQ-001]**（带方括号和加粗）
+    // 2. ### [REQ-001]（带方括号）
+    // 3. ### REQ-001:（REQUIREMENTS.md 标准格式，无方括号）
     // v3.1.9 更新：支持 REQ-(?:[A-Z]+-)?\d+ 格式（如 REQ-001 或 REQ-ABC-001）
-    const reqPattern = /^(?:#{1,6}|[-*])\s*(?:\*\*)?\[(REQ-(?:[A-Z]+-)?\d+)\](?:\*\*)?\s*(.+)/;
+    
+    // 模式 1：带方括号 [REQ-001] 或 [REQ-ABC-001]
+    const reqPatternWithBrackets = /^(?:#{1,6}|[-*])\s*(?:\*\*)?\[(REQ-(?:[A-Z]+-)?\d+)\](?:\*\*)?\s*(.+)/;
+    // 模式 2：无方括号 REQ-001:（REQUIREMENTS.md 标准格式）
+    const reqPatternNoBrackets = /^(?:#{1,6}|[-*])\s*(REQ-(?:[A-Z]+-)?\d+)[：:]\s*(.+)/;
     
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      const match = line.match(reqPattern);
+      let match = line.match(reqPatternWithBrackets);
+      
+      if (!match) {
+        match = line.match(reqPatternNoBrackets);
+      }
       
       if (match) {
         requirements.push({
