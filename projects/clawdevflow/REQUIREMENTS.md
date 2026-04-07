@@ -827,5 +827,67 @@ adapters/
 
 ---
 
+## REQ-014: DESIGNING 审阅 Agent 修复（v3.1.9）
+
+**位置**: L783-850
+
+**版本**: v3.1.9 (2026-04-07)
+
+**类型**: 问题修复（基于 REQ-006）
+
+**父需求**: REQ-006 (DESIGNING 阶段审阅优化)
+
+**问题背景**:
+在使用 ReviewDesignAgent v2.0 过程中发现 3 个关键缺陷：
+
+1. **Freshness Gate 哈希校验缺失** - 只检查 PRD/TRD 是否包含哈希声明格式，但不验证声明的哈希值与 REQUIREMENTS 实际计算值是否一致。PRD 随便写一句"对齐哈希：abc123"也能通过。
+
+2. **需求 ID 正则不统一** - `extractRequirementsWithIds()` 只支持 `REQ-001` 格式，不支持 `REQ-ABC-001` 格式。但 REQUIREMENTS.md 实际需求 ID 格式为 `REQ-(?:[A-Z]+-)?\d+`。
+
+3. **D7 验收标准检查太弱** - 只要 PRD 任何地方出现过 Given/When/Then 就判通过，会被"写了一个示例"轻易糊弄过去，不是逐条验证每条需求的验收标准。
+
+**修复需求**:
+
+1. **Freshness Gate 哈希校验** - PRD/TRD 声明的哈希必须与 REQUIREMENTS 实际计算值一致，不一致则驳回。
+
+2. **需求 ID 正则统一** - 支持 `REQ-(?:[A-Z]+-)?\d+` 格式，与 REQUIREMENTS.md 实际需求 ID 格式一致。
+
+3. **D7 验收标准逐条检查** - 每条需求的 PRD 映射章节内必须包含 Given/When/Then（或前置条件/触发条件/预期结果），不是全局搜索。
+
+**功能需求**:
+- ✅ Freshness Gate 增加哈希值对比逻辑
+- ✅ `extractRequirementsWithIds()` 正则更新为 `REQ-(?:[A-Z]+-)?\d+`
+- ✅ 新增 `checkAcceptanceCriteriaPerRequirement()` 方法，逐条验证验收标准
+- ✅ D7 检查点改为调用新方法
+
+**约束条件**:
+- 向后兼容，不破坏现有检查逻辑
+- 不生成额外文件（仅修改 review-design-v2.js）
+- 保持代码风格一致
+
+**验收标准**:
+### Given
+- ReviewDesignAgent v2.0 存在 3 个缺陷
+- REQUIREMENTS.md 已追加 REQ-014
+
+### When
+- 执行修复后的 ReviewDesignAgent v2.0
+- 运行自测验证
+
+### Then
+- ✅ Freshness Gate 能检测哈希不匹配（PRD 随便写哈希会被驳回）
+- ✅ 需求 ID 支持 `REQ-ABC-001` 格式
+- ✅ D7 逐条验证验收标准（每条需求的 PRD 映射章节内必须包含 Given/When/Then）
+- ✅ ReviewDesignAgent 审查得分 >= 90%
+- ✅ 用户验收通过
+
+**需求追溯矩阵**:
+
+| 需求 ID | PRD.md 章节 | TRD.md 章节 | 状态 |
+|--------|------------|------------|------|
+| REQ-014 | 19.1-19.7 | 16.1-16.7 | ⚪ 待映射 |
+
+---
+
 *需求说明文档 by openclaw-ouyp*  
-**版本**: v3.1.8 | **日期**: 2026-04-02 | **Git Commit**: 待计算
+**版本**: v3.1.9 | **日期**: 2026-04-07 | **Git Commit**: 待计算

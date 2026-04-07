@@ -41,7 +41,7 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
         id: 'FG',
         name: 'Freshness Gate',
         type: 'gate',
-        rule: 'PRD/TRD 必须声明对齐的 REQUIREMENTS 版本，且版本一致',
+        rule: 'PRD/TRD 必须声明对齐的 REQUIREMENTS 版本，且版本一致 + 哈希匹配',
         weight: 0,
         critical: true,
         order: 1
@@ -55,7 +55,7 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
         critical: true,
         order: 2
       },
-      // ✅ 质量检查（D1-D6）
+      // ✅ 质量检查（D1-D7）
       {
         id: 'D1',
         name: '需求理解准确性',
@@ -115,6 +115,16 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
         critical: true,
         order: 8,
         description: '评估异常处理的完整性'
+      },
+      {
+        id: 'D7',
+        name: '验收标准可测试性',
+        type: 'ai',
+        rule: '每条需求的 PRD 映射章节内必须包含 Given/When/Then（v3.1.9 新增）',
+        weight: 0.10,
+        critical: false,
+        order: 9,
+        description: '逐条验证每条需求的验收标准是否包含 Given/When/Then 格式'
       }
     ];
   }
@@ -208,6 +218,7 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
    * 1. PRD.md 必须声明对齐的 REQUIREMENTS 版本
    * 2. TRD.md 必须声明对齐的 REQUIREMENTS 版本
    * 3. 声明的版本必须与实际 REQUIREMENTS 版本一致
+   * 4. 声明的哈希必须与实际 REQUIREMENTS 哈希一致（v3.1.9 新增）
    * 
    * @param {object} input - 输入数据
    * @returns {Promise<GateResult>} 门禁结果
@@ -217,12 +228,12 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
     const prdContent = this.readFile(input.prdFile || '01_designing/PRD.md');
     const trdContent = this.readFile(input.trdFile || '01_designing/TRD.md');
     
-    // 1. 提取 REQUIREMENTS 版本信息
+    // 1. 提取 REQUIREMENTS 版本信息和实际哈希（SHA256）
     const requirementsVersion = this.extractVersion(requirementsContent);
-    const requirementsHash = this.calculateHash(requirementsContent);
+    const requirementsActualHash = this.calculateSha256Hash(requirementsContent);
     
     console.log(`[Freshness Gate] REQUIREMENTS 版本：${requirementsVersion}`);
-    console.log(`[Freshness Gate] REQUIREMENTS 哈希：${requirementsHash}`);
+    console.log(`[Freshness Gate] REQUIREMENTS 实际哈希 (SHA256): ${requirementsActualHash}`);
     
     // 2. 检查 PRD 是否声明了对齐版本
     const prdAlignment = this.extractAlignmentDeclaration(prdContent);
@@ -262,7 +273,7 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
         reason: '文档版本与 REQUIREMENTS 不一致',
         details: {
           requirementsVersion,
-          requirementsHash,
+          requirementsHash: requirementsActualHash,
           prdVersion: prdAlignment.version,
           prdHash: prdAlignment.hash,
           trdVersion: trdAlignment.version,
@@ -274,14 +285,37 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
       };
     }
     
+    // 4. 哈希值校验（v3.1.9 新增 - 防止 PRD 随便写哈希）
+    const prdHashMatch = prdAlignment.hash && prdAlignment.hash.toLowerCase() === requirementsActualHash.toLowerCase();
+    const trdHashMatch = trdAlignment.hash && trdAlignment.hash.toLowerCase() === requirementsActualHash.toLowerCase();
+    
+    if (!prdHashMatch || !trdHashMatch) {
+      return {
+        passed: false,
+        critical: true,
+        gate: 'freshness',
+        reason: '文档声明的哈希与 REQUIREMENTS 实际哈希不匹配',
+        details: {
+          requirementsVersion,
+          requirementsActualHash,
+          prdDeclaredHash: prdAlignment.hash,
+          prdHashMatch,
+          trdDeclaredHash: trdAlignment.hash,
+          trdHashMatch
+        },
+        suggestion: `请更新 PRD.md 和 TRD.md 的哈希声明为实际值：${requirementsActualHash}`
+      };
+    }
+    
     console.log(`[Freshness Gate] ✅ 版本一致性检查通过`);
+    console.log(`[Freshness Gate] ✅ 哈希值校验通过`);
     
     return {
       passed: true,
       critical: false,
       gate: 'freshness',
       version: requirementsVersion,
-      hash: requirementsHash,
+      hash: requirementsActualHash,
       checkedAt: new Date().toISOString()
     };
   }
@@ -314,13 +348,23 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
   }
 
   /**
-   * 计算文档哈希
+   * 计算文档哈希（MD5，用于旧版本兼容）
    * @param {string} content - 文档内容
    * @returns {string} 哈希值（前 12 位）
    */
   calculateHash(content) {
     const hash = crypto.createHash('md5').update(content).digest('hex');
     return hash.substring(0, 12);
+  }
+
+  /**
+   * 计算文档 SHA256 哈希（v3.1.9 新增 - 用于 Freshness Gate 哈希校验）
+   * @param {string} content - 文档内容
+   * @returns {string} SHA256 哈希值（完整 64 位）
+   */
+  calculateSha256Hash(content) {
+    const hash = crypto.createHash('sha256').update(content).digest('hex');
+    return hash;
   }
 
   /**
@@ -463,6 +507,7 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
    * 期望格式：
    * ### **[REQ-001]** 需求描述...
    * - **[REQ-001]** 需求描述...
+   * ### **[REQ-ABC-001]** 需求描述...（v3.1.9 支持）
    * 
    * @param {string} content - REQUIREMENTS.md 内容
    * @returns {Array<{id: string, description: string, line: number}>} 需求列表
@@ -471,7 +516,8 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
     const requirements = [];
     const lines = content.split('\n');
     // 匹配格式：### **[REQ-001]** 或 - **[REQ-001]** 或 ### [REQ-001]
-    const reqPattern = /^(?:#{1,6}|[-*])\s*(?:\*\*)?\[([A-Z]+-\d+)\](?:\*\*)?\s*(.+)/;
+    // v3.1.9 更新：支持 REQ-(?:[A-Z]+-)?\d+ 格式（如 REQ-001 或 REQ-ABC-001）
+    const reqPattern = /^(?:#{1,6}|[-*])\s*(?:\*\*)?\[(REQ-(?:[A-Z]+-)?\d+)\](?:\*\*)?\s*(.+)/;
     
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
@@ -575,6 +621,8 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
         return this.checkCompatibility(input);
       case 'D6':
         return this.checkErrorHandling(input);
+      case 'D7':
+        return this.checkAcceptanceCriteriaPerRequirement(input);
       default:
         throw new Error(`未知检查点：${checkpoint.id}`);
     }
@@ -959,6 +1007,145 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
       issues: aiResult.missingScenarios || [],
       suggestions: aiResult.suggestions || []
     };
+  }
+
+  /**
+   * D7: 验收标准可测试性检查（v3.1.9 新增）
+   * 
+   * 逐条验证每条需求的 PRD 映射章节内必须包含 Given/When/Then
+   * 或等价表述（前置条件/触发条件/预期结果）
+   * 
+   * @param {object} input - 输入数据
+   * @returns {Promise<QualityCheckResult>} 检查结果
+   */
+  async checkAcceptanceCriteriaPerRequirement(input) {
+    const requirementsContent = this.readFile(input.requirementsFile || 'REQUIREMENTS.md');
+    const prdContent = this.readFile(input.prdFile || '01_designing/PRD.md');
+    
+    // 1. 提取所有需求
+    const requirements = this.extractRequirementsWithIds(requirementsContent);
+    console.log(`[D7 验收标准检查] 提取到 ${requirements.length} 条需求`);
+    
+    if (requirements.length === 0) {
+      return {
+        checkpoint: 'D7',
+        name: '验收标准可测试性',
+        passed: true,
+        score: 100,
+        details: { totalRequirements: 0, checkedRequirements: 0 },
+        issues: [],
+        suggestions: []
+      };
+    }
+    
+    // 2. 逐条验证每条需求的 PRD 映射章节内是否包含 Given/When/Then
+    const results = [];
+    const failedRequirements = [];
+    
+    for (const req of requirements) {
+      // 查找 PRD 中的映射章节
+      const mapping = this.findRequirementMapping(prdContent, req.id);
+      
+      if (!mapping) {
+        // Traceability Gate 已确保不会到这里，但为安全起见仍处理
+        failedRequirements.push({
+          requirementId: req.id,
+          reason: '未找到 PRD 映射',
+          suggestion: '请在 PRD.md 中添加该需求的映射章节'
+        });
+        results.push({ requirementId: req.id, passed: false, reason: '无映射' });
+        continue;
+      }
+      
+      // 获取映射章节的完整内容（向上找到章节标题，向下到下一章节）
+      const sectionContent = this.extractFullSectionContent(prdContent, mapping.line - 1);
+      
+      // 检查是否包含 Given/When/Then 或等价表述
+      const hasGiven = /Given|假设 | 前置条件/i.test(sectionContent);
+      const hasWhen = /When|当 | 触发条件/i.test(sectionContent);
+      const hasThen = /Then|那么 | 预期结果/i.test(sectionContent);
+      
+      const passed = hasGiven && hasWhen && hasThen;
+      
+      results.push({
+        requirementId: req.id,
+        passed,
+        details: { hasGiven, hasWhen, hasThen }
+      });
+      
+      if (!passed) {
+        failedRequirements.push({
+          requirementId: req.id,
+          requirement: req.description,
+          prdSection: mapping.section,
+          missing: [
+            !hasGiven ? 'Given/假设/前置条件' : null,
+            !hasWhen ? 'When/当/触发条件' : null,
+            !hasThen ? 'Then/那么/预期结果' : null
+          ].filter(Boolean),
+          suggestion: `请在 PRD.md "${mapping.section}"章节中为 [${req.id}] 添加完整的 Given/When/Then 验收标准`
+        });
+      }
+    }
+    
+    // 3. 计算通过率
+    const passedCount = results.filter(r => r.passed).length;
+    const passRate = passedCount / requirements.length;
+    const score = passRate * 100;
+    const passed = passRate === 1.0;
+    
+    console.log(`[D7 验收标准检查] 通过率：${(passRate * 100).toFixed(1)}% (${passedCount}/${requirements.length})`);
+    
+    return {
+      checkpoint: 'D7',
+      name: '验收标准可测试性',
+      passed,
+      score,
+      maxScore: 100,
+      details: {
+        totalRequirements: requirements.length,
+        checkedRequirements: passedCount,
+        passRate: (passRate * 100).toFixed(1) + '%',
+        results
+      },
+      issues: failedRequirements.slice(0, 10), // 最多返回 10 个问题
+      suggestions: failedRequirements.map(f => f.suggestion).slice(0, 5)
+    };
+  }
+
+  /**
+   * 提取完整章节内容（从章节标题到下一章节前）
+   * @param {string} content - 文档内容
+   * @param {number} startLine - 起始行号（0-indexed）
+   * @returns {string} 章节内容
+   */
+  extractFullSectionContent(content, startLine) {
+    const lines = content.split('\n');
+    const sectionLines = [];
+    
+    // 确定章节标题级别
+    let headerLevel = 0;
+    for (let i = startLine; i >= 0; i--) {
+      const match = lines[i].match(/^(#{1,6})\s+/);
+      if (match) {
+        headerLevel = match[1].length;
+        break;
+      }
+    }
+    
+    // 从起始行向下收集内容，直到遇到同级或更高级别的章节标题
+    for (let i = startLine; i < lines.length; i++) {
+      const line = lines[i];
+      const headerMatch = line.match(/^(#{1,6})\s+/);
+      
+      if (headerMatch && headerMatch[1].length <= headerLevel && i > startLine) {
+        break; // 遇到同级或更高级别的章节标题，停止
+      }
+      
+      sectionLines.push(line);
+    }
+    
+    return sectionLines.join('\n');
   }
 
   // =========================================================================

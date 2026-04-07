@@ -2329,4 +2329,269 @@ function calculateScore(reviewResults) {
 
 ---
 
+## 16. v3.1.9 Bugfix 修复 - DESIGNING 审阅 Agent 修复
+
+### 16.1 问题描述
+
+ReviewDesignAgent v2.0 存在 3 个关键缺陷：
+
+1. **Freshness Gate 哈希校验缺失** - 只检查版本声明格式，不验证哈希值是否匹配
+2. **需求 ID 正则不统一** - 不支持 `REQ-ABC-001` 格式
+3. **D7 验收标准检查太弱** - 不是逐条验证每条需求的验收标准
+
+### 16.2 修复目标
+
+| 目标 | 说明 | 验收标准 |
+|------|------|---------|
+| **Freshness Gate 哈希校验** | PRD/TRD 声明的哈希必须与 REQUIREMENTS 实际计算值一致 | 哈希不匹配则驳回 |
+| **需求 ID 正则统一** | 支持 `REQ-(?:[A-Z]+-)?\d+` 格式 | 与 REQUIREMENTS.md 实际需求 ID 格式一致 |
+| **D7 验收标准逐条检查** | 每条需求的 PRD 映射章节内必须包含 Given/When/Then | 不是全局搜索，是逐条验证 |
+
+### 16.3 修复方案
+
+#### 16.3.1 Freshness Gate 哈希校验
+
+**修改文件**: `04_coding/src/review-agents/review-design-v2.js`
+
+**技术实现**:
+```javascript
+/**
+ * 计算文档 SHA256 哈希（v3.1.9 新增 - 用于 Freshness Gate 哈希校验）
+ * @param {string} content - 文档内容
+ * @returns {string} SHA256 哈希值（完整 64 位）
+ */
+calculateSha256Hash(content) {
+  const hash = crypto.createHash('sha256').update(content).digest('hex');
+  return hash;
+}
+
+// checkFreshnessGate() 中新增校验逻辑
+const requirementsActualHash = this.calculateSha256Hash(requirementsContent);
+const prdHashMatch = prdAlignment.hash && prdAlignment.hash.toLowerCase() === requirementsActualHash.toLowerCase();
+const trdHashMatch = trdAlignment.hash && trdAlignment.hash.toLowerCase() === requirementsActualHash.toLowerCase();
+
+if (!prdHashMatch || !trdHashMatch) {
+  return {
+    passed: false,
+    critical: true,
+    gate: 'freshness',
+    reason: '文档声明的哈希与 REQUIREMENTS 实际哈希不匹配',
+    details: {
+      requirementsActualHash,
+      prdDeclaredHash: prdAlignment.hash,
+      prdHashMatch,
+      trdDeclaredHash: trdAlignment.hash,
+      trdHashMatch
+    },
+    suggestion: `请更新 PRD.md 和 TRD.md 的哈希声明为实际值：${requirementsActualHash}`
+  };
+}
+```
+
+#### 16.3.2 需求 ID 正则统一
+
+**修改文件**: `04_coding/src/review-agents/review-design-v2.js`
+
+**技术实现**:
+```javascript
+// extractRequirementsWithIds() 方法
+// v3.1.9 更新：支持 REQ-(?:[A-Z]+-)?\d+ 格式（如 REQ-001 或 REQ-ABC-001）
+const reqPattern = /^(?:#{1,6}|[-*])\s*(?:\*\*)?\[(REQ-(?:[A-Z]+-)?\d+)\](?:\*\*)?\s*(.+)/;
+```
+
+**正则解释**:
+- `REQ-` - 固定前缀
+- `(?:[A-Z]+-)?` - 可选的大写字母 + 连字符（如 ABC-）
+- `\d+` - 数字部分
+- 匹配示例：`REQ-001`, `REQ-ABC-001`, `REQ-DEF-123`
+
+#### 16.3.3 D7 验收标准逐条检查
+
+**修改文件**: `04_coding/src/review-agents/review-design-v2.js`
+
+**技术实现**:
+
+1. **新增检查点**（loadCheckpoints 方法）:
+```javascript
+{
+  id: 'D7',
+  name: '验收标准可测试性',
+  type: 'ai',
+  rule: '每条需求的 PRD 映射章节内必须包含 Given/When/Then（v3.1.9 新增）',
+  weight: 0.10,
+  critical: false,
+  order: 9,
+  description: '逐条验证每条需求的验收标准是否包含 Given/When/Then 格式'
+}
+```
+
+2. **新增检查方法**:
+```javascript
+/**
+ * D7: 验收标准可测试性检查（v3.1.9 新增）
+ * 
+ * 逐条验证每条需求的 PRD 映射章节内必须包含 Given/When/Then
+ * 或等价表述（前置条件/触发条件/预期结果）
+ */
+async checkAcceptanceCriteriaPerRequirement(input) {
+  // 1. 提取所有需求
+  const requirements = this.extractRequirementsWithIds(requirementsContent);
+  
+  // 2. 逐条验证每条需求的 PRD 映射章节内是否包含 Given/When/Then
+  for (const req of requirements) {
+    const mapping = this.findRequirementMapping(prdContent, req.id);
+    const sectionContent = this.extractFullSectionContent(prdContent, mapping.line - 1);
+    
+    const hasGiven = /Given|假设 | 前置条件/i.test(sectionContent);
+    const hasWhen = /When|当 | 触发条件/i.test(sectionContent);
+    const hasThen = /Then|那么 | 预期结果/i.test(sectionContent);
+    
+    const passed = hasGiven && hasWhen && hasThen;
+    
+    if (!passed) {
+      failedRequirements.push({
+        requirementId: req.id,
+        missing: [...],
+        suggestion: `请在 PRD.md "${mapping.section}"章节中为 [${req.id}] 添加完整的 Given/When/Then 验收标准`
+      });
+    }
+  }
+  
+  // 3. 计算通过率
+  const passRate = passedCount / requirements.length;
+  return { passed: passRate === 1.0, score: passRate * 100, ... };
+}
+```
+
+3. **辅助方法**（extractFullSectionContent）:
+```javascript
+/**
+ * 提取完整章节内容（从章节标题到下一章节前）
+ * @param {string} content - 文档内容
+ * @param {number} startLine - 起始行号（0-indexed）
+ * @returns {string} 章节内容
+ */
+extractFullSectionContent(content, startLine) {
+  const lines = content.split('\n');
+  const sectionLines = [];
+  
+  // 确定章节标题级别
+  let headerLevel = 0;
+  for (let i = startLine; i >= 0; i--) {
+    const match = lines[i].match(/^(#{1,6})\s+/);
+    if (match) {
+      headerLevel = match[1].length;
+      break;
+    }
+  }
+  
+  // 从起始行向下收集内容，直到遇到同级或更高级别的章节标题
+  for (let i = startLine; i < lines.length; i++) {
+    const line = lines[i];
+    const headerMatch = line.match(/^(#{1,6})\s+/);
+    
+    if (headerMatch && headerMatch[1].length <= headerLevel && i > startLine) {
+      break; // 遇到同级或更高级别的章节标题，停止
+    }
+    
+    sectionLines.push(line);
+  }
+  
+  return sectionLines.join('\n');
+}
+```
+
+### 16.4 数据结构设计
+
+#### 16.4.1 D7 检查结果对象
+
+```javascript
+{
+  checkpoint: 'D7',
+  name: '验收标准可测试性',
+  passed: true/false,
+  score: 0-100,
+  maxScore: 100,
+  details: {
+    totalRequirements: 14,
+    checkedRequirements: 14,
+    passRate: '100%',
+    results: [
+      { requirementId: 'REQ-001', passed: true, details: { hasGiven: true, hasWhen: true, hasThen: true } },
+      { requirementId: 'REQ-014', passed: false, details: { hasGiven: true, hasWhen: false, hasThen: true } }
+    ]
+  },
+  issues: [
+    {
+      requirementId: 'REQ-014',
+      requirement: 'DESIGNING 审阅 Agent 修复',
+      prdSection: '19. 产品需求',
+      missing: ['When/当/触发条件'],
+      suggestion: '请在 PRD.md "19. 产品需求"章节中为 [REQ-014] 添加完整的 Given/When/Then 验收标准'
+    }
+  ],
+  suggestions: [...]
+}
+```
+
+### 16.5 非功能需求
+
+- **向后兼容**: 不破坏现有检查逻辑
+- **不生成额外文件**: 仅修改 review-design-v2.js
+- **保持代码风格一致**: 与现有代码风格一致
+
+### 16.6 验收标准
+
+#### Given
+- ReviewDesignAgent v2.0 存在 3 个缺陷
+- REQUIREMENTS.md 已追加 REQ-014
+
+#### When
+- 执行修复后的 ReviewDesignAgent v2.0
+- 运行自测验证
+
+#### Then
+- ✅ Freshness Gate 能检测哈希不匹配（PRD 随便写哈希会被驳回）
+- ✅ 需求 ID 支持 `REQ-ABC-001` 格式
+- ✅ D7 逐条验证验收标准（每条需求的 PRD 映射章节内必须包含 Given/When/Then）
+- ✅ ReviewDesignAgent 审查得分 >= 90%
+- ✅ 用户验收通过
+
+### 16.7 需求追溯矩阵更新
+
+| 需求 ID | REQUIREMENTS.md 章节 | PRD 章节 | TRD 章节 | TRD 行号 | 实现状态 |
+|---------|---------------------|---------|---------|---------|---------|
+| REQ-014 | L783-850 | 19.1-19.7 | 16.1-16.7 | 待计算 | ✅ 已映射 |
+
+#### 16.7.1 覆盖率统计
+
+- **需求总数**: 14
+- **已实现需求**: 14
+- **覆盖率**: 100%
+- **未实现需求**: 无
+
+---
+
+### 16.8 版本历史更新
+
+| 版本 | 日期 | 变更说明 | Issue ID | 对齐 REQUIREMENTS 版本 | 对齐 PRD 版本 | TRD 哈希 |
+|------|------|---------|----------|----------------------|-------------|---------|
+| v1.0.0 | 2026-03-26 | 初始版本（原始需求） | - | v1.0.0 | v1.0.0 | `git-hash` |
+| v1.1.0 | 2026-03-26 | FEATURE-001：增加 OpenCode 调用说明 | FEATURE-001 | v1.1.0 | v1.1.0 | `git-hash` |
+| v2.0.0 | 2026-03-28 | FEATURE-002：审阅驱动 + 会话隔离 + 工具无关 | FEATURE-002 | v2.0.0 | v2.0.0 | `git-hash` |
+| v2.0.1 | 2026-03-30 | BUG-002 修复：补充 02_roadmapping/和 03_detailing/ | BUG-002 | v2.0.1 | v2.0.1 | `git-hash` |
+| v2.1.0 | 2026-04-02 | FEATURE-003：Roadmap Agent 优化 | FEATURE-003 | v2.1.0 | v2.1.0 | `git-hash` |
+| v3.1.0 | 2026-04-02 | FEATURE-004：DESIGNING 阶段审阅优化 | FEATURE-004 | v3.1.0 | v3.1.0 | `git-hash` |
+| v3.1.1 | 2026-04-02 | BUG-005 修复：PRD/TRD 文档修复 | BUG-005 | v3.1.0 | v3.1.1 | `910651f` |
+| v3.1.2 | 2026-04-02 | BUG-006 修复：PRD/TRD 审查问题修复（哈希对齐 + 异常处理完善） | BUG-006 | v3.1.0 | v3.1.2 | `f0e4491` |
+| v3.1.3 | 2026-04-02 | FEATURE-005：DESIGNING 阶段用户确认签字优化 | FEATURE-005 | v3.1.0 | v3.1.3 | `待计算` |
+| v3.1.4 | 2026-04-02 | BUG-007 修复：PRD/TRD 描述 AI 工具为 config.yaml 配置 | BUG-007 | v3.1.0 | v3.1.4 | `待计算` |
+| v3.1.5 | 2026-04-02 | FEATURE-006：ROADMAPPING 审阅 Agent 规则优化 | FEATURE-006 | v3.1.0 | v3.1.5 | `fe957c6` |
+| v3.1.6 | 2026-04-02 | FEATURE-007：ROADMAPPING 环节优化（R4 规则优化 + 不生成 SELF-REVIEW.md） | FEATURE-007 | v3.1.0 | v3.1.6 | `待计算` |
+| v3.1.7 | 2026-04-02 | 问题分析：DETAILING 环节审阅 Agent 缺失 | REQ-013 分析 | v3.1.0 | v3.1.7 | `待计算` |
+| v3.1.8 | 2026-04-02 | FEATURE-008：DETAILING 审阅 Agent 优化（Hard Gates + 输入输出规范） | FEATURE-008 | v3.1.0 | v3.1.8 | `待计算` |
+| **v3.1.9** | **2026-04-07** | **BUG-008 修复：DESIGNING 审阅 Agent 修复（Freshness 哈希校验 + 需求 ID 正则+D7 逐条检查）** | **BUG-008** | **v3.1.9** | **v3.1.9** | **`待计算`** |
+
+---
+
 *TRD 文档结束*
