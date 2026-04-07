@@ -461,19 +461,83 @@ class WorkflowOrchestrator {
   }
 
   // =========================================================================
+  // v3.3.0 新增：小需求检测（智能确认模式）
+  // =========================================================================
+
+  /**
+   * 检测是否为小需求（v3.3.0 新增）
+   * @param {object} input - 阶段输入
+   * @returns {Promise<boolean>} 是否为小需求
+   */
+  async isSmallScope(input) {
+    const policy = this.config.stages.designing.policy.approvals;
+    const smallScopeConfig = policy.small_scope;
+    
+    // 1. 检查需求数量
+    const requirementsContent = input.requirementsFile ? 
+      this.stateManager.readFile(input.requirementsFile) : '';
+    const reqCount = (requirementsContent.match(/### REQ-/g) || []).length;
+    
+    if (reqCount <= smallScopeConfig.max_requirements) {
+      console.log(`[Orchestrator] 小需求检测：需求数量 ${reqCount} <= ${smallScopeConfig.max_requirements} ✅`);
+      return true;
+    }
+    
+    // 2. 检查 PRD 行数（如果已生成）
+    if (input.prdFile) {
+      const prdContent = this.stateManager.readFile(input.prdFile);
+      const prdLines = prdContent.split('\n').length;
+      
+      if (prdLines <= smallScopeConfig.max_prd_lines) {
+        console.log(`[Orchestrator] 小需求检测：PRD 行数 ${prdLines} <= ${smallScopeConfig.max_prd_lines} ✅`);
+        return true;
+      }
+    }
+    
+    // 3. 检查 TRD 行数（如果已生成）
+    if (input.trdFile) {
+      const trdContent = this.stateManager.readFile(input.trdFile);
+      const trdLines = trdContent.split('\n').length;
+      
+      if (trdLines <= smallScopeConfig.max_trd_lines) {
+        console.log(`[Orchestrator] 小需求检测：TRD 行数 ${trdLines} <= ${smallScopeConfig.max_trd_lines} ✅`);
+        return true;
+      }
+    }
+    
+    // 4. 检查是否涉及复杂技术选型
+    if (smallScopeConfig.no_complex_tech) {
+      const complexTechKeywords = ['微服务', '分布式', '集群', '高并发', '负载均衡', '消息队列'];
+      const hasComplexTech = complexTechKeywords.some(keyword => 
+        requirementsContent.includes(keyword)
+      );
+      
+      if (!hasComplexTech) {
+        console.log(`[Orchestrator] 小需求检测：不涉及复杂技术选型 ✅`);
+        return true;
+      }
+    }
+    
+    console.log(`[Orchestrator] 小需求检测：不满足小需求标准，使用 two_step 模式`);
+    return false;
+  }
+
+  // =========================================================================
   // v3.2.0 新增：两次确认入口
   // =========================================================================
 
   /**
-   * 确认 PRD（v3.2.0 新增）
+   * 确认 PRD（v3.2.0 新增，v3.3.0 更新：支持小需求合并确认）
    * @param {object} payload - 确认载荷
    * @returns {Promise<{success: boolean, message: string}>}
    */
   async approvePRD(payload) {
     const state = this.stateManager.state;
+    const policy = this.config.stages.designing.policy.approvals;
     
     // 1. 验证状态
-    if (state.stages.designing.stageStatus !== 'prd_confirm_pending') {
+    if (state.stages.designing.stageStatus !== 'prd_confirm_pending' && 
+        state.stages.designing.stageStatus !== 'auto_reviewing') {
       return {
         success: false,
         message: `当前状态为 ${state.stages.designing.stageStatus}，无法确认 PRD`
@@ -497,7 +561,45 @@ class WorkflowOrchestrator {
       };
     }
     
-    // 3. 记录确认
+    // 3. 检查是否为小需求（v3.3.0）
+    const isSmall = await this.isSmallScope({
+      requirementsFile: state.requirementsContent,
+      prdFile: state.stages.designing.lastPrdContent,
+      trdFile: state.stages.designing.lastTrdContent
+    });
+    
+    // 4. 小需求合并确认（PRD+TRD 一起）
+    if (isSmall && policy.mode === 'auto') {
+      console.log('[Orchestrator] 小需求模式：合并确认 PRD+TRD');
+      
+      // 验证 TRD 哈希
+      const currentTrdHash = this.stateManager.calculateHash(state.stages.designing.lastTrdContent);
+      
+      // 合并确认
+      this.stateManager.approvePRD(
+        payload.userId,
+        payload.requirementsHash,
+        payload.prdHash,
+        payload.notes + '（小需求合并确认 PRD+TRD）'
+      );
+      
+      this.stateManager.approveTRD(
+        payload.userId,
+        payload.requirementsHash,
+        currentTrdHash,
+        '小需求合并确认'
+      );
+      
+      // 直接进入下一阶段
+      console.log('[Orchestrator] Designing 阶段完成（小需求合并确认），进入 Roadmapping 阶段...');
+      
+      return {
+        success: true,
+        message: '小需求合并确认成功（PRD+TRD），Designing 阶段完成'
+      };
+    }
+    
+    // 5. 正常流程：只确认 PRD，等待 TRD 确认
     this.stateManager.approvePRD(
       payload.userId,
       payload.requirementsHash,
@@ -505,7 +607,7 @@ class WorkflowOrchestrator {
       payload.notes
     );
     
-    // 4. 通知用户确认 TRD
+    // 6. 通知用户确认 TRD
     await this.notifyUser('TRD 确认', {
       type: 'TRD_CONFIRMATION_REQUEST',
       message: 'PRD 已确认，请确认 TRD.md 技术方案',

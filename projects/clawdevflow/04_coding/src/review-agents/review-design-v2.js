@@ -1279,18 +1279,22 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
   }
 
   /**
-   * 新的决策逻辑（v3.2.0）- 只看 blockingIssues，忽略 overall.score
+   * 新的决策逻辑（v3.2.0 基础版，v3.3.0 增加 severity 分级）
    * 
    * 决策规则：
-   * 1. 如果 blockingIssues.length > 0 → BLOCK（等价 reject）
-   * 2. 否则 → PASS（进入 PRD 确认）
+   * 1. 如果 blockingIssues 有 blocker → BLOCK（等价 reject）
+   * 2. 如果只有 warning → PASS（记录 warning）
    * 3. conditional_blocks_progress = true 时，conditional 也视为 BLOCK
    * 
    * @param {object} report - 审阅报告
    * @param {object} policy - policy 配置
-   * @returns {{decision: string, reason: string, blockingIssues: array}}
+   * @returns {{decision: string, reason: string, blockingIssues: array, warnings: array}}
    */
   makeDecision(report, policy) {
+    const severityModel = policy.severity_model || {};
+    const blockerList = severityModel.blocker || [];
+    const warningList = severityModel.warning || [];
+    
     // 1. 检查 Gate 是否通过（FG/TG）
     if (!report.gates.freshness.passed || !report.gates.traceability.passed) {
       return {
@@ -1300,22 +1304,52 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
           id: !report.gates.freshness.passed ? 'FG_FAILED' : 'TG_FAILED',
           severity: 'blocker',
           message: !report.gates.freshness.passed ? 'Freshness Gate 失败' : 'Traceability Gate 失败'
-        }]
+        }],
+        warnings: []
       };
     }
     
     // 2. 检查 blockingIssues（D7 等自动检查）
     const blockingIssues = report.blockingIssues || [];
     
-    if (blockingIssues.length > 0) {
+    // 3. 分级处理（v3.3.0）
+    const blockerIssues = [];
+    const warningIssues = [];
+    
+    for (const issue of blockingIssues) {
+      if (blockerList.includes(issue.id) || issue.severity === 'blocker') {
+        blockerIssues.push(issue);
+      } else if (warningList.includes(issue.id) || issue.severity === 'warning') {
+        warningIssues.push(issue);
+      } else {
+        // 默认视为 blocker
+        blockerIssues.push({ ...issue, severity: 'blocker' });
+      }
+    }
+    
+    // 4. 有 blocker → BLOCK
+    if (blockerIssues.length > 0) {
       return {
         decision: 'BLOCK',
         reason: '存在阻断性问题',
-        blockingIssues
+        blockingIssues: blockerIssues,
+        warnings: warningIssues
       };
     }
     
-    // 3. conditional 处理（根据 policy）
+    // 5. 只有 warning → PASS（记录 warning）
+    if (warningIssues.length > 0) {
+      console.log(`[Review-Design v2] 发现 ${warningIssues.length} 个 warning，但不阻断流程`);
+      
+      return {
+        decision: 'PASS',
+        reason: '只有 warning 级别问题',
+        blockingIssues: [],
+        warnings: warningIssues
+      };
+    }
+    
+    // 6. conditional 处理（根据 policy）
     if (report.decision === 'conditional' && policy.conditional_blocks_progress) {
       return {
         decision: 'BLOCK',
@@ -1324,15 +1358,17 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
           id: 'CONDITIONAL_BLOCKED',
           severity: 'blocker',
           message: '审阅结论为 conditional，根据 policy 配置阻断流程'
-        }]
+        }],
+        warnings: []
       };
     }
     
-    // 4. 通过
+    // 7. 通过
     return {
       decision: 'PASS',
       reason: '所有检查通过',
-      blockingIssues: []
+      blockingIssues: [],
+      warnings: []
     };
   }
 

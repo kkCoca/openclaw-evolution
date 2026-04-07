@@ -50,9 +50,16 @@ stages:
     
     # ========== Designing Policy v3.2.0（新增）==========
     policy:
-      # 审批模式：two_step（PRD+TRD 分两次）| one_step（合并确认）
+      # 审批模式：two_step（PRD+TRD 分两次）| one_step（合并确认）| auto（智能选择）
       approvals:
-        mode: two_step
+        mode: auto  # v3.3.0 更新：auto 模式根据需求规模自动选择
+        
+        # 小需求标准（满足任一即为小需求，使用 one_step）
+        small_scope:
+          max_requirements: 2       # 需求数量 <= 2
+          max_prd_lines: 200        # PRD 行数 <= 200
+          max_trd_lines: 300        # TRD 行数 <= 300
+          no_complex_tech: true     # 不涉及复杂技术选型
         
         # 超时配置（秒）
         timeout:
@@ -67,6 +74,22 @@ stages:
       
       # 阻断规则：blocking_issues_nonempty（有 blocker 就阻断）
       blocking_rule: blocking_issues_nonempty
+      
+      # 严重性模型（v3.3.0 新增）
+      severity_model:
+        # blocker 级别（必须修复）
+        blocker:
+          - FG_HASH_MISMATCH        # 哈希不匹配
+          - FG_FAILED               # Freshness Gate 失败
+          - TG_FAILED               # Traceability Gate 失败
+          - TG_MISSING_MAPPING      # 需求未映射
+          - D7_AC_MISSING           # 验收标准缺失
+        
+        # warning 级别（建议修复，但不阻断）
+        warning:
+          - DOCUMENT_FORMAT         # 文档格式建议
+          - NON_CRITICAL_SECTION    # 非关键章节缺失
+          - CODE_STYLE              # 代码风格建议
       
       # 是否使用 overall.score 判断阻断（建议 false，因为 AI checks 可能是 mock）
       use_overall_score_for_blocking: false
