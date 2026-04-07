@@ -581,9 +581,19 @@ class WorkflowOrchestrator {
       payload.notes
     );
     
-    // v3.3.0 修复：approvePRD 后状态推进到 trd_confirm_pending（P0-1）
-    // stateManager.approvePRD() 内部已经设置了 stageStatus = 'trd_confirm_pending'
-    // 但为了确保状态已保存，这里再次 save()
+    // v3.3.0 修复：approvePRD 后显式推进状态（P0-1）
+    // 不依赖 stateManager 内部实现，这里显式设置 stageStatus
+    this.stateManager.state.stages.designing.stageStatus = 'trd_confirm_pending';
+    this.stateManager.logTransition(
+      'prd_confirm_pending',
+      'trd_confirm_pending',
+      'PRD_APPROVED',
+      {
+        userId: payload.userId,
+        prdHash: payload.prdHash,
+        requirementsHash: payload.requirementsHash
+      }
+    );
     this.stateManager.save();
     
     // 6. 通知用户确认 TRD
@@ -735,8 +745,20 @@ class WorkflowOrchestrator {
       retryCount++;
       state.stages.designing.retryCountTotal = retryCount;
       
+      // v3.3.0 修复：CLARIFY 处理逻辑（P0-2）
+      // 如果 blockingIssues 为空，补充默认 blocker issue
+      let blockingIssues = decisionResult.blockingIssues || [];
+      if (blockingIssues.length === 0) {
+        blockingIssues = [{
+          id: 'REVIEW_CLARIFY_REQUIRED',
+          severity: 'blocker',
+          message: '审阅需要澄清',
+          regenerateHint: '请根据审阅报告澄清需求或修复文档'
+        }];
+      }
+      
       // 计算同问题连续次数
-      const firstIssueId = decisionResult.blockingIssues?.[0]?.id || 'UNKNOWN';
+      const firstIssueId = blockingIssues[0].id;
       if (firstIssueId === lastIssueId) {
         sameIssueStreak++;
       } else {
@@ -764,14 +786,14 @@ class WorkflowOrchestrator {
         await this.notifyUser('重试耗尽', {
           type: 'RETRY_EXHAUSTED',
           message: `Designing 阶段重试 ${retryCount} 次后仍然失败，需要人工介入`,
-          issue: decisionResult.blockingIssues[0],
+          issue: blockingIssues[0],
           suggestion: '建议人工审阅并手动修复 PRD.md/TRD.md'
         });
         
         return {
           success: false,
           reason: 'RETRY_EXHAUSTED',
-          issue: decisionResult.blockingIssues[0]
+          issue: blockingIssues[0]
         };
       }
       
@@ -783,7 +805,7 @@ class WorkflowOrchestrator {
       });
       
       // 生成 regenerateHint
-      const regenerateHint = decisionResult.blockingIssues.map(issue => {
+      const regenerateHint = blockingIssues.map(issue => {
         return `【强制修复】${issue.id}: ${issue.message || '修复失败项'}\n${issue.regenerateHint || ''}`;
       }).join('\n\n');
       
