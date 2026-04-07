@@ -1090,6 +1090,24 @@ ${input.regenerateHint}
    */
   async executeRoadmapReviewV1(input) {
     try {
+      // v3.5.0-alpha3 修复 P0-阻断：从文件系统读取 ROADMAP.md 内容（审阅人 TODO #4）
+      const fs = require('fs');
+      const path = require('path');
+      const roadmapPath = path.join(input.outputPath, 'ROADMAP.md');
+      
+      if (!fs.existsSync(roadmapPath)) {
+        console.error('[Orchestrator] ROADMAP.md 文件不存在:', roadmapPath);
+        return {
+          error: `ROADMAP.md 文件不存在：${roadmapPath}`,
+          overall: { passed: false, score: 0, recommendation: 'error' }
+        };
+      }
+      
+      const roadmapContent = fs.readFileSync(roadmapPath, 'utf8');
+      input.roadmapContent = roadmapContent;
+      
+      console.log(`[Orchestrator] 已读取 ROADMAP.md: ${roadmapPath} (${roadmapContent.length} 字节)`);
+      
       const ReviewRoadmapAgentV1 = require('./review-agents/review-roadmap-v1');
       const agent = new ReviewRoadmapAgentV1(this.config);
       const report = await agent.executeReview(input);
@@ -1219,8 +1237,13 @@ ${input.regenerateHint}
       return ReviewDecision.REJECT;
     }
     
-    // 所有检查通过
+    // 所有检查通过（v3.5.0-alpha3 修复 P0-完善：清理重试痕迹，审阅人 TODO #3）
     console.log('[Orchestrator] Roadmap 审阅通过');
+    this.stateManager.state.stages.roadmapping.lastRegenerateHint = '';
+    this.stateManager.state.stages.roadmapping.retryCount = 0;
+    this.stateManager.state.stages.roadmapping.attempt = 1;
+    this.stateManager.save();
+    console.log('[Orchestrator] 已清理重试痕迹（lastRegenerateHint='', retryCount=0）');
     return ReviewDecision.PASS;
   }
 }
