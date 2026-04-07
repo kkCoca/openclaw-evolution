@@ -86,14 +86,62 @@ class StateManager {
         reviewerNotes: '',
         startedAt: null,
         completedAt: null,
-        retryCount: 0
+        retryCount: 0,
+        // v3.2.0 新增：designing 阶段专用字段
+        ...(stage === 'designing' ? {
+          stageStatus: 'generating',  // generating | auto_reviewing | prd_confirm_pending | trd_confirm_pending | passed | blocked
+          attempt: 0,
+          retryCountTotal: 0,
+          sameIssueStreak: { issueId: null, count: 0 },
+          lastAutoReviewReport: null,
+          lastBlockingIssues: [],
+          prdGeneratedAt: null,
+          trdGeneratedAt: null
+        } : {})
       };
     });
+    
+    // v3.2.0 新增：approvals 字段
+    this.state.approvals = {
+      designing: {
+        prd: null,  // { approvedBy, approvedAt, requirementsHash, prdHash, notes }
+        trd: null   // { approvedBy, approvedAt, requirementsHash, trdHash, notes }
+      }
+    };
+    
+    // v3.2.0 新增：transitionLog（只保留最近 100 条）
+    this.state.transitionLog = [];
     
     this.save();
     this.log('workflow_started', { task, scenario, projectPath });
     
     return this.state;
+  }
+
+  /**
+   * 记录状态转换（v3.2.0 新增）
+   * @param {string} from - 源状态
+   * @param {string} to - 目标状态
+   * @param {string} reason - 转换原因
+   * @param {object} metadata - 元数据
+   */
+  logTransition(from, to, reason, metadata = {}) {
+    const transition = {
+      from,
+      to,
+      reason,
+      timestamp: new Date().toISOString(),
+      ...metadata
+    };
+    
+    this.state.transitionLog.push(transition);
+    
+    // 只保留最近 100 条
+    if (this.state.transitionLog.length > 100) {
+      this.state.transitionLog = this.state.transitionLog.slice(-100);
+    }
+    
+    this.save();
   }
 
   /**
@@ -114,6 +162,61 @@ class StateManager {
       this.log('state_load_error', { error: error.message });
       return null;
     }
+  }
+
+  /**
+   * 记录 PRD 确认（v3.2.0 新增）
+   * @param {string} approvedBy - 确认人
+   * @param {string} requirementsHash - REQUIREMENTS 哈希
+   * @param {string} prdHash - PRD 哈希
+   * @param {string} notes - 备注
+   */
+  approvePRD(approvedBy, requirementsHash, prdHash, notes = '') {
+    this.state.approvals.designing.prd = {
+      approvedBy,
+      approvedAt: new Date().toISOString(),
+      requirementsHash,
+      prdHash,
+      notes
+    };
+    
+    this.state.stages.designing.stageStatus = 'trd_confirm_pending';
+    this.state.updatedAt = new Date().toISOString();
+    
+    this.logTransition('prd_confirm_pending', 'trd_confirm_pending', 'PRD_APPROVED', {
+      approvedBy,
+      prdHash
+    });
+    
+    this.save();
+  }
+
+  /**
+   * 记录 TRD 确认（v3.2.0 新增）
+   * @param {string} approvedBy - 确认人
+   * @param {string} requirementsHash - REQUIREMENTS 哈希
+   * @param {string} trdHash - TRD 哈希
+   * @param {string} notes - 备注
+   */
+  approveTRD(approvedBy, requirementsHash, trdHash, notes = '') {
+    this.state.approvals.designing.trd = {
+      approvedBy,
+      approvedAt: new Date().toISOString(),
+      requirementsHash,
+      trdHash,
+      notes
+    };
+    
+    this.state.stages.designing.stageStatus = 'passed';
+    this.state.stages.designing.completedAt = new Date().toISOString();
+    this.state.updatedAt = new Date().toISOString();
+    
+    this.logTransition('trd_confirm_pending', 'passed', 'TRD_APPROVED', {
+      approvedBy,
+      trdHash
+    });
+    
+    this.save();
   }
 
   /**
