@@ -19,6 +19,9 @@ const execAsync = promisify(exec);
 // 审阅 Agent v2.0（新增）
 const ReviewDesignAgentV2 = require('./review-agents/review-design-v2');
 
+// Policy 验证器（v3.3.0 新增）
+const DesigningPolicyValidator = require('./utils/designing-policy-validator');
+
 // 阶段定义
 const STAGES = [
   'designing',
@@ -50,6 +53,11 @@ class WorkflowOrchestrator {
     this.config = config;
     this.stateManager = stateManager;
     this.currentStageIndex = 0;
+    
+    // v3.3.0：启动时验证 policy 配置
+    if (config.stages?.designing?.policy) {
+      DesigningPolicyValidator.validateOrThrow(config.stages.designing.policy);
+    }
   }
   
   /**

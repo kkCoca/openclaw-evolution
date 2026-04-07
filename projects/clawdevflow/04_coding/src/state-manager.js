@@ -119,7 +119,7 @@ class StateManager {
   }
 
   /**
-   * 记录状态转换（v3.2.0 新增）
+   * 记录状态转换（v3.2.0 新增，v3.3.0 优化：单独文件存储）
    * @param {string} from - 源状态
    * @param {string} to - 目标状态
    * @param {string} reason - 转换原因
@@ -134,14 +134,52 @@ class StateManager {
       ...metadata
     };
     
-    this.state.transitionLog.push(transition);
+    // v3.3.0：单独文件存储，避免 state.json 膨胀
+    const transitionLogFile = path.join(path.dirname(this.stateFile), 'transition-log.jsonl');
+    const line = JSON.stringify(transition) + '\n';
     
-    // 只保留最近 100 条
-    if (this.state.transitionLog.length > 100) {
-      this.state.transitionLog = this.state.transitionLog.slice(-100);
+    // 追加到文件
+    fs.appendFileSync(transitionLogFile, line, 'utf8');
+    
+    // state 中只保留最近 10 条（用于快速查询）
+    this.state.transitionLog.push(transition);
+    if (this.state.transitionLog.length > 10) {
+      this.state.transitionLog = this.state.transitionLog.slice(-10);
     }
     
     this.save();
+  }
+
+  /**
+   * 读取转换日志（v3.3.0 新增）
+   * @param {number} limit - 限制条数
+   * @param {number} offset - 偏移量（从末尾计算）
+   * @returns {array} 转换日志列表
+   */
+  getTransitionLog(limit = 100, offset = 0) {
+    const transitionLogFile = path.join(path.dirname(this.stateFile), 'transition-log.jsonl');
+    
+    if (!fs.existsSync(transitionLogFile)) {
+      return [];
+    }
+    
+    const content = fs.readFileSync(transitionLogFile, 'utf8');
+    const lines = content.trim().split('\n').filter(line => line.trim());
+    
+    // 从后往前读取（最新的在前）
+    const result = [];
+    const start = lines.length - 1 - offset;
+    const end = Math.max(0, start - limit + 1);
+    
+    for (let i = start; i >= end && i >= 0; i--) {
+      try {
+        result.push(JSON.parse(lines[i]));
+      } catch (e) {
+        // 跳过无效行
+      }
+    }
+    
+    return result;
   }
 
   /**
