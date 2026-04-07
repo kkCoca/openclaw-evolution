@@ -712,6 +712,20 @@ class WorkflowOrchestrator {
       payload.notes
     );
     
+    // v3.4.0-alpha8 修复 P0-新 3：显式设置 stageStatus='passed'
+    this.stateManager.state.stages.designing.stageStatus = 'passed';
+    this.stateManager.logTransition(
+      'trd_confirm_pending',
+      'passed',
+      'TRD_APPROVED',
+      {
+        userId: payload.userId,
+        trdHash: payload.trdHash,
+        requirementsHash: payload.requirementsHash
+      }
+    );
+    this.stateManager.save();
+    
     // 4. 进入下一阶段
     console.log('[Orchestrator] Designing 阶段完成，进入 Roadmapping 阶段...');
     
