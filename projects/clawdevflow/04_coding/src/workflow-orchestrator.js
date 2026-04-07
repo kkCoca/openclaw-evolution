@@ -570,6 +570,8 @@ class WorkflowOrchestrator {
     // if (isSmall && policy.mode === 'auto') { ... }
     // 当前策略：所有需求都使用两次确认流程
     if (false && isSmall) {  // 暂时禁用
+      // 空分支，禁用小需求合并确认
+    }
     
     // 5. 正常流程：只确认 PRD，等待 TRD 确认
     this.stateManager.approvePRD(

@@ -4,3 +4,6 @@
 {"from":"prd_confirm_pending","to":"trd_confirm_pending","reason":"PRD_APPROVED","timestamp":"2026-04-07T05:50:50.949Z","approvedBy":"test-user","prdHash":"prd-hash-456"}
 {"from":"prd_confirm_pending","to":"trd_confirm_pending","reason":"PRD_APPROVED","timestamp":"2026-04-07T05:50:50.963Z","approvedBy":"test-user","prdHash":"ab97d1344c9dafba8af349329065cf3098507cbe6fc803d178b93e41895638dc"}
 {"from":"trd_confirm_pending","to":"passed","reason":"TRD_APPROVED","timestamp":"2026-04-07T05:50:50.963Z","approvedBy":"test-user","trdHash":"f6af46d01efbef17f18df1b36cecbd58327cde0454e227753d035abd745ad968"}
+{"from":"prd_confirm_pending","to":"trd_confirm_pending","reason":"PRD_APPROVED","timestamp":"2026-04-07T05:59:30.545Z","approvedBy":"test-user","prdHash":"9acca31973d74f0eb33e944f0f11e9659b7591cb6a8efe20703b7922413b2579"}
+{"from":"prd_confirm_pending","to":"trd_confirm_pending","reason":"PRD_APPROVED","timestamp":"2026-04-07T05:59:40.171Z","approvedBy":"test-user","prdHash":"9acca31973d74f0eb33e944f0f11e9659b7591cb6a8efe20703b7922413b2579"}
+{"from":"trd_confirm_pending","to":"passed","reason":"TRD_APPROVED","timestamp":"2026-04-07T05:59:40.174Z","approvedBy":"test-user","trdHash":"1c4d34935beefee70550631bbbe226d81f36d87822bab5f7fc1fde1206dddb88"}
