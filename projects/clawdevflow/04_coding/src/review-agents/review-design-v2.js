@@ -1295,22 +1295,49 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
     const blockerList = severityModel.blocker || [];
     const warningList = severityModel.warning || [];
     
-    // 1. 检查 Gate 是否通过（FG/TG）
+    // 1. 检查 Gate 是否通过（FG/TG）- v3.4.0 增强：添加 evidence 和 regenerateHint
     if (!report.gates.freshness.passed || !report.gates.traceability.passed) {
+      const isFreshnessFailed = !report.gates.freshness.passed;
+      
       return {
         decision: 'BLOCK',
         reason: 'Gate 检查失败',
         blockingIssues: [{
-          id: !report.gates.freshness.passed ? 'FG_FAILED' : 'TG_FAILED',
+          id: isFreshnessFailed ? 'FG_HASH_MISMATCH' : 'TG_MISSING_MAPPING',
           severity: 'blocker',
-          message: !report.gates.freshness.passed ? 'Freshness Gate 失败' : 'Traceability Gate 失败'
+          message: isFreshnessFailed ? 'Freshness Gate 失败：PRD/TRD 哈希与 REQUIREMENTS 不匹配' : 'Traceability Gate 失败：需求未完全映射',
+          evidence: {
+            file: isFreshnessFailed ? '01_designing/PRD.md' : '01_designing/PRD.md',
+            section: isFreshnessFailed ? '对齐版本声明' : '需求追溯矩阵',
+            details: isFreshnessFailed ? report.gates.freshness : report.gates.traceability
+          },
+          regenerateHint: isFreshnessFailed 
+            ? '【强制修复】更新 PRD.md 和 TRD.md 的对齐版本声明，确保哈希值与 REQUIREMENTS.md 一致。格式：> **对齐版本**: REQUIREMENTS v{version} ({hash})'
+            : '【强制修复】在 PRD.md 中为每条需求添加明确映射，格式：### {功能名} [REQ-xxx]，并包含功能描述和验收标准'
         }],
         warnings: []
       };
     }
     
-    // 2. 检查 blockingIssues（D7 等自动检查）
-    const blockingIssues = report.blockingIssues || [];
+    // 2. 检查 blockingIssues（D7 等自动检查）- v3.4.0 增强：补充 evidence 和 regenerateHint
+    let blockingIssues = report.blockingIssues || [];
+    
+    // 增强 D7 失败的 blockingIssues
+    blockingIssues = blockingIssues.map(issue => {
+      if (issue.id === 'D7_AC_MISSING' || issue.checkpoint === 'D7') {
+        return {
+          ...issue,
+          severity: issue.severity || 'blocker',
+          evidence: {
+            file: '01_designing/PRD.md',
+            section: '验收标准章节',
+            details: issue.details || {}
+          },
+          regenerateHint: '【强制修复】在 PRD.md 中为每条需求添加结构化验收标准，格式：\n前置条件：...\n触发条件：...\n预期结果：...'
+        };
+      }
+      return issue;
+    });
     
     // 3. 分级处理（v3.3.0）
     const blockerIssues = [];

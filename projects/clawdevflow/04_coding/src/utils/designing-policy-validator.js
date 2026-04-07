@@ -29,7 +29,9 @@ class DesigningPolicyValidator {
         errors.push(`approvals.mode 必须是 ${validModes.join(' | ')}，当前为 "${policy.approvals.mode}"`);
       }
 
-      // 验证 small_scope（v3.3.0）
+      // 验证 small_scope（v3.3.0/v3.4.0）
+      // 注意：Phase 1 已禁用 small-scope 合并确认，但保留配置以便未来启用
+      // TODO: 未来可能需要重命名为 small_scope_heuristic 以匹配方案文档
       if (policy.approvals.small_scope) {
         if (typeof policy.approvals.small_scope.max_requirements !== 'number' ||
             policy.approvals.small_scope.max_requirements < 1) {
