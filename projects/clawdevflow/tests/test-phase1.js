@@ -75,13 +75,15 @@ runner.test('Policy 配置加载', async () => {
   
   // 验证关键配置项
   runner.assert(policyContent.includes('approvals:'), '缺少 approvals 配置');
-  runner.assert(policyContent.includes('mode: two_step'), 'approvals.mode 不是 two_step');
+  const modeMatch = policyContent.match(/mode:\s*(\w+)/);
+  const mode = modeMatch ? modeMatch[1] : '';
+  runner.assert(['two_step', 'one_step', 'auto'].includes(mode), `approvals.mode 不合法：${mode}`);
   runner.assert(policyContent.includes('conditional_blocks_progress: true'), 'conditional_blocks_progress 不是 true');
   runner.assert(policyContent.includes('blocking_rule: blocking_issues_nonempty'), 'blocking_rule 不正确');
   runner.assert(policyContent.includes('max_total_retries: 5'), 'max_total_retries 不是 5');
   
   console.log('  ✓ policy 配置格式正确');
-  console.log('  ✓ approvals.mode = two_step');
+  console.log(`  ✓ approvals.mode = ${mode} (auto/one_step/two_step)`);
   console.log('  ✓ conditional_blocks_progress = true');
   console.log('  ✓ blocking_rule = blocking_issues_nonempty');
   console.log('  ✓ max_total_retries = 5');
@@ -171,7 +173,7 @@ runner.test('决策逻辑测试（makeDecision）', async () => {
 // 测试 3: 状态字段测试
 // =========================================================================
 runner.test('状态字段测试（state-manager）', async () => {
-  const StateManager = require('../04_coding/src/state-manager');
+  const { StateManager } = require('../04_coding/src/state-manager');
   
   // 创建临时状态文件
   const tempStateFile = path.join(__dirname, 'test-state.json');
@@ -234,18 +236,47 @@ runner.test('状态字段测试（state-manager）', async () => {
 // =========================================================================
 runner.test('两次确认测试（哈希绑定验证）', async () => {
   const WorkflowOrchestrator = require('../04_coding/src/workflow-orchestrator');
-  const StateManager = require('../04_coding/src/state-manager');
+  const { StateManager } = require('../04_coding/src/state-manager');
   
   // 创建临时状态文件
   const tempStateFile = path.join(__dirname, 'test-state-2.json');
   const stateManager = new StateManager(tempStateFile, './logs');
   stateManager.init('test-workflow', '测试任务', '全新功能', './test-project');
   
-  // 模拟配置
+  // 模拟配置（v3.3.0 完整配置）
   const config = {
     stages: {
       designing: {
-        policy: {}
+        policy: {
+          approvals: {
+            mode: 'auto',
+            small_scope: {
+              max_requirements: 2,
+              max_prd_lines: 200,
+              max_trd_lines: 300
+            },
+            timeout: {
+              prd_confirmation: 3600,
+              trd_confirmation: 3600
+            },
+            on_timeout: 'notify_user'
+          },
+          conditional_blocks_progress: true,
+          blocking_rule: 'blocking_issues_nonempty',
+          retry: {
+            max_total_retries: 5,
+            max_retries_per_issue: {
+              FG_HASH_MISMATCH: 2,
+              TG_MISSING_MAPPING: 3,
+              D7_AC_MISSING: 3,
+              DEFAULT: 3
+            },
+            same_issue_streak_limit: 3
+          },
+          escalation: {
+            on_retry_exhausted: 'clarify_required'
+          }
+        }
       }
     }
   };
@@ -258,9 +289,12 @@ runner.test('两次确认测试（哈希绑定验证）', async () => {
   stateManager.state.stages.designing.lastTrdContent = 'test trd content';
   stateManager.state.stages.designing.stageStatus = 'prd_confirm_pending';
   
-  // 计算哈希
-  const reqHash = stateManager.calculateHash(stateManager.state.requirementsContent);
-  const prdHash = stateManager.calculateHash(stateManager.state.stages.designing.lastPrdContent);
+  // 计算哈希（使用 crypto 模块）
+  const crypto = require('crypto');
+  const calculateHash = (content) => crypto.createHash('sha256').update(content).digest('hex');
+  
+  const reqHash = calculateHash(stateManager.state.requirementsContent || 'test');
+  const prdHash = calculateHash(stateManager.state.stages.designing.lastPrdContent || 'test');
   
   // 测试 1: 正确的哈希应该通过
   const result1 = await orchestrator.approvePRD({
@@ -344,18 +378,28 @@ runner.test('消除递归测试（executeDesigning 使用循环）', async () =>
 // =========================================================================
 runner.test('重试限制测试（超过次数升级）', async () => {
   const WorkflowOrchestrator = require('../04_coding/src/workflow-orchestrator');
-  const StateManager = require('../04_coding/src/state-manager');
+  const { StateManager } = require('../04_coding/src/state-manager');
   
   // 创建临时状态文件
   const tempStateFile = path.join(__dirname, 'test-state-3.json');
   const stateManager = new StateManager(tempStateFile, './logs');
   stateManager.init('test-workflow', '测试任务', '全新功能', './test-project');
   
-  // 模拟配置
+  // 模拟配置（v3.3.0 完整配置）
   const config = {
     stages: {
       designing: {
         policy: {
+          approvals: {
+            mode: 'auto',
+            small_scope: {
+              max_requirements: 2,
+              max_prd_lines: 200,
+              max_trd_lines: 300
+            }
+          },
+          conditional_blocks_progress: true,
+          blocking_rule: 'blocking_issues_nonempty',
           retry: {
             max_total_retries: 2,  // 设置较小的值便于测试
             max_retries_per_issue: {

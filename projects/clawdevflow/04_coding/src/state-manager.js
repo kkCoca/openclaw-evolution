@@ -480,6 +480,16 @@ class StateManager {
   }
 
   /**
+   * 计算哈希（v3.3.0 新增，用于测试）
+   * @param {string} content - 内容
+   * @returns {string} SHA256 哈希
+   */
+  calculateHash(content) {
+    const crypto = require('crypto');
+    return crypto.createHash('sha256').update(content).digest('hex');
+  }
+
+  /**
    * 重置流程（用于完全重启）
    */
   reset() {
