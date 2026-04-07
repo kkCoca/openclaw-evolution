@@ -943,5 +943,60 @@ adapters/
 
 ---
 
+## REQ-016: Designing Policy 优化完整修复（v3.4.0 Stable）
+
+**位置**: L901-950
+
+**版本**: v3.4.0 (2026-04-07)
+
+**类型**: 增量需求（基于 REQ-015）
+
+**父需求**: REQ-015 (Designing Policy 优化)
+
+**问题背景**:
+在 REQ-015 实现后，通过 GPT-5.2 审阅发现以下问题需要修复：
+1. executeDesigning() 在等待确认时仍会执行生成
+2. executeDesigning() 返回语义不一致（waiting confirmation 返回 success=false）
+3. executeStage 可能误调用处理 designing
+4. stageStatus 与通用 stage state 可能漂移
+
+**增量需求**:
+1. **断点恢复不重复生成** - executeDesigning() 开头检查 stageStatus，等待确认中跳过生成
+2. **返回语义统一** - waiting confirmation 返回 success=true, completed=false
+3. **executeStage guard** - 禁止 executeStage 处理 designing
+4. **stage state 同步** - TRD_APPROVED 和 RETRY_EXHAUSTED 时同步 updateStage
+
+**功能需求**:
+- ✅ executeDesigning() 检查 stageStatus (prd_confirm_pending/trd_confirm_pending/passed/blocked)
+- ✅ waiting confirmation 返回 {success: true, completed: false, reason: WAITING_CONFIRMATION}
+- ✅ executeStage() 开头检查 stageName === 'designing'，抛出错误
+- ✅ approveTRD() 成功后同步 updateStage('designing', 'passed')
+- ✅ RETRY_EXHAUSTED 时同步 updateStage('designing', 'blocked')
+
+**验收标准**:
+### Given
+- REQUIREMENTS.md 已追加 REQ-016（v3.4.0）
+- 部署 ClawDevFlow v3.4.0 到 ~/.openclaw/skills/clawdevflow/
+
+### When
+- 执行 clawdevflow 流程引擎
+- 执行 designing 环节
+
+### Then
+- ✅ prd_confirm_pending/trd_confirm_pending 状态下跳过生成
+- ✅ passed 状态下返回 completed=true
+- ✅ blocked 状态下返回 BLOCKED
+- ✅ executeStage('designing') 抛出错误
+- ✅ TRD_APPROVED 时 stageStatus 和通用 stage state 都为 passed
+- ✅ RETRY_EXHAUSTED 时 stageStatus 和通用 stage state 都为 blocked
+
+**需求追溯矩阵**:
+
+| 需求 ID | PRD.md 章节 | TRD.md 章节 | 状态 |
+|--------|------------|------------|------|
+| REQ-016 | 待映射 | 待映射 | ⚪ 待映射 |
+
+---
+
 *需求说明文档 by openclaw-ouyp*  
-**版本**: v3.3.0 | **日期**: 2026-04-07 | **Git Commit**: 待计算
+**版本**: v3.4.0 (Stable) | **日期**: 2026-04-07 | **Git Commit**: 待计算

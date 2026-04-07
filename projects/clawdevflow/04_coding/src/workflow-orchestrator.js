@@ -724,6 +724,20 @@ class WorkflowOrchestrator {
     
     // v3.4.0-alpha8 修复 P0-新 3：显式设置 stageStatus='passed'
     this.stateManager.state.stages.designing.stageStatus = 'passed';
+    
+    // v3.5.0 整改 P0-2：写入 designing.approved 快照（roadmapping 的唯一可信输入）
+    this.stateManager.state.stages.designing.approved = {
+      requirementsHash: payload.requirementsHash,
+      prdHash: payload.prdHash,
+      trdHash: payload.trdHash,
+      requirementsContent: state.requirementsContent,
+      prdContent: state.stages.designing.lastPrdContent,
+      trdContent: state.stages.designing.lastTrdContent,
+      approvedBy: payload.userId,
+      approvedAt: new Date().toISOString(),
+      transitionId: `TRD_APPROVED_${Date.now()}`
+    };
+    
     this.stateManager.logTransition(
       'trd_confirm_pending',
       'passed',
@@ -731,7 +745,8 @@ class WorkflowOrchestrator {
       {
         userId: payload.userId,
         trdHash: payload.trdHash,
-        requirementsHash: payload.requirementsHash
+        requirementsHash: payload.requirementsHash,
+        transitionId: this.stateManager.state.stages.designing.approved.transitionId
       }
     );
     // v3.4.0-alpha13 修复 P1-2：同步通用 stage state（防止状态漂移）
