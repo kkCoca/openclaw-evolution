@@ -748,6 +748,39 @@ class WorkflowOrchestrator {
     const fs = require('fs');
     const path = require('path');
     
+    // v3.4.0-alpha9 修复 P0-2：断点恢复时不得重复生成覆盖
+    const stageStatus = state.stages.designing.stageStatus;
+    
+    if (stageStatus === 'prd_confirm_pending' || stageStatus === 'trd_confirm_pending') {
+      // 等待用户确认中，不得重复生成
+      console.log(`[Orchestrator] designing 阶段等待用户确认（当前状态：${stageStatus}），跳过生成`);
+      return {
+        success: false,
+        reason: 'WAITING_CONFIRMATION',
+        stageStatus
+      };
+    }
+    
+    if (stageStatus === 'passed') {
+      // 已完成，直接返回
+      console.log('[Orchestrator] designing 阶段已完成，跳过生成');
+      return {
+        success: true,
+        completed: true,
+        stageStatus: 'passed'
+      };
+    }
+    
+    if (stageStatus === 'blocked') {
+      // 已阻断，直接返回
+      console.log('[Orchestrator] designing 阶段已阻断，跳过生成');
+      return {
+        success: false,
+        reason: 'BLOCKED',
+        stageStatus: 'blocked'
+      };
+    }
+    
     // v3.3.0 修复：显式循环控制重试（P0-3）
     let retryCount = 0;
     let lastIssueId = null;
