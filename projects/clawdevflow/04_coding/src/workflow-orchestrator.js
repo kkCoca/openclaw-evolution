@@ -196,6 +196,11 @@ class WorkflowOrchestrator {
    * @param {object} workflow - 工作流配置
    */
   async executeStage(stageName, workflow) {
+    // v3.4.0-alpha13 修复 P1-1：禁止 executeStage 处理 designing
+    if (stageName === 'designing') {
+      throw new Error('designing 阶段必须使用 executeDesigning()，禁止使用 executeStage()');
+    }
+    
     console.log(`[Orchestrator] 执行阶段：${stageName}`);
     
     // 1. 更新状态为执行中
@@ -729,6 +734,8 @@ class WorkflowOrchestrator {
         requirementsHash: payload.requirementsHash
       }
     );
+    // v3.4.0-alpha13 修复 P1-2：同步通用 stage state（防止状态漂移）
+    this.stateManager.updateStage('designing', 'passed');
     this.stateManager.save();
     
     // 4. 进入下一阶段
@@ -899,6 +906,9 @@ class WorkflowOrchestrator {
           retryCountTotal: retryCount,
           issueId: firstIssueId
         });
+        // v3.4.0-alpha13 修复 P1-2：同步通用 stage state（防止状态漂移）
+        this.stateManager.updateStage('designing', 'blocked');
+        this.stateManager.save();
         
         await this.notifyUser('重试耗尽', {
           type: 'RETRY_EXHAUSTED',
