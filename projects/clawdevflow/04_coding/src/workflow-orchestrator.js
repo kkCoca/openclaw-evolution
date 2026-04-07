@@ -581,6 +581,11 @@ class WorkflowOrchestrator {
       payload.notes
     );
     
+    // v3.3.0 修复：approvePRD 后状态推进到 trd_confirm_pending（P0-1）
+    // stateManager.approvePRD() 内部已经设置了 stageStatus = 'trd_confirm_pending'
+    // 但为了确保状态已保存，这里再次 save()
+    this.stateManager.save();
+    
     // 6. 通知用户确认 TRD
     await this.notifyUser('TRD 确认', {
       type: 'TRD_CONFIRMATION_REQUEST',
@@ -652,7 +657,8 @@ class WorkflowOrchestrator {
   async executeDesigning(workflow) {
     const policy = this.config.stages.designing.policy;
     const state = this.stateManager.state;
-    const projectPath = state.projectPath;
+    // v3.3.0 修复：统一使用 workflow.projectPath（P0-2）
+    const projectPath = workflow.projectPath || state.projectPath;
     const fs = require('fs');
     const path = require('path');
     
@@ -699,7 +705,6 @@ class WorkflowOrchestrator {
       const reviewResult = await this.executeDesignReviewV2(input);
       
       // v3.3.0 修复：使用结构化 decisionResult（P0-1）
-      const policy = this.config.stages.designing.policy;
       const agent = new ReviewDesignAgentV2(this.config);
       const decisionResult = agent.makeDecision(reviewResult, policy);
       
