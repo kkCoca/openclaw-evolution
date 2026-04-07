@@ -285,9 +285,10 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
       };
     }
     
-    // 4. 哈希值校验（v3.1.9 新增 - 防止 PRD 随便写哈希）
-    const prdHashMatch = prdAlignment.hash && prdAlignment.hash.toLowerCase() === requirementsActualHash.toLowerCase();
-    const trdHashMatch = trdAlignment.hash && trdAlignment.hash.toLowerCase() === requirementsActualHash.toLowerCase();
+    // 4. 哈希值校验（v3.1.12 更新：支持短哈希，用 startsWith 对比）
+    // 允许声明 7-64 位 hex，对比时用 startsWith 判断是否匹配
+    const prdHashMatch = prdAlignment.hash && requirementsActualHash.toLowerCase().startsWith(prdAlignment.hash.toLowerCase());
+    const trdHashMatch = trdAlignment.hash && requirementsActualHash.toLowerCase().startsWith(trdAlignment.hash.toLowerCase());
     
     if (!prdHashMatch || !trdHashMatch) {
       return {
@@ -303,7 +304,7 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
           trdDeclaredHash: trdAlignment.hash,
           trdHashMatch
         },
-        suggestion: `请更新 PRD.md 和 TRD.md 的哈希声明为实际值：${requirementsActualHash}`
+        suggestion: `请更新 PRD.md 和 TRD.md 的哈希声明为实际值的前 7-64 位：${requirementsActualHash.substring(0, 12)}...`
       };
     }
     
@@ -372,39 +373,39 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
    * @param {string} content - 文档内容
    * @returns {{version: string, hash: string} | null} 版本信息
    * 
-   * v3.1.11 修复：
-   * - 哈希必须是完整的 SHA256（64 位 hex），不支持 MD5 或短哈希
-   * - 正则从 [a-f0-9]+ 改为 [a-f0-9]{64}，强制要求 64 位
+   * v3.1.12 修复：
+   * - 支持 7-64 位 hex（短哈希便于手写，长哈希更安全）
+   * - 对比时用 startsWith，允许短哈希匹配
+   * - 降低文档维护成本，同时保持防造假能力
    */
   extractAlignmentDeclaration(content) {
-    // 匹配格式 1：引用格式（v3.1.11 更新：强制 64 位 SHA256）
-    // > **对齐版本**: REQUIREMENTS v1.0.0 (abc123def456...)
-    const match1 = content.match(/> \*\*对齐版本\*\*: REQUIREMENTS v([0-9.]+) \(([a-f0-9]{64})\)/);
+    // 匹配格式 1：引用格式（v3.1.12 更新：支持 7-64 位 hex）
+    // > **对齐版本**: REQUIREMENTS v1.0.0 (abc123def...)
+    const match1 = content.match(/> \*\*对齐版本\*\*: REQUIREMENTS v([0-9.]+) \(([a-f0-9]{7,64})\)/i);
     if (match1) {
-      return { version: match1[1], hash: match1[2] };
+      return { version: match1[1], hash: match1[2].toLowerCase() };
     }
     
-    // 匹配格式 2：表格格式（v3.1.11 更新：强制 64 位 SHA256）
+    // 匹配格式 2：表格格式（v3.1.12 更新：支持 7-64 位 hex）
     // | 对齐版本 | REQUIREMENTS v1.0.0 |
-    // | 对齐哈希 | abc123def456... |
+    // | 对齐哈希 | abc123def... |
     const match2 = content.match(/\| 对齐版本 \| REQUIREMENTS v([0-9.]+) \|/);
-    const match3 = content.match(/\| 对齐哈希 \| ([a-f0-9]{64}) \|/);
+    const match3 = content.match(/\| 对齐哈希 \| ([a-f0-9]{7,64}) \|/i);
     if (match2 && match3) {
-      return { version: match2[1], hash: match3[1] };
+      return { version: match2[1], hash: match3[1].toLowerCase() };
     }
     
-    // 匹配格式 3：简单格式（v3.1.11 更新：支持 64 位哈希）
-    // 对齐版本：v1.0.0 (abc123def456...)
-    const match4 = content.match(/对齐版本 [：:]\s*v?([0-9.]+)\s*\(([a-f0-9]{64})\)/i);
+    // 匹配格式 3：简单格式（v3.1.12 更新：支持 7-64 位 hex）
+    // 对齐版本：v1.0.0 (abc123def...)
+    const match4 = content.match(/对齐版本 [：:]\s*v?([0-9.]+)\s*\(([a-f0-9]{7,64})\)/i);
     if (match4) {
-      return { version: match4[1], hash: match4[2] };
+      return { version: match4[1], hash: match4[2].toLowerCase() };
     }
     
-    // 匹配格式 4：无哈希声明（v3.1.11 标记为无效）
+    // 匹配格式 4：无哈希声明（标记为无效）
     const match5 = content.match(/对齐版本 [：:]\s*v?([0-9.]+)/i);
     if (match5) {
-      // 有版本号但无哈希，返回 null 表示声明不完整
-      return null;
+      return null; // 有版本号但无哈希，声明不完整
     }
     
     return null;
@@ -1097,12 +1098,18 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
       // 获取映射章节的完整内容（向上找到章节标题，向下到下一章节）
       const sectionContent = this.extractFullSectionContent(prdContent, mapping.line - 1);
       
-      // 检查是否包含 Given/When/Then 或等价表述
-      const hasGiven = /Given|假设 | 前置条件/i.test(sectionContent);
-      const hasWhen = /When|当 | 触发条件/i.test(sectionContent);
-      const hasThen = /Then|那么 | 预期结果/i.test(sectionContent);
+      // 检查是否包含 Given/When/Then 或等价表述（v3.1.12 更新：要求结构化标记，减少误判）
+      // 要求带冒号（中英文）/换行的段落标签，避免单字误判（如"当用户..."不是 When）
+      const hasGiven = /Given\s*[:：]|假设\s*[:：]|前置条件\s*[:：]|【前置条件】|\*\*前置条件\*\*/i.test(sectionContent);
+      const hasWhen = /When\s*[:：]|触发条件\s*[:：]|【触发条件】|\*\*触发条件\*\*/i.test(sectionContent);
+      const hasThen = /Then\s*[:：]|预期结果\s*[:：]|【预期结果】|\*\*预期结果\*\*/i.test(sectionContent);
       
-      const passed = hasGiven && hasWhen && hasThen;
+      // 宽松模式：如果结构化标记未找到，尝试找换行 + 关键字（次优但可接受）
+      const hasGivenLoose = hasGiven || /^Given\b|^假设\b|^前置条件\b/im.test(sectionContent);
+      const hasWhenLoose = hasWhen || /^When\b|^触发条件\b/im.test(sectionContent);
+      const hasThenLoose = hasThen || /^Then\b|^预期结果\b/im.test(sectionContent);
+      
+      const passed = hasGivenLoose && hasWhenLoose && hasThenLoose;
       
       results.push({
         requirementId: req.id,
@@ -1334,19 +1341,29 @@ class ReviewDesignAgentV2 extends ReviewAgentBase {
   }
 
   /**
-   * AI 调用（占位符，实际应调用 OpenClaw sessions_spawn）
+   * AI 调用（占位符，v3.1.12 明确标记为待实现）
+   * 
+   * ⚠️ 重要说明：
+   * - 当前实现返回固定结果，AI 检查（D1/D2/D4/D5/D6）实际未生效
+   * - Gate 检查（FG/TG）是真门禁 ✅
+   * - AI 检查是"形同虚设的常通过" ⚠️
+   * 
+   * TODO: 实际应调用 OpenClaw sessions_spawn API
+   * 
    * @param {string} prompt - 提示词
-   * @returns {Promise<object>} AI 响应
+   * @returns {Promise<object>} AI 响应（当前为 mock）
    */
   async callAI(prompt) {
-    console.log('[Review-Design v2] 调用 AI:', prompt.substring(0, 100) + '...');
+    console.warn('[Review-Design v2] ⚠️ AI 调用未实现 - 返回 mock 结果（D1/D2/D4/D5/D6 检查未生效）');
+    console.log('[Review-Design v2] 调用 AI prompt:', prompt.substring(0, 200) + '...');
     
-    // TODO: 实际应调用 OpenClaw sessions_spawn API
-    // 临时返回模拟结果
+    // v3.1.12: 降级处理 - AI 检查不阻塞流程，仅记录 warning
+    // 这样 Gate 检查（FG/TG）仍然是真门禁，AI 检查作为未来扩展
     return {
-      score: 80,
-      passed: true,
-      suggestions: []
+      score: 80, // 默认通过分数
+      passed: true, // 默认通过
+      suggestions: ['⚠️ AI 检查未实现，建议人工审阅确认'],
+      isMock: true // 标记为 mock 结果
     };
   }
 }
