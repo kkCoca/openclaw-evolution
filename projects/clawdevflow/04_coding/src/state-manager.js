@@ -97,6 +97,14 @@ class StateManager {
           lastBlockingIssues: [],
           prdGeneratedAt: null,
           trdGeneratedAt: null
+        } : {}),
+        // v3.5.0 整改：roadmapping 阶段专用字段（重试闭环）
+        ...(stage === 'roadmapping' ? {
+          stageStatus: 'running',  // running | reviewing | passed | rejected | blocked
+          attempt: 0,
+          lastAutoReviewReport: null,
+          lastBlockingIssues: [],
+          lastRegenerateHint: ''
         } : {})
       };
     });

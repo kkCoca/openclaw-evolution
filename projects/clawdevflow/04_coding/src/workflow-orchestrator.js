@@ -286,8 +286,8 @@ class WorkflowOrchestrator {
       console.log('[Orchestrator] 使用 ReviewRoadmapAgent v1.0 执行审阅...');
       const reviewResult = await this.executeRoadmapReviewV1(input);
       
-      // 处理 v1.0 审阅结果
-      const decision = this.convertV1ReviewToDecision(reviewResult);
+      // v3.5.0-alpha3 修复 P0-2：处理 v1.0 审阅结果（重试闭环）
+      const decision = await this.handleRoadmappingReviewDecision(stageName, reviewResult);
       await this.handleReviewDecision(stageName, decision, reviewResult);
     } else {
       // 7b. 发送审阅请求（传统方式）
@@ -1136,6 +1136,92 @@ ${input.regenerateHint}
       default:
         return 'clarify';
     }
+  }
+
+  /**
+   * 处理 Roadmap 阶段审阅结果（v3.5.0-alpha3 修复 P0-2：重试闭环）
+   * @param {string} stageName - 阶段名称
+   * @param {object} reviewResult - v1.0 审阅报告
+   * @returns {Promise<string>} 审阅结论
+   */
+  async handleRoadmappingReviewDecision(stageName, reviewResult) {
+    if (reviewResult.error) {
+      console.log('[Orchestrator] Roadmap 审阅执行出错，需要澄清');
+      return ReviewDecision.CLARIFY;
+    }
+
+    // 保存审阅报告
+    this.stateManager.state.stages.roadmapping.lastAutoReviewReport = reviewResult;
+    
+    // 提取 blockingIssues
+    const blockingIssues = [];
+    
+    // 1. Traceability Gate 失败
+    if (!reviewResult.gates.traceability?.passed) {
+      const traceability = reviewResult.gates.traceability;
+      blockingIssues.push({
+        id: 'TRACEABILITY_FAILED',
+        severity: 'blocker',
+        message: traceability.reason || '需求可追溯性检查失败',
+        uncoveredReqs: traceability.uncoveredReqs || [],
+        regenerateHint: traceability.suggestion || '请确保 ROADMAP 覆盖所有 REQ 需求'
+      });
+    }
+    
+    // 2. Structure Gate 失败
+    if (!reviewResult.gates.structure?.passed) {
+      const structure = reviewResult.gates.structure;
+      blockingIssues.push({
+        id: 'STRUCTURE_FAILED',
+        severity: 'blocker',
+        message: structure.reason || '结构完整性检查失败',
+        missingSections: structure.missingSections || [],
+        regenerateHint: structure.suggestion || '请添加缺失的章节（里程碑/DoD/依赖/风险）'
+      });
+    }
+    
+    // 3. Scope Check 失败
+    if (!reviewResult.qualityChecks.scope?.passed) {
+      const scope = reviewResult.qualityChecks.scope;
+      blockingIssues.push({
+        id: 'SCOPE_FAILED',
+        severity: 'blocker',
+        message: scope.issues?.[0] || '范围检查失败',
+        newReqs: scope.details?.newReqs || [],
+        regenerateHint: scope.suggestions?.[0] || '请移除 PRD 未定义的新需求'
+      });
+    }
+    
+    // 保存 blockingIssues
+    this.stateManager.state.stages.roadmapping.lastBlockingIssues = blockingIssues;
+    
+    // 如果有 blockingIssues，生成 regenerateHint 并写入 state
+    if (blockingIssues.length > 0) {
+      const regenerateHint = blockingIssues.map(issue => {
+        return `【强制修复】${issue.id}: ${issue.message}\n${issue.regenerateHint || ''}`;
+      }).join('\n\n');
+      
+      this.stateManager.state.stages.roadmapping.lastRegenerateHint = regenerateHint;
+      
+      console.log(`[Orchestrator] Roadmap 审阅失败，生成 ${blockingIssues.length} 个 blocking issue`);
+      console.log(`[Orchestrator] regenerateHint: ${regenerateHint.substring(0, 200)}...`);
+      
+      // 递增 retryCount 并持久化
+      const currentRetryCount = this.stateManager.state.stages.roadmapping.retryCount || 0;
+      this.stateManager.state.stages.roadmapping.retryCount = currentRetryCount + 1;
+      this.stateManager.state.stages.roadmapping.attempt = currentRetryCount + 2; // 下一次是第几次尝试
+      
+      console.log(`[Orchestrator] retryCount: ${currentRetryCount} -> ${currentRetryCount + 1}`);
+      
+      this.stateManager.save();
+      
+      // 返回 reject，触发重试
+      return ReviewDecision.REJECT;
+    }
+    
+    // 所有检查通过
+    console.log('[Orchestrator] Roadmap 审阅通过');
+    return ReviewDecision.PASS;
   }
 }
 
