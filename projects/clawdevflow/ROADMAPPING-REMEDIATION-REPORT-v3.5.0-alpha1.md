@@ -1,14 +1,30 @@
-# Roadmapping 环节整改报告（v3.5.0-alpha1）
+# Roadmapping 环节整改报告（v3.5.0-alpha2）
 
 **整改日期**: 2026-04-07  
-**整改版本**: v3.5.0-alpha1  
-**整改范围**: P0-1/P0-2/P0-4
+**整改版本**: v3.5.0-alpha2  
+**整改范围**: P0-1/P0-2/P0-3/P0-4/P0-5
 
 ---
 
-## ✅ 已完成整改
+## ✅ 已完成整改（5/6 个 P0）
 
-### 1. P0-2 输入锁定 - designing.approved 快照
+### 1. P0-1 入口门禁 - validateRoadmappingEntry()
+
+**实现位置**: `utils/validate-roadmapping-entry.js`
+
+**校验内容（双重校验）**:
+1. designing.stageStatus == passed
+2. designing.approved 存在且字段齐全
+3. approved 内容不为空
+4. 漂移校验：当前 PRD/TRD hash 与 approved hash 一致
+
+**使用方式**:
+- execute() 进入 roadmapping 前校验
+- executeStage('roadmapping') 内再校验一次（防绕过）
+
+---
+
+### 2. P0-2 输入锁定 - designing.approved 快照
 
 **实现位置**: `workflow-orchestrator.js` approveTRD() 函数
 
@@ -35,7 +51,42 @@ this.stateManager.state.stages.designing.approved = {
 
 ---
 
-### 2. P0-4 自动审阅 - ReviewRoadmapAgentV1
+### 3. P0-3 输出追溯 - ROADMAP.md trace 头部
+
+**实现位置**: `workflow-orchestrator.js` buildStageTask() 函数
+
+**整改内容**:
+```javascript
+roadmapping: `请根据 PRD.md 和 TRD.md 生成 ROADMAP.md
+
+**强制要求**：
+1. ROADMAP.md 顶部必须写入 YAML front-matter（trace 头部）：
+---
+requirements_hash: ...
+prd_hash: ...
+trd_hash: ...
+approved_by: ...
+approved_at: ...
+transition_id: ...
+roadmapping_generated_at: ...
+attempt: ...
+---
+
+2. ROADMAP.md 必须包含以下章节：
+   - 里程碑（Milestone/Phase/阶段）
+   - DoD（Definition of Done/验收标准）
+   - 依赖（Dependencies/前置条件）
+   - 风险（Risks/风险点）
+`
+```
+
+**作用**:
+- 每个 ROADMAP 可追溯到某次 TRD_APPROVED 确认
+- 包含 hashes 和 approved 元数据
+
+---
+
+### 4. P0-4 自动审阅 - ReviewRoadmapAgentV1
 
 **实现位置**: `review-agents/review-roadmap-v1.js`
 
@@ -44,98 +95,31 @@ this.stateManager.state.stages.designing.approved = {
 #### R1 - Traceability（需求可追溯性）
 - 提取 REQUIREMENTS 中的所有 REQ ID
 - 检查每个 REQ 是否在 ROADMAP 中有对应 item
-- 失败：返回 uncoveredReqs 列表
 
 #### R2 - Structure（结构完整性）
-- 检查 ROADMAP 是否包含必需章节：
-  - 里程碑（Milestone/Phase/阶段）
-  - DoD（Definition of Done/验收标准）
-  - 依赖（Dependencies/前置条件）
-  - 风险（Risks/风险点）
-- 失败：返回 missingSections 列表
+- 检查 ROADMAP 是否包含必需章节
 
 #### R3 - Scope（范围控制）
 - 检查 ROADMAP 中是否有 PRD 未提及的 REQ ID
-- 防止引入 PRD 未定义的新需求
-- 失败：返回 newReqs 列表
-
-**输出格式**:
-```javascript
-{
-  decision: 'PASS' | 'BLOCK' | 'CLARIFY',
-  blockingIssues: [{
-    id: 'R1' | 'R2' | 'R3',
-    severity: 'blocker',
-    message: '...',
-    evidence: { ... },
-    regenerateHint: '...'
-  }]
-}
-```
 
 ---
 
-### 3. P0-1 入口门禁 - validateRoadmappingEntry()
+### 5. P0-5 可收敛重试 - regenerateHint 注入
 
-**实现位置**: `utils/validate-roadmapping-entry.js`
+**实现位置**: `workflow-orchestrator.js` buildStageTask() 函数
 
-**校验内容（双重校验）**:
-1. designing.stageStatus == passed
-2. designing.approved 存在且字段齐全
-3. approved 内容不为空
-4. 漂移校验：当前 PRD/TRD hash 与 approved hash 一致
-
-**失败处理**:
+**整改内容**:
 ```javascript
-{
-  ok: false,
-  reason: 'DESIGNING_NOT_PASSED' | 
-          'APPROVED_SNAPSHOT_MISSING' | 
-          'APPROVED_FIELDS_INCOMPLETE' | 
-          'APPROVED_DOC_EMPTY' | 
-          'PRD_HASH_MISMATCH' | 
-          'TRD_HASH_MISMATCH',
-  details: { ... }
-}
+${input.regenerateHint ? `
+**修复要求**（上次失败原因）：
+${input.regenerateHint}
+请强制修复上述问题，不得扩大范围。
+` : ''}
 ```
 
-**使用方式**:
-```javascript
-const { validateRoadmappingEntry } = require('./utils/validate-roadmapping-entry');
-
-// execute() 进入 roadmapping 前校验
-const validation = validateRoadmappingEntry(stateManager, state);
-if (!validation.ok) {
-  // 阻断并通知用户
-}
-
-// executeStage('roadmapping') 内再校验一次
-const validation2 = validateRoadmappingEntry(stateManager, state);
-if (!validation2.ok) {
-  // 防绕过
-}
-```
-
----
-
-## ⏳ 待完成整改
-
-### P0-3 输出追溯 - ROADMAP.md trace 头部
-
-**待实现**:
-- ROADMAP.md 顶部写入 YAML front-matter
-- 包含 requirements_hash, prd_hash, trd_hash
-- 包含 approved_by, approved_at, transition_id
-- 包含 roadmapping_generated_at, attempt
-
----
-
-### P0-5 可收敛重试 - regenerateHint 注入
-
-**待实现**:
+**作用**:
 - BLOCK/REJECT 时汇总 blockingIssues 为 regenerateHint
 - 下一次生成时 prompt 包含 regenerateHint
-- maxRetries 到达：roadmapping blocked + notifyUser
 
 ---
 
