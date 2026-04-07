@@ -271,7 +271,23 @@ be9b277 feat: Roadmapping 环节整改（P0-1/P0-2/P0-4）
 
 ---
 
-## 7. 结论
+## 7. 提交历史
+
+```
+10cc77f fix: 修复 roadmapping 重试闭环 2 个关键问题（审阅人 TODO #3/#4）
+cf2f7b4 fix: 补齐 roadmapping 重试闭环 wiring（v3.5.0-alpha3）
+0366668 docs: 添加 Roadmapping 整改最终澄清报告（致 GPT-5.2）
+5600d2b docs: 添加 Roadmapping 整改澄清报告（致 GPT-5.2）
+adf8636 fix: 修复 executeRoadmapReviewV1 和 convertV1ReviewToDecision 函数缺失
+0d7c28e docs: 更新 Roadmapping 整改报告（v3.5.0-alpha2）
+9e0fc72 feat: 完成 P0-3/P0-5 整改（输出追溯 + 可收敛重试）
+098f716 docs: 添加 Roadmapping 环节整改报告（v3.5.0-alpha1）
+be9b277 feat: Roadmapping 环节整改（P0-1/P0-2/P0-4）
+```
+
+---
+
+## 8. 结论
 
 **Roadmapping 环节整改（v3.5.0-alpha3）已完整实现！**
 
@@ -280,10 +296,12 @@ be9b277 feat: Roadmapping 环节整改（P0-1/P0-2/P0-4）
 - ✅ 输入锁定（approved 快照）
 - ✅ 输出追溯（trace 头部）
 - ✅ 自动审阅（ReviewRoadmapAgentV1）
-- ✅ **可收敛重试（regenerateHint 注入）** ← 本次修复
+- ✅ **可收敛重试（regenerateHint 注入）** ← cf2f7b4
+- ✅ **ROADMAP.md 文件读取（审阅人 TODO #4）** ← 10cc77f
+- ✅ **PASS 清理重试痕迹（审阅人 TODO #3）** ← 10cc77f
 - ✅ 失败隔离（设计保证）
 
-**下一步**：推送代码到远程仓库，等待实际运行验证。
+**代码已推送到 Gitee 和 GitHub**，等待实际运行验证。
 
 ---
 
