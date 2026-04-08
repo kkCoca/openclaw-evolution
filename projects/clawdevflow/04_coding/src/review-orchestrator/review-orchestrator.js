@@ -636,7 +636,7 @@ class ReviewOrchestrator {
             fixItems: [{
               id: 'RG2_REVIEWING_REPORT_EMPTY',
               description: 'FINAL_REPORT.md 文件为空',
-              suggestion: '请填充 FINAL_REPORT.md 内容或移除该文件'
+              suggestion: '请重新生成 Reviewing 阶段报告，确保 FINAL_REPORT.md 非空并包含结论/变更摘要/验证链接'
             }]
           };
         }

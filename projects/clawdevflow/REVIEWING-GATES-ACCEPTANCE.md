@@ -148,6 +148,7 @@ echo "# Report" > 05_reviewing/other.md
 **证据点**：
 - `.cdf-state.json` → `stages.reviewing.reviewDecision = 'reject'`
 - `.cdf-state.json` → `stages.reviewing.fixItems[].id = 'RG2_REVIEWING_REPORT_EMPTY'`
+- `.cdf-state.json` → `stages.reviewing.fixItems[].suggestion` 包含"结论/变更摘要/验证链接"
 - console log → "RG2_REVIEWING_REPORT_EMPTY"
 
 **状态**: ✅ 待验证
