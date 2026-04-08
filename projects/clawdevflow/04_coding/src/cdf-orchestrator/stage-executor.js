@@ -597,46 +597,6 @@ ${verifyError ? `\n## 错误信息\n${verifyError}` : ''}
   }
 
   /**
-   * 执行 Reviewing 阶段
-   */
-  async executeReviewing(input, projectPath) {
-    console.log('[Stage-Executor] ════════════════════════════════════════');
-    console.log('[Stage-Executor] 开始执行阶段：REVIEWING');
-    console.log('[Stage-Executor] ════════════════════════════════════════');
-    
-    const reviewingPath = path.join(projectPath, '05_reviewing');
-    
-    if (!fs.existsSync(reviewingPath)) {
-      fs.mkdirSync(reviewingPath, { recursive: true });
-      console.log(`[Stage-Executor] 创建目录：${reviewingPath}`);
-    }
-
-    console.log('[Stage-Executor] 调用 AI 工具执行 Reviewing 阶段...');
-    
-    const result = await this.aiAdapter.execute('reviewing', {
-      projectPath: projectPath,
-      designingPath: path.join(projectPath, '01_designing'),
-      codingPath: path.join(projectPath, '04_coding'),
-      outputDir: reviewingPath
-    });
-    
-    if (!result.success) {
-      throw new Error(`Reviewing 阶段执行失败：${result.error}`);
-    }
-    
-    console.log('[Stage-Executor] ✅ Reviewing 阶段完成');
-    console.log(`[Stage-Executor]   产出：${result.outputs.length} 个文件`);
-    
-    return {
-      success: true,
-      outputs: result.outputs.map(o => ({
-        name: path.basename(o),
-        path: path.relative(projectPath, o)
-      }))
-    };
-  }
-
-  /**
    * 执行 Reviewing 阶段（兜底生成 FINAL_REPORT.md 模板）
    */
   async executeReviewing(input, projectPath) {
