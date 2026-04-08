@@ -73,9 +73,10 @@ class ReviewOrchestrator {
       // - detailing: 走自动审阅（最小规则）并直接返回
       // - coding: 走自动审阅（真执行命令）
       // - testing: 走自动审阅（检查证据包）
+      // - reviewing: 走自动审阅（检查产物齐全）
       
-      if (stageName === 'roadmapping' || stageName === 'detailing' || stageName === 'coding' || stageName === 'testing') {
-        // 自动审阅模式（roadmapping/detailing/coding/testing）
+      if (stageName === 'roadmapping' || stageName === 'detailing' || stageName === 'coding' || stageName === 'testing' || stageName === 'reviewing') {
+        // 自动审阅模式（roadmapping/detailing/coding/testing/reviewing）
         console.log('[Review-Orchestrator] 步骤 1/1: 执行自动审阅...');
         const decision = await this.executeAutoReview(stageName, input, projectPath);
         console.log('[Review-Orchestrator] ✅ 自动审阅完成');
@@ -568,6 +569,83 @@ class ReviewOrchestrator {
       return {
         decision: 'pass',
         notes: '所有 Testing Gates 通过',
+        fixItems: []
+      };
+    } else if (stageName === 'reviewing') {
+      // Reviewing: 检查产物齐全（不执行命令）
+      const reviewingPath = path.join(projectPath, '05_reviewing');
+      
+      // RG0: 05_reviewing/ 目录存在
+      if (!fs.existsSync(reviewingPath)) {
+        return {
+          decision: 'reject',
+          notes: '05_reviewing/ 目录不存在',
+          fixItems: [{
+            id: 'RG0_REVIEWING_DIR_MISSING',
+            description: '05_reviewing/ 目录不存在',
+            suggestion: '请执行 Reviewing 阶段生成验收报告'
+          }]
+        };
+      }
+      
+      // RG1: 05_reviewing/ 目录至少有一个 .md 文件且非空
+      const mdFiles = fs.readdirSync(reviewingPath).filter(f => f.endsWith('.md'));
+      if (mdFiles.length === 0) {
+        return {
+          decision: 'reject',
+          notes: '05_reviewing/ 目录没有任何 .md 文件',
+          fixItems: [{
+            id: 'RG1_REVIEWING_OUTPUT_EMPTY',
+            description: '05_reviewing/ 目录没有任何 .md 文件',
+            suggestion: '请执行 Reviewing 阶段生成至少一个 markdown 验收报告'
+          }]
+        };
+      }
+      
+      // 检查至少有一个非空的 .md 文件
+      let hasNonEmptyMd = false;
+      for (const file of mdFiles) {
+        const filePath = path.join(reviewingPath, file);
+        const stats = fs.statSync(filePath);
+        if (stats.size > 0) {
+          hasNonEmptyMd = true;
+          break;
+        }
+      }
+      
+      if (!hasNonEmptyMd) {
+        return {
+          decision: 'reject',
+          notes: '05_reviewing/ 目录所有 .md 文件均为空',
+          fixItems: [{
+            id: 'RG1_REVIEWING_OUTPUT_EMPTY',
+            description: '05_reviewing/ 目录所有 .md 文件均为空',
+            suggestion: '请执行 Reviewing 阶段生成非空的验收报告'
+          }]
+        };
+      }
+      
+      // RG2（可选增强）：若存在 FINAL_REPORT.md，则必须非空
+      const finalReportPath = path.join(reviewingPath, 'FINAL_REPORT.md');
+      if (fs.existsSync(finalReportPath)) {
+        const stats = fs.statSync(finalReportPath);
+        if (stats.size === 0) {
+          return {
+            decision: 'reject',
+            notes: 'FINAL_REPORT.md 文件为空',
+            fixItems: [{
+              id: 'RG2_REVIEWING_REPORT_EMPTY',
+              description: 'FINAL_REPORT.md 文件为空',
+              suggestion: '请填充 FINAL_REPORT.md 内容或移除该文件'
+            }]
+          };
+        }
+      }
+      
+      // 所有 Gate 通过
+      return {
+        decision: 'pass',
+        notes: 'Reviewing 产物齐全',
         fixItems: []
       };
     }
