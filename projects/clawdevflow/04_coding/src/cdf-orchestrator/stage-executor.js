@@ -681,9 +681,11 @@ ${verifyError ? `\n## 错误信息\n${verifyError}` : ''}
       // 调用 AI 工具执行 Reviewing 阶段（可选，若配置了 AI 工具）
       console.log('[Stage-Executor] 调用 AI 工具执行 Reviewing 阶段...');
       
+      // P0 修复：统一 reviewing AI 调用入参（与历史版本一致）
       const result = await this.aiAdapter.execute('reviewing', {
         projectPath: projectPath,
-        reviewingPath: reviewingPath,
+        designingPath: path.join(projectPath, '01_designing'),
+        codingPath: path.join(projectPath, '04_coding'),
         outputDir: reviewingPath
       });
       
