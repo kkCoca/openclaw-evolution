@@ -95,6 +95,30 @@
 
 ---
 
+### Releasing 阶段实现（发布动作执行 + cleanup 清理）
+
+**提交**: `0863e44`
+
+**变更**：
+- 实现 executeReleasing（发布动作执行 + cleanup）
+- 生成发布证据包（RELEASE_RECORD/RELEASE_NOTES/ARTIFACT_MANIFEST/CLEANUP_PLAN/CLEANUP_REPORT）
+- 实现 Releasing Gates（检查 readiness + 产出证据）
+- 新增验收用例文档（4 条）
+
+**影响**：
+- releasing 成为流程的最后一个阶段
+- 严格消费 reviewing 的放行凭证（readiness.result=PASS）
+- 产出可审计的发布记录与制品清单
+- 包含临时/中间文件清理（cleanup）
+
+**代码统计**：
+- stage-executor.js: +200 行（executeReleasing 实现）
+- workflow-orchestrator.js: +1 行（STAGE_SEQUENCE）
+- review-orchestrator.js: +80 行（releasing gates）
+- 新增文档：4.5KB
+
+---
+
 ### 专业收口最终整改（Pin SHA + 移除占位符）
 
 **提交**: `0071533`
