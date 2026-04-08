@@ -294,6 +294,21 @@ class StageExecutor {
     const changesetPath = path.join(codingPath, 'CHANGESET.md');
     if (!fs.existsSync(changesetPath)) {
       console.log('[Stage-Executor] 创建 CHANGESET.md 模板...');
+      
+      // GAP-1 修复：读取 manifest 的 commands.test，确保 CHANGESET 包含真实命令
+      let testCmd = 'npm test';  // 默认占位
+      try {
+        const manifestPath = path.join(projectPath, 'PROJECT_MANIFEST.json');
+        if (fs.existsSync(manifestPath)) {
+          const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+          if (manifest.commands && manifest.commands.test) {
+            testCmd = manifest.commands.test;
+          }
+        }
+      } catch (error) {
+        console.log('[Stage-Executor] ⚠️ 无法读取 manifest，使用默认 test 命令');
+      }
+      
       const changesetContent = `# 变更说明 - Coding 阶段
 
 ## 本次变更
@@ -305,20 +320,20 @@ class StageExecutor {
 
 \`\`\`bash
 # 测试
-${input.manifestFile ? '见 PROJECT_MANIFEST.json' : 'npm test'}
+${testCmd}
 
 # Lint（如有）
-npm run lint
+${input.manifestFile ? '见 PROJECT_MANIFEST.json' : 'npm run lint'}
 
 # 构建（如有）
-npm run build
+${input.manifestFile ? '见 PROJECT_MANIFEST.json' : 'npm run build'}
 \`\`\`
 
 ## 变更详情
 待补充...
 `;
       fs.writeFileSync(changesetPath, changesetContent, 'utf8');
-      console.log('[Stage-Executor] ✅ CHANGESET.md 模板已创建');
+      console.log(`[Stage-Executor] ✅ CHANGESET.md 模板已创建（testCmd: ${testCmd}）`);
     }
     
     return {

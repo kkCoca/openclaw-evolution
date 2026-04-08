@@ -193,6 +193,40 @@ class WorkflowOrchestrator {
         console.log('[Workflow-Orchestrator] ✅ roadmapping 入口门禁校验通过');
       }
 
+      // Coding 入口门禁（第一处：执行阶段前）
+      if (stageName === 'coding') {
+        const manifestPath = path.join(workflowConfig.projectPath, 'PROJECT_MANIFEST.json');
+        if (!fs.existsSync(manifestPath)) {
+          console.error('[Workflow-Orchestrator] ❌ coding 入口门禁校验失败：PROJECT_MANIFEST.json 不存在');
+          // GAP-2 修复：Gate 失败改用 BLOCKED（可恢复暂停）
+          this.stateManager.updateStage('coding', StageStatus.BLOCKED, { blockReason: 'PROJECT_MANIFEST.json 不存在' });
+          return {
+            success: false,
+            error: 'coding 入口门禁失败：PROJECT_MANIFEST.json 不存在'
+          };
+        }
+        
+        try {
+          const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+          if (!manifest.commands || !manifest.commands.test) {
+            console.error('[Workflow-Orchestrator] ❌ coding 入口门禁校验失败：commands.test 缺失');
+            this.stateManager.updateStage('coding', StageStatus.BLOCKED, { blockReason: 'commands.test 缺失' });
+            return {
+              success: false,
+              error: 'coding 入口门禁失败：commands.test 缺失'
+            };
+          }
+          console.log('[Workflow-Orchestrator] ✅ coding 入口门禁校验通过');
+        } catch (error) {
+          console.error('[Workflow-Orchestrator] ❌ coding 入口门禁校验失败：manifest 解析失败');
+          this.stateManager.updateStage('coding', StageStatus.BLOCKED, { blockReason: `manifest 解析失败：${error.message}` });
+          return {
+            success: false,
+            error: `coding 入口门禁失败：manifest 解析失败`
+          };
+        }
+      }
+
       // 自动返工循环（roadmapping/detailing/coding）
       const autoRetryStages = ['roadmapping', 'detailing', 'coding'];
       const maxRetries = 3;
