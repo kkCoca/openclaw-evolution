@@ -79,27 +79,37 @@ class StateManager {
       stages: {
         designing: {
           status: StageStatus.PENDING,
+          stageStatus: 'pending',  // 用于入口门禁校验
           retryCount: 0,
           outputs: [],
           reviewDecision: null,
           reviewNotes: '',
-          fixItems: []
+          fixItems: [],
+          approved: null  // approved 快照
         },
         roadmapping: {
           status: StageStatus.PENDING,
+          stageStatus: 'pending',  // 用于入口门禁校验
           retryCount: 0,
           outputs: [],
           reviewDecision: null,
           reviewNotes: '',
-          fixItems: []
+          fixItems: [],
+          lastRegenerateHint: '',
+          lastBlockingIssues: [],
+          lastAutoReviewReport: null
         },
         detailing: {
           status: StageStatus.PENDING,
+          stageStatus: 'pending',  // 用于入口门禁校验
           retryCount: 0,
           outputs: [],
           reviewDecision: null,
           reviewNotes: '',
-          fixItems: []
+          fixItems: [],
+          lastRegenerateHint: '',
+          lastBlockingIssues: [],
+          lastAutoReviewReport: null
         },
         coding: {
           status: StageStatus.PENDING,
@@ -174,6 +184,18 @@ class StateManager {
     
     this.state.stages[stageName].status = status;
     this.state.stages[stageName].updatedAt = new Date().toISOString();
+    
+    // 同步更新 stageStatus（用于入口门禁校验）
+    const statusMap = {
+      [StageStatus.PENDING]: 'pending',
+      [StageStatus.RUNNING]: 'running',
+      [StageStatus.REVIEWING]: 'reviewing',
+      [StageStatus.PASSED]: 'passed',
+      [StageStatus.CONDITIONAL_PASSED]: 'conditional_passed',
+      [StageStatus.REJECTED]: 'rejected',
+      [StageStatus.TERMINATED]: 'terminated'
+    };
+    this.state.stages[stageName].stageStatus = statusMap[status] || status;
     
     // 合并附加数据
     Object.assign(this.state.stages[stageName], data);

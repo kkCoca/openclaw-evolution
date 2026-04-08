@@ -159,10 +159,13 @@ class StageExecutor {
 
     console.log('[Stage-Executor] 调用 AI 工具执行 Roadmapping 阶段...');
     
+    // 传递 attempt + regenerateHint（自动返工闭环）
     const result = await this.aiAdapter.execute('roadmapping', {
       projectPath: projectPath,
       designingPath: designingPath,
-      outputDir: roadmappingPath
+      outputDir: roadmappingPath,
+      attempt: input.attempt || 1,
+      regenerateHint: input.regenerateHint || ''
     });
     
     if (!result.success) {
@@ -198,11 +201,14 @@ class StageExecutor {
 
     console.log('[Stage-Executor] 调用 AI 工具执行 Detailing 阶段...');
     
+    // 传递 attempt + regenerateHint（自动返工闭环）
     const result = await this.aiAdapter.execute('detailing', {
       projectPath: projectPath,
       designingPath: path.join(projectPath, '01_designing'),
       roadmappingPath: path.join(projectPath, '02_roadmapping'),
-      outputDir: detailingPath
+      outputDir: detailingPath,
+      attempt: input.attempt || 1,
+      regenerateHint: input.regenerateHint || ''
     });
     
     if (!result.success) {

@@ -10,12 +10,15 @@
  */
 
 const path = require('path');
+const fs = require('fs');
+const crypto = require('crypto');
 const StageExecutor = require('./stage-executor');
 const StateManager = require('./state-manager');
 const ReviewOrchestrator = require('../review-orchestrator/review-orchestrator');
 const StageModule = require('./stage-executor');
 const Stage = StageModule.Stage;
 const StageStatus = require('./state-manager').StageStatus;
+const { validateRoadmappingEntry } = require('../utils/validate-roadmapping-entry');
 
 /**
  * 阶段序列
@@ -172,48 +175,155 @@ class WorkflowOrchestrator {
     console.log('');
 
     try {
-      // 1. 更新状态为执行中
-      this.stateManager.updateStage(stageName, StageStatus.RUNNING);
-
-      // 2. 准备阶段输入
-      const input = await this.prepareStageInput(stageName, workflowConfig);
-
-      // 3. 执行阶段
-      const stageResult = await this.stageExecutor.execute(
-        stageName,
-        input,
-        workflowConfig.projectPath
-      );
-
-      if (!stageResult.success) {
-        return { success: false, error: stageResult.error };
+      // Roadmapping 入口门禁（第一处：执行阶段前）
+      if (stageName === 'roadmapping') {
+        const validation = validateRoadmappingEntry(this.stateManager, this.stateManager.state);
+        if (!validation.ok) {
+          console.error(`[Workflow-Orchestrator] ❌ roadmapping 入口门禁校验失败：${validation.reason}`);
+          this.stateManager.updateStage('roadmapping', StageStatus.TERMINATED);
+          return {
+            success: false,
+            error: `roadmapping 入口门禁失败：${validation.reason}`
+          };
+        }
+        console.log('[Workflow-Orchestrator] ✅ roadmapping 入口门禁校验通过');
       }
 
-      // 4. 记录阶段输出
-      this.stateManager.setStageOutputs(stageName, stageResult.outputs);
+      // 自动返工循环（roadmapping/detailing）
+      const autoRetryStages = ['roadmapping', 'detailing'];
+      const maxRetries = 3;
+      
+      if (autoRetryStages.includes(stageName)) {
+        // 自动返工模式：while 循环控制重试
+        let retryCount = this.stateManager.getStage(stageName).retryCount || 0;
+        
+        while (retryCount < maxRetries) {
+          console.log(`[Workflow-Orchestrator] 自动返工循环：第 ${retryCount + 1} 次尝试`);
+          
+          // 1. 更新状态为执行中
+          this.stateManager.updateStage(stageName, StageStatus.RUNNING);
 
-      // 5. 更新状态为待审阅
-      this.stateManager.updateStage(stageName, StageStatus.REVIEWING);
+          // 2. 准备阶段输入（注入 attempt + regenerateHint）
+          const input = await this.prepareStageInput(stageName, workflowConfig);
 
-      // 6. 执行审阅
-      console.log('[Workflow-Orchestrator] 执行审阅...');
-      const reviewDecision = await this.reviewOrchestrator.review(
-        stageName,
-        input,
-        stageResult.outputs,
-        workflowConfig.projectPath
-      );
+          // 3. 执行阶段
+          const stageResult = await this.stageExecutor.execute(
+            stageName,
+            input,
+            workflowConfig.projectPath
+          );
 
-      // 7. 记录审阅决策
-      this.stateManager.recordReviewDecision(
-        stageName,
-        reviewDecision.decision,
-        reviewDecision.notes,
-        reviewDecision.fixItems
-      );
+          if (!stageResult.success) {
+            return { success: false, error: stageResult.error };
+          }
 
-      // 8. 处理审阅决策
-      return await this.handleReviewDecision(stageName, reviewDecision, workflowConfig);
+          // 4. 记录阶段输出
+          this.stateManager.setStageOutputs(stageName, stageResult.outputs);
+
+          // 5. 更新状态为待审阅
+          this.stateManager.updateStage(stageName, StageStatus.REVIEWING);
+
+          // 6. 执行审阅
+          console.log('[Workflow-Orchestrator] 执行审阅...');
+          const reviewDecision = await this.reviewOrchestrator.review(
+            stageName,
+            input,
+            stageResult.outputs,
+            workflowConfig.projectPath
+          );
+
+          // 7. 记录审阅决策
+          this.stateManager.recordReviewDecision(
+            stageName,
+            reviewDecision.decision,
+            reviewDecision.notes,
+            reviewDecision.fixItems
+          );
+
+          // 8. 处理审阅决策
+          if (reviewDecision.decision === 'pass') {
+            // 通过：清理重试痕迹
+            this.stateManager.state.stages[stageName].retryCount = 0;
+            this.stateManager.state.stages[stageName].lastRegenerateHint = '';
+            this.stateManager.save();
+            console.log('[Workflow-Orchestrator] ✅ 审阅通过，清理重试痕迹');
+            return { success: true };
+          } else if (reviewDecision.decision === 'reject') {
+            // 驳回：写回 regenerateHint + retryCount++
+            retryCount++;
+            this.stateManager.state.stages[stageName].retryCount = retryCount;
+            
+            if (reviewDecision.fixItems && reviewDecision.fixItems.length > 0) {
+              const hint = reviewDecision.fixItems.map(item => 
+                `【${item.id}】${item.suggestion || item.description}`
+              ).join('\n');
+              this.stateManager.state.stages[stageName].lastRegenerateHint = hint;
+            }
+            
+            this.stateManager.save();
+            console.log(`[Workflow-Orchestrator] ❌ 审阅驳回，retryCount=${retryCount}`);
+            
+            if (retryCount >= maxRetries) {
+              console.log('[Workflow-Orchestrator] ❌ 超过最大重试次数，终止流程');
+              this.stateManager.updateStage(stageName, StageStatus.TERMINATED);
+              return { success: false, error: '超过最大重试次数' };
+            }
+            
+            // 继续循环重试
+            console.log('[Workflow-Orchestrator] 🔄 开始下一次重试...');
+          } else {
+            // conditional/clarify
+            console.log(`[Workflow-Orchestrator] ⚠️ 审阅结论：${reviewDecision.decision}`);
+            return { success: true };
+          }
+        }
+        
+        return { success: true };
+      } else {
+        // 人工确认模式（designing/coding）：原有逻辑
+        // 1. 更新状态为执行中
+        this.stateManager.updateStage(stageName, StageStatus.RUNNING);
+
+        // 2. 准备阶段输入
+        const input = await this.prepareStageInput(stageName, workflowConfig);
+
+        // 3. 执行阶段
+        const stageResult = await this.stageExecutor.execute(
+          stageName,
+          input,
+          workflowConfig.projectPath
+        );
+
+        if (!stageResult.success) {
+          return { success: false, error: stageResult.error };
+        }
+
+        // 4. 记录阶段输出
+        this.stateManager.setStageOutputs(stageName, stageResult.outputs);
+
+        // 5. 更新状态为待审阅
+        this.stateManager.updateStage(stageName, StageStatus.REVIEWING);
+
+        // 6. 执行审阅
+        console.log('[Workflow-Orchestrator] 执行审阅...');
+        const reviewDecision = await this.reviewOrchestrator.review(
+          stageName,
+          input,
+          stageResult.outputs,
+          workflowConfig.projectPath
+        );
+
+        // 7. 记录审阅决策
+        this.stateManager.recordReviewDecision(
+          stageName,
+          reviewDecision.decision,
+          reviewDecision.notes,
+          reviewDecision.fixItems
+        );
+
+        // 8. 处理审阅决策
+        return await this.handleReviewDecision(stageName, reviewDecision, workflowConfig);
+      }
 
     } catch (error) {
       console.error(`[Workflow-Orchestrator] 阶段 ${stageName} 执行失败:`, error.message);
@@ -242,12 +352,22 @@ class WorkflowOrchestrator {
         input.designingPath = path.join(projectPath, '01_designing');
         input.prdFile = path.join(projectPath, '01_designing/PRD.md');
         input.trdFile = path.join(projectPath, '01_designing/TRD.md');
+        
+        // 注入 attempt + regenerateHint（自动返工闭环）
+        const roadmappingStage = this.stateManager.getStage('roadmapping');
+        input.attempt = (roadmappingStage.retryCount || 0) + 1;
+        input.regenerateHint = this.stateManager.state.stages.roadmapping.lastRegenerateHint || '';
         break;
 
       case Stage.DETAILING:
         input.prdFile = path.join(projectPath, '01_designing/PRD.md');
         input.trdFile = path.join(projectPath, '01_designing/TRD.md');
         input.roadmapFile = path.join(projectPath, '02_roadmapping/ROADMAP.md');
+        
+        // 注入 attempt + regenerateHint（自动返工闭环）
+        const detailingStage = this.stateManager.getStage('detailing');
+        input.attempt = (detailingStage.retryCount || 0) + 1;
+        input.regenerateHint = this.stateManager.state.stages.detailing.lastRegenerateHint || '';
         break;
 
       case Stage.CODING:
@@ -280,11 +400,23 @@ class WorkflowOrchestrator {
     switch (reviewDecision.decision) {
       case 'pass':
         console.log('[Workflow-Orchestrator] ✅ 审阅通过，进入下一阶段');
+        
+        // Designing pass 时写入 approved 快照（roadmapping 入口门禁依赖）
+        if (stageName === 'designing') {
+          await this.writeDesigningApprovedSnapshot(workflowConfig.projectPath);
+        }
+        
         return { success: true };
 
       case 'conditional':
         console.log('[Workflow-Orchestrator] ⚠️ 条件通过，进入下一阶段但需修复');
         console.log('[Workflow-Orchestrator] 待修复项已记录，将在后续版本修复');
+        
+        // Designing conditional pass 时也写入 approved 快照
+        if (stageName === 'designing') {
+          await this.writeDesigningApprovedSnapshot(workflowConfig.projectPath);
+        }
+        
         return { success: true };
 
       case 'reject':
@@ -305,6 +437,54 @@ class WorkflowOrchestrator {
 
       default:
         return { success: false, error: `未知审阅结论：${reviewDecision.decision}` };
+    }
+  }
+
+  /**
+   * 写入 Designing Approved 快照（roadmapping 入口门禁依赖）
+   * @param {string} projectPath - 项目路径
+   */
+  async writeDesigningApprovedSnapshot(projectPath) {
+    console.log('[Workflow-Orchestrator] 写入 designing approved 快照...');
+    
+    try {
+      // 读取文件内容
+      const requirementsPath = path.join(projectPath, 'REQUIREMENTS.md');
+      const prdPath = path.join(projectPath, '01_designing/PRD.md');
+      const trdPath = path.join(projectPath, '01_designing/TRD.md');
+      
+      const requirementsContent = fs.readFileSync(requirementsPath, 'utf8');
+      const prdContent = fs.readFileSync(prdPath, 'utf8');
+      const trdContent = fs.readFileSync(trdPath, 'utf8');
+      
+      // 计算哈希
+      const requirementsHash = crypto.createHash('sha256').update(requirementsContent).digest('hex');
+      const prdHash = crypto.createHash('sha256').update(prdContent).digest('hex');
+      const trdHash = crypto.createHash('sha256').update(trdContent).digest('hex');
+      
+      // 写入 approved 快照
+      this.stateManager.state.stages.designing.approved = {
+        requirementsHash,
+        prdHash,
+        trdHash,
+        requirementsContent,
+        prdContent,
+        trdContent,
+        approvedBy: 'openclaw-ouyp',
+        approvedAt: new Date().toISOString(),
+        transitionId: `DESIGNING_APPROVED_${Date.now()}`
+      };
+      
+      this.stateManager.save();
+      
+      console.log('[Workflow-Orchestrator] ✅ designing approved 快照已写入');
+      console.log(`  - requirementsHash: ${requirementsHash.substring(0, 16)}...`);
+      console.log(`  - prdHash: ${prdHash.substring(0, 16)}...`);
+      console.log(`  - trdHash: ${trdHash.substring(0, 16)}...`);
+      
+    } catch (error) {
+      console.error('[Workflow-Orchestrator] ❌ 写入 approved 快照失败:', error.message);
+      throw error;
     }
   }
 
