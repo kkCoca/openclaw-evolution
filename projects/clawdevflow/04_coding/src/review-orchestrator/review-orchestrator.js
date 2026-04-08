@@ -130,21 +130,30 @@ class ReviewOrchestrator {
       // 从文件系统读取 ROADMAP.md（P0 修复：避免审阅空文本）
       const roadmapPath = path.join(projectPath, '02_roadmapping/ROADMAP.md');
       if (!fs.existsSync(roadmapPath)) {
+        // 问题 A 修复：clarify → reject（触发自动返工）
         return {
-          decision: 'clarify',
+          decision: 'reject',
           notes: 'ROADMAP.md 文件不存在',
-          fixItems: []
+          fixItems: [{
+            id: 'ROADMAP_MISSING',
+            description: 'ROADMAP.md 文件不存在',
+            suggestion: '请重新生成 02_roadmapping/ROADMAP.md，确保文件存在且内容非空'
+          }]
         };
       }
       
       const roadmapContent = fs.readFileSync(roadmapPath, 'utf8');
       
-      // 空内容判空（v3.5.0 修复）
+      // 空内容判空（v3.5.0 修复）：clarify → reject（触发自动返工）
       if (!roadmapContent || roadmapContent.trim().length === 0) {
         return {
-          decision: 'clarify',
+          decision: 'reject',
           notes: 'ROADMAP.md 文件存在但内容为空',
-          fixItems: []
+          fixItems: [{
+            id: 'ROADMAP_EMPTY',
+            description: 'ROADMAP.md 文件存在但内容为空',
+            suggestion: '请重新生成 ROADMAP.md，确保包含目标/范围/里程碑/验收标准等最小内容'
+          }]
         };
       }
       
@@ -153,12 +162,16 @@ class ReviewOrchestrator {
       // 执行审阅
       const report = await agent.executeReview(input);
       
-      // 转换审阅报告为 decision
+      // 转换审阅报告为 decision（问题 A 修复：report.error → reject）
       if (report.error) {
         return {
-          decision: 'clarify',
+          decision: 'reject',
           notes: `审阅执行错误：${report.error}`,
-          fixItems: []
+          fixItems: [{
+            id: 'ROADMAP_REVIEW_ERROR',
+            description: `审阅执行错误：${report.error}`,
+            suggestion: '请修复导致审阅执行错误的问题，并重新生成 ROADMAP.md'
+          }]
         };
       }
       
