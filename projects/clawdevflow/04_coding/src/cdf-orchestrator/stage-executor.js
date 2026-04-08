@@ -688,6 +688,45 @@ ${verifyError ? `\n## 错误信息\n${verifyError}` : ''}
     
     const releasingPath = path.join(projectPath, '06_releasing');
     
+    // P0-1 修复：Step A - 读取并校验 readiness
+    console.log('[Stage-Executor] 校验 Release Readiness...');
+    const readinessPath = path.join(projectPath, '05_reviewing', 'RELEASE_READINESS.json');
+    
+    if (!fs.existsSync(readinessPath)) {
+      console.error('[Stage-Executor] ❌ RELEASE_READINESS.json 文件不存在');
+      return {
+        success: false,
+        outputs: [],
+        error: 'RELEASE_READINESS.json 文件不存在，请先完成 reviewing 阶段'
+      };
+    }
+    
+    let readiness;
+    try {
+      readiness = JSON.parse(fs.readFileSync(readinessPath, 'utf8'));
+    } catch (error) {
+      console.error('[Stage-Executor] ❌ RELEASE_READINESS.json 解析失败:', error.message);
+      return {
+        success: false,
+        outputs: [],
+        error: `RELEASE_READINESS.json 解析失败：${error.message}`
+      };
+    }
+    
+    if (readiness.result !== 'PASS') {
+      console.error(`[Stage-Executor] ❌ Release Readiness 检查结果为 ${readiness.result}，不允许发布`);
+      const blockingIssues = readiness.blockingIssues || [];
+      const firstIssue = blockingIssues[0] ? ` - ${blockingIssues[0].gateId}: ${blockingIssues[0].description}` : '';
+      return {
+        success: false,
+        outputs: [],
+        error: `Release Readiness 检查结果为 ${readiness.result}，不允许发布${firstIssue}`
+      };
+    }
+    
+    console.log('[Stage-Executor] ✅ Release Readiness 检查通过（result=PASS）');
+    
+    // P0-1 修复：Step C - 通过后才生成发布证据包
     // 确保目录存在
     if (!fs.existsSync(releasingPath)) {
       fs.mkdirSync(releasingPath, { recursive: true });
@@ -695,7 +734,7 @@ ${verifyError ? `\n## 错误信息\n${verifyError}` : ''}
     }
 
     try {
-      // 1. 生成 RELEASE_RECORD.json（发布记录）
+      // 1. 生成 RELEASE_RECORD.json（发布记录）- 引用真实 readiness.result
       console.log('[Stage-Executor] 生成 RELEASE_RECORD.json...');
       const releaseRecord = {
         schemaVersion: 'v1',
@@ -703,7 +742,7 @@ ${verifyError ? `\n## 错误信息\n${verifyError}` : ''}
         generatedAt: new Date().toISOString(),
         readiness: {
           path: '05_reviewing/RELEASE_READINESS.json',
-          result: 'PASS'
+          result: readiness.result  // P0-1 修复：引用真实 result，不写死
         },
         inputs: {
           projectPath: projectPath,
@@ -796,7 +835,7 @@ ${verifyError ? `\n## 错误信息\n${verifyError}` : ''}
       );
       console.log('[Stage-Executor] ✅ CLEANUP_REPORT.json 已生成');
 
-      // 4. 生成 RELEASE_NOTES.md（发布说明）
+      // 4. 生成 RELEASE_NOTES.md（发布说明）- 引用真实 readiness.result
       console.log('[Stage-Executor] 生成 RELEASE_NOTES.md...');
       const releaseNotes = `# 发布说明 - Releasing 阶段
 
@@ -806,7 +845,7 @@ ${verifyError ? `\n## 错误信息\n${verifyError}` : ''}
 
 ## 发布就绪
 - Reviewing 放行凭证：05_reviewing/RELEASE_READINESS.json
-- 结果：PASS
+- 结果：${readiness.result}
 
 ## 清理报告
 - 删除文件数：${cleanupReport.summary.totalDeleted}

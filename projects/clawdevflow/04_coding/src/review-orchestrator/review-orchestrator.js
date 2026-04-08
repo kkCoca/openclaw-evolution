@@ -832,6 +832,41 @@ class ReviewOrchestrator {
         };
       }
       
+      // P0-2 修复：检查 CLEANUP_REPORT.json 的 securityFindings
+      const cleanupReportPath = path.join(projectPath, '06_releasing/CLEANUP_REPORT.json');
+      let cleanupReport;
+      try {
+        cleanupReport = JSON.parse(fs.readFileSync(cleanupReportPath, 'utf8'));
+      } catch (error) {
+        return {
+          decision: 'reject',
+          notes: `CLEANUP_REPORT.json 解析失败：${error.message}`,
+          fixItems: [{
+            id: 'RL2_CLEANUP_REPORT_INVALID',
+            description: `CLEANUP_REPORT.json 解析失败：${error.message}`,
+            suggestion: '请修复 CLEANUP_REPORT.json 格式',
+            evidencePath: '06_releasing/CLEANUP_REPORT.json'
+          }]
+        };
+      }
+      
+      // 检查 securityFindings（兼容读取）
+      const findings = cleanupReport.securityFindings || [];
+      const count = cleanupReport.summary?.totalSecurityFindings ?? findings.length;
+      
+      if (count > 0 || findings.length > 0) {
+        return {
+          decision: 'reject',
+          notes: `发现 ${count} 个敏感文件，禁止发布`,
+          fixItems: findings.map((finding, index) => ({
+            id: 'RL3_SECURITY_FINDINGS_FOUND',
+            description: `敏感文件：${finding.path || finding.file || `未知文件 ${index + 1}`}`,
+            suggestion: '请移除敏感文件或将其添加到 .gitignore',
+            evidencePath: '06_releasing/CLEANUP_REPORT.json'
+          }))
+        };
+      }
+      
       // 所有检查通过
       return {
         decision: 'pass',

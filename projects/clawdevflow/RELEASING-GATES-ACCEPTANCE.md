@@ -29,7 +29,7 @@ EOF
 
 ---
 
-## 验收用例（4 条）
+## 验收用例（5 条）
 
 ### 用例 1: readiness 缺失 → reject
 
@@ -146,6 +146,40 @@ mkdir -p 06_releasing
 - `.cdf-state.json` → `stages.releasing.reviewDecision = 'pass'`
 - `.cdf-state.json` → `stages.releasing.fixItems = []`
 - `06_releasing/` 目录包含所有必需文件
+
+**状态**: ✅ 待验证
+
+---
+
+### 用例 5: 命中敏感文件 → reject
+
+**测试步骤**：
+```bash
+# 确保 readiness.result = PASS
+cat > 05_reviewing/RELEASE_READINESS.json << 'EOF'
+{
+  "schemaVersion": "v1",
+  "result": "PASS",
+  "generatedAt": "2026-04-08T17:00:00Z",
+  "blockingIssues": []
+}
+EOF
+
+# 创建敏感文件（如 .env）
+echo "SECRET_KEY=abc123" > .env
+
+# 启动流程到 releasing 阶段
+```
+
+**期望结果**：
+- releasing 自动审阅 reject
+- fixItems: `[{ id: 'RL3_SECURITY_FINDINGS_FOUND', ... }]`
+- CLEANUP_REPORT.json 记录 securityFindings
+
+**证据点**：
+- `.cdf-state.json` → `stages.releasing.reviewDecision = 'reject'`
+- `.cdf-state.json` → `stages.releasing.fixItems[].id = 'RL3_SECURITY_FINDINGS_FOUND'`
+- `06_releasing/CLEANUP_REPORT.json` → `securityFindings` 非空
 
 **状态**: ✅ 待验证
 
