@@ -102,18 +102,25 @@
 
 | Gate | 检查项 | 失败处理 |
 |------|--------|---------|
-| C0 | PROJECT_MANIFEST.json 存在 | reject |
-| C1 | commands.test 存在且非空 | reject |
-| C2 | 执行 commands.test 成功 | reject（TEST_FAILED） |
-| C3 | commands.lint 存在则必须通过 | reject（LINT_FAILED） |
-| C4 | commands.build 存在则必须通过 | reject（BUILD_FAILED） |
-| C5 | CHANGESET.md 存在且包含 test 命令 | reject |
+| C0 | PROJECT_MANIFEST.json 存在 | reject → 自动返工 |
+| C1 | commands.test 存在且非空 | reject → 自动返工 |
+| C2 | 执行 commands.test 成功 | reject → 自动返工（TEST_FAILED） |
+| C3 | commands.lint 存在则必须通过 | reject → 自动返工（LINT_FAILED） |
+| C4 | commands.build 存在则必须通过 | reject → 自动返工（BUILD_FAILED） |
+| C5 | CHANGESET.md 存在且包含 test 命令 | reject → 自动返工 |
 
 ### 失败语义
 
-- 任一 Gate 失败：`decision = reject`（触发自动返工）
-- 命令超时/异常：仍然 `reject`（不 clarify）
-- 重试耗尽：进入 `blocked` 状态
+- Gate 失败：`decision = reject` → 自动返工（while-loop）
+- `clarify` 的语义：需要人工介入，会导致 stage 进入 `BLOCKED`（暂停）
+- **重试耗尽（>= maxRetries）最终状态：`TERMINATED`（硬失败）** ← 拍板决策
+- `commands.verify`：字段必须存在；但当前阶段不执行 verify（后续 verification 才执行）
+
+### 重试机制
+
+- 最大重试次数：`maxRetries = 3`
+- 每次 reject → `retryCount++` → 写入 `lastRegenerateHint` → 下一轮注入 hint
+- 重试耗尽 → `TERMINATED`（需要人工介入）
 
 ---
 
