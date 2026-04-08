@@ -193,9 +193,9 @@ class WorkflowOrchestrator {
         console.log('[Workflow-Orchestrator] ✅ roadmapping 入口门禁校验通过');
       }
 
-      // 自动返工循环（roadmapping/detailing/coding）
-      const autoRetryStages = ['roadmapping', 'detailing', 'coding'];
-      const maxRetries = 3;
+      // 自动返工循环（roadmapping/detailing/coding/testing）
+      const autoRetryStages = ['roadmapping', 'detailing', 'coding', 'testing'];
+      const maxRetries = stageName === 'testing' ? 2 : 3;  // testing 最大重试 2 次，其他 3 次
       
       if (autoRetryStages.includes(stageName)) {
         // 自动返工模式：while 循环控制重试
@@ -417,6 +417,12 @@ class WorkflowOrchestrator {
 
       case Stage.TESTING:
         input.srcDir = path.join(projectPath, '04_coding/src');
+        input.manifestFile = path.join(projectPath, 'PROJECT_MANIFEST.json');
+        
+        // 注入 attempt + regenerateHint（自动返工闭环）
+        const testingStage = this.stateManager.getStage('testing');
+        input.attempt = (testingStage.retryCount || 0) + 1;
+        input.regenerateHint = this.stateManager.state.stages.testing.lastRegenerateHint || '';
         break;
     }
 

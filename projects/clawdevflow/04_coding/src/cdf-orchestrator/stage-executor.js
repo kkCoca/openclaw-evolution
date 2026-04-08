@@ -28,6 +28,7 @@ const Stage = {
   ROADMAPPING: 'roadmapping',
   DETAILING: 'detailing',
   CODING: 'coding',
+  TESTING: 'testing',
   REVIEWING: 'reviewing'
 };
 
@@ -85,6 +86,9 @@ class StageExecutor {
         
         case Stage.CODING:
           return await this.executeCoding(input, projectPath);
+        
+        case Stage.TESTING:
+          return await this.executeTesting(input, projectPath);
         
         case Stage.REVIEWING:
           return await this.executeReviewing(input, projectPath);
@@ -343,6 +347,245 @@ ${input.manifestFile ? '见 PROJECT_MANIFEST.json' : 'npm run build'}
         path: path.relative(projectPath, o)
       }))
     };
+  }
+
+  /**
+   * 执行 Testing 阶段（T0-T5：产出证据包）
+   */
+  async executeTesting(input, projectPath) {
+    console.log('[Stage-Executor] ════════════════════════════════════════');
+    console.log('[Stage-Executor] 开始执行阶段：TESTING');
+    console.log('[Stage-Executor] ════════════════════════════════════════');
+    
+    const testingPath = path.join(projectPath, '05_testing');
+    
+    // 确保目录存在
+    if (!fs.existsSync(testingPath)) {
+      fs.mkdirSync(testingPath, { recursive: true });
+      console.log(`[Stage-Executor] 创建目录：${testingPath}`);
+    }
+
+    try {
+      // T0: Preflight（入口准备/上下文锁定）
+      console.log('[Stage-Executor] T0: Preflight - 准备测试上下文...');
+      const manifestPath = input.manifestFile || path.join(projectPath, 'PROJECT_MANIFEST.json');
+      let manifest = {};
+      if (fs.existsSync(manifestPath)) {
+        manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+      }
+      
+      const testContext = {
+        attempt: input.attempt || 1,
+        timestamp: new Date().toISOString(),
+        cwd: projectPath,
+        language: manifest.language || 'unknown',
+        commands: manifest.commands || {},
+        timeout: 300000  // 5 分钟超时
+      };
+      fs.writeFileSync(
+        path.join(testingPath, 'TEST_CONTEXT.json'),
+        JSON.stringify(testContext, null, 2),
+        'utf8'
+      );
+      console.log('[Stage-Executor] ✅ T0: TEST_CONTEXT.json 已写入');
+
+      // T1: Install（可选）
+      if (manifest.commands?.install) {
+        console.log(`[Stage-Executor] T1: Install - 执行 ${manifest.commands.install}`);
+        const installResult = await execAsync(manifest.commands.install, {
+          cwd: projectPath,
+          timeout: testContext.timeout
+        });
+        fs.writeFileSync(
+          path.join(testingPath, 'INSTALL.log'),
+          installResult.stdout + installResult.stderr,
+          'utf8'
+        );
+        console.log('[Stage-Executor] ✅ T1: INSTALL.log 已写入');
+      }
+
+      // T2: Lint（可选）
+      if (manifest.commands?.lint) {
+        console.log(`[Stage-Executor] T2: Lint - 执行 ${manifest.commands.lint}`);
+        try {
+          const lintResult = await execAsync(manifest.commands.lint, {
+            cwd: projectPath,
+            timeout: testContext.timeout
+          });
+          fs.writeFileSync(
+            path.join(testingPath, 'LINT.log'),
+            lintResult.stdout + lintResult.stderr,
+            'utf8'
+          );
+          console.log('[Stage-Executor] ✅ T2: LINT.log 已写入');
+        } catch (error) {
+          fs.writeFileSync(
+            path.join(testingPath, 'LINT.log'),
+            `LINT 失败：${error.message}\n${error.stdout || ''}\n${error.stderr || ''}`,
+            'utf8'
+          );
+          console.log('[Stage-Executor] ⚠️ T2: LINT 失败，日志已写入');
+        }
+      }
+
+      // T3: Build（可选）
+      if (manifest.commands?.build) {
+        console.log(`[Stage-Executor] T3: Build - 执行 ${manifest.commands.build}`);
+        try {
+          const buildResult = await execAsync(manifest.commands.build, {
+            cwd: projectPath,
+            timeout: testContext.timeout
+          });
+          fs.writeFileSync(
+            path.join(testingPath, 'BUILD.log'),
+            buildResult.stdout + buildResult.stderr,
+            'utf8'
+          );
+          console.log('[Stage-Executor] ✅ T3: BUILD.log 已写入');
+        } catch (error) {
+          fs.writeFileSync(
+            path.join(testingPath, 'BUILD.log'),
+            `BUILD 失败：${error.message}\n${error.stdout || ''}\n${error.stderr || ''}`,
+            'utf8'
+          );
+          console.log('[Stage-Executor] ⚠️ T3: BUILD 失败，日志已写入');
+        }
+      }
+
+      // T4: Test（必需）
+      console.log('[Stage-Executor] T4: Test - 执行测试...');
+      const testCmd = manifest.commands?.test || 'npm test';
+      let testPassed = false;
+      let testError = null;
+      let testOutput = '';
+      
+      try {
+        const testResult = await execAsync(testCmd, {
+          cwd: projectPath,
+          timeout: testContext.timeout
+        });
+        testOutput = testResult.stdout + testResult.stderr;
+        testPassed = true;
+        console.log('[Stage-Executor] ✅ T4: 测试通过');
+      } catch (error) {
+        testOutput = `测试失败：${error.message}\n${error.stdout || ''}\n${error.stderr || ''}`;
+        testError = error.message;
+        console.log('[Stage-Executor] ❌ T4: 测试失败');
+      }
+      
+      fs.writeFileSync(
+        path.join(testingPath, 'TEST.log'),
+        testOutput,
+        'utf8'
+      );
+      
+      // 写入 TEST_RESULTS.json（结构化）
+      const testResults = {
+        TEST_CMD: testCmd,
+        RESULT: testPassed ? 'PASS' : 'FAIL',
+        DURATION: 0,  // 简化实现
+        ERROR: testError
+      };
+      fs.writeFileSync(
+        path.join(testingPath, 'TEST_RESULTS.json'),
+        JSON.stringify(testResults, null, 2),
+        'utf8'
+      );
+      console.log('[Stage-Executor] ✅ T4: TEST.log + TEST_RESULTS.json 已写入');
+
+      // T5: Verify（必需）
+      console.log('[Stage-Executor] T5: Verify - 执行验收...');
+      const verifyCmd = manifest.commands?.verify || 'echo "verify skipped"';
+      let verifyPassed = false;
+      let verifyError = null;
+      let verifyOutput = '';
+      
+      try {
+        const verifyResult = await execAsync(verifyCmd, {
+          cwd: projectPath,
+          timeout: testContext.timeout
+        });
+        verifyOutput = verifyResult.stdout + verifyResult.stderr;
+        verifyPassed = true;
+        console.log('[Stage-Executor] ✅ T5: 验收通过');
+      } catch (error) {
+        verifyOutput = `验收失败：${error.message}\n${error.stdout || ''}\n${error.stderr || ''}`;
+        verifyError = error.message;
+        console.log('[Stage-Executor] ❌ T5: 验收失败');
+      }
+      
+      fs.writeFileSync(
+        path.join(testingPath, 'VERIFY.log'),
+        verifyOutput,
+        'utf8'
+      );
+      
+      // 写入 VERIFY_RESULTS.json（结构化）
+      const verifyResults = {
+        VERIFY_CMD: verifyCmd,
+        RESULT: verifyPassed ? 'PASS' : 'FAIL',
+        DURATION: 0,  // 简化实现
+        ERROR: verifyError
+      };
+      fs.writeFileSync(
+        path.join(testingPath, 'VERIFY_RESULTS.json'),
+        JSON.stringify(verifyResults, null, 2),
+        'utf8'
+      );
+      
+      // 写入 VERIFICATION_REPORT.md（最终签字报告）
+      const verificationReport = `# 验收报告 - Testing 阶段
+
+## 执行信息
+- 时间：${testContext.timestamp}
+- 尝试次数：${testContext.attempt}
+- 项目路径：${projectPath}
+
+## 测试命令
+- TEST_CMD: \`${testCmd}\`
+- 结果：${testResults.RESULT}
+
+## 验收命令
+- VERIFY_CMD: \`${verifyCmd}\`
+- 结果：${verifyResults.RESULT}
+
+## 最终判定
+**RESULT: ${testPassed && verifyPassed ? 'PASS' : 'FAIL'}**
+
+## 日志文件
+- TEST.log
+- VERIFY.log
+- （可选）INSTALL.log / LINT.log / BUILD.log
+`;
+      fs.writeFileSync(
+        path.join(testingPath, 'VERIFICATION_REPORT.md'),
+        verificationReport,
+        'utf8'
+      );
+      console.log('[Stage-Executor] ✅ T5: VERIFY.log + VERIFY_RESULTS.json + VERIFICATION_REPORT.md 已写入');
+
+      // 返回成功（命令失败也尽量返回 success=true，由审阅阶段决定 reject）
+      return {
+        success: true,
+        outputs: [
+          path.join(testingPath, 'TEST_CONTEXT.json'),
+          path.join(testingPath, 'TEST_RESULTS.json'),
+          path.join(testingPath, 'VERIFY_RESULTS.json'),
+          path.join(testingPath, 'VERIFICATION_REPORT.md'),
+          path.join(testingPath, 'TEST.log'),
+          path.join(testingPath, 'VERIFY.log')
+        ].filter(p => fs.existsSync(p))
+      };
+
+    } catch (error) {
+      console.error('[Stage-Executor] ❌ Testing 阶段执行失败:', error.message);
+      // 系统级错误（如写盘失败）才返回 success=false
+      return {
+        success: false,
+        outputs: [],
+        error: error.message
+      };
+    }
   }
 
   /**

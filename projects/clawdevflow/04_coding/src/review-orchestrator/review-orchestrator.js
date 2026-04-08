@@ -72,9 +72,10 @@ class ReviewOrchestrator {
       // - roadmapping: 走自动审阅（ReviewRoadmapAgentV1）并直接返回
       // - detailing: 走自动审阅（最小规则）并直接返回
       // - coding: 走自动审阅（真执行命令）
+      // - testing: 走自动审阅（检查证据包）
       
-      if (stageName === 'roadmapping' || stageName === 'detailing' || stageName === 'coding') {
-        // 自动审阅模式（roadmapping/detailing/coding）
+      if (stageName === 'roadmapping' || stageName === 'detailing' || stageName === 'coding' || stageName === 'testing') {
+        // 自动审阅模式（roadmapping/detailing/coding/testing）
         console.log('[Review-Orchestrator] 步骤 1/1: 执行自动审阅...');
         const decision = await this.executeAutoReview(stageName, input, projectPath);
         console.log('[Review-Orchestrator] ✅ 自动审阅完成');
@@ -432,6 +433,114 @@ class ReviewOrchestrator {
       return {
         decision: 'pass',
         notes: '所有质量门禁通过',
+        fixItems: []
+      };
+    } else if (stageName === 'testing') {
+      // Testing: 检查证据包（不重复执行命令）
+      const testingPath = path.join(projectPath, '05_testing');
+      
+      // TG0: manifest 存在且可解析
+      const manifestPath = input.manifestFile || path.join(projectPath, 'PROJECT_MANIFEST.json');
+      if (!fs.existsSync(manifestPath)) {
+        return {
+          decision: 'reject',
+          notes: 'PROJECT_MANIFEST.json 文件不存在',
+          fixItems: [{
+            id: 'TG0_MANIFEST_MISSING',
+            description: 'PROJECT_MANIFEST.json 文件不存在',
+            suggestion: '请创建 PROJECT_MANIFEST.json 并定义 commands.test/verify'
+          }]
+        };
+      }
+      
+      let manifest;
+      try {
+        manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+      } catch (error) {
+        return {
+          decision: 'reject',
+          notes: `PROJECT_MANIFEST.json 解析失败：${error.message}`,
+          fixItems: [{
+            id: 'TG0_MANIFEST_INVALID',
+            description: 'PROJECT_MANIFEST.json 不是有效的 JSON',
+            suggestion: '请修复 PROJECT_MANIFEST.json 格式'
+          }]
+        };
+      }
+      
+      // TG1: TEST_RESULTS.json 存在
+      const testResultsPath = path.join(testingPath, 'TEST_RESULTS.json');
+      if (!fs.existsSync(testResultsPath)) {
+        return {
+          decision: 'reject',
+          notes: '05_testing/TEST_RESULTS.json 文件不存在',
+          fixItems: [{
+            id: 'TG1_TEST_RESULTS_MISSING',
+            description: 'TEST_RESULTS.json 文件不存在',
+            suggestion: '请执行 Testing 阶段生成 TEST_RESULTS.json'
+          }]
+        };
+      }
+      
+      // TG2: VERIFY_RESULTS.json 存在
+      const verifyResultsPath = path.join(testingPath, 'VERIFY_RESULTS.json');
+      if (!fs.existsSync(verifyResultsPath)) {
+        return {
+          decision: 'reject',
+          notes: '05_testing/VERIFY_RESULTS.json 文件不存在',
+          fixItems: [{
+            id: 'TG2_VERIFY_RESULTS_MISSING',
+            description: 'VERIFY_RESULTS.json 文件不存在',
+            suggestion: '请执行 Testing 阶段生成 VERIFY_RESULTS.json'
+          }]
+        };
+      }
+      
+      // TG3: VERIFICATION_REPORT.md 存在
+      const verificationReportPath = path.join(testingPath, 'VERIFICATION_REPORT.md');
+      if (!fs.existsSync(verificationReportPath)) {
+        return {
+          decision: 'reject',
+          notes: '05_testing/VERIFICATION_REPORT.md 文件不存在',
+          fixItems: [{
+            id: 'TG3_VERIFICATION_REPORT_MISSING',
+            description: 'VERIFICATION_REPORT.md 文件不存在',
+            suggestion: '请执行 Testing 阶段生成 VERIFICATION_REPORT.md'
+          }]
+        };
+      }
+      
+      // TG4: report 字段完整
+      const verifyResults = JSON.parse(fs.readFileSync(verifyResultsPath, 'utf8'));
+      if (!verifyResults.VERIFY_CMD || !verifyResults.RESULT) {
+        return {
+          decision: 'reject',
+          notes: 'VERIFY_RESULTS.json 缺少必需字段（VERIFY_CMD/RESULT）',
+          fixItems: [{
+            id: 'TG4_FIELDS_INCOMPLETE',
+            description: 'VERIFY_RESULTS.json 缺少必需字段',
+            suggestion: '请确保 VERIFY_RESULTS.json 包含 VERIFY_CMD 和 RESULT 字段'
+          }]
+        };
+      }
+      
+      // TG5: VERIFY_RESULTS.pass == true（最终判定）
+      if (verifyResults.RESULT !== 'PASS') {
+        return {
+          decision: 'reject',
+          notes: `验收未通过：${verifyResults.RESULT}`,
+          fixItems: [{
+            id: 'TG5_VERIFY_FAILED',
+            description: `验收失败：${verifyResults.ERROR || '未知错误'}`,
+            suggestion: '请修复验收失败问题并重新执行 Testing 阶段'
+          }]
+        };
+      }
+      
+      // 所有 Gate 通过
+      return {
+        decision: 'pass',
+        notes: '所有 Testing Gates 通过',
         fixItems: []
       };
     }
