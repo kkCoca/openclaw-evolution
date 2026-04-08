@@ -105,8 +105,8 @@ EOF
 - 自动返工补齐 verify 命令
 
 **证据点**：
-- `.cdf-state.json` → `stages.testing.reviewDecision = 'reject'`
-- console log → "VERIFY_COMMAND_MISSING"
+- `.cdf-state.json` → `stages.testing.lastBlockingIssues[].id == 'TG0_VERIFY_COMMAND_MISSING'`
+- `05_testing/VERIFY_RESULTS.json` → `ERROR == 'VERIFY_COMMAND_MISSING'`
 
 **状态**: ✅ 待验证
 
