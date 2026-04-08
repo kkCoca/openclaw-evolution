@@ -183,7 +183,8 @@ class WorkflowOrchestrator {
         const validation = validateRoadmappingEntry(this.stateManager, this.stateManager.state);
         if (!validation.ok) {
           console.error(`[Workflow-Orchestrator] ❌ roadmapping 入口门禁校验失败：${validation.reason}`);
-          this.stateManager.updateStage('roadmapping', StageStatus.TERMINATED);
+          // TODO-3 修复：Gate 失败改用 BLOCKED（可恢复暂停）
+          this.stateManager.updateStage('roadmapping', StageStatus.BLOCKED, { blockReason: validation.reason });
           return {
             success: false,
             error: `roadmapping 入口门禁失败：${validation.reason}`
@@ -256,6 +257,9 @@ class WorkflowOrchestrator {
             retryCount++;
             this.stateManager.state.stages[stageName].retryCount = retryCount;
             
+            // TODO-4 修复：写回 lastBlockingIssues 便于排查
+            this.stateManager.state.stages[stageName].lastBlockingIssues = reviewDecision.fixItems || [];
+            
             if (reviewDecision.fixItems && reviewDecision.fixItems.length > 0) {
               const hint = reviewDecision.fixItems.map(item => 
                 `【${item.id}】${item.suggestion || item.description}`
@@ -280,6 +284,9 @@ class WorkflowOrchestrator {
             retryCount++;
             this.stateManager.state.stages[stageName].retryCount = retryCount;
             
+            // TODO-4 修复：写回 lastBlockingIssues 便于排查
+            this.stateManager.state.stages[stageName].lastBlockingIssues = reviewDecision.fixItems || [];
+            
             if (reviewDecision.fixItems && reviewDecision.fixItems.length > 0) {
               const hint = reviewDecision.fixItems.map(item => 
                 `【${item.id}】${item.suggestion || item.description}`
@@ -299,12 +306,14 @@ class WorkflowOrchestrator {
           } else if (reviewDecision.decision === 'clarify') {
             // P0#3 修复：clarify 不得直接放行，暂停流程
             console.log('[Workflow-Orchestrator] ❓ 需澄清，暂停流程（需要人工介入）');
-            this.stateManager.updateStage(stageName, StageStatus.TERMINATED);
+            // TODO-3 修复：clarify 改用 BLOCKED（可恢复暂停）
+            this.stateManager.updateStage(stageName, StageStatus.BLOCKED, { blockReason: '需要澄清' });
             return { success: false, error: '需要澄清' };
           }
         }
         
-        return { success: true };
+        // TODO-1 修复：禁止 while-loop 结束后默认 success
+        return { success: false, error: '自动返工耗尽或决策未处理' };
       } else {
         // 人工确认模式（designing/coding）：原有逻辑
         // 1. 更新状态为执行中
@@ -531,6 +540,9 @@ class WorkflowOrchestrator {
     console.log(`[Workflow-Orchestrator] 加载工作流状态：${this.stateManager.state.workflowId}`);
     console.log(`[Workflow-Orchestrator] 当前阶段：${this.stateManager.getCurrentStage() || '无'}`);
     console.log('');
+    
+    // TODO-5 修复：初始化 StageExecutor（传入 stateManager，保证 Gate#2 在断点恢复时仍生效）
+    this.stageExecutor = new StageExecutor(this.config, this.stateManager);
 
     // 2. 从未通过的阶段继续
     const currentIndex = this.stateManager.getCurrentStageIndex();

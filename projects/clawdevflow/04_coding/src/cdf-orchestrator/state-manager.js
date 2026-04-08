@@ -22,6 +22,7 @@ const StageStatus = {
   PASSED: 'passed',             // 通过
   CONDITIONAL_PASSED: 'conditional_passed', // 条件通过
   REJECTED: 'rejected',         // 驳回
+  BLOCKED: 'blocked',           // 阻断（可恢复暂停）- TODO-2 新增
   TERMINATED: 'terminated'      // 终止
 };
 
@@ -193,6 +194,7 @@ class StateManager {
       [StageStatus.PASSED]: 'passed',
       [StageStatus.CONDITIONAL_PASSED]: 'conditional_passed',
       [StageStatus.REJECTED]: 'rejected',
+      [StageStatus.BLOCKED]: 'blocked',  // TODO-2 新增
       [StageStatus.TERMINATED]: 'terminated'
     };
     this.state.stages[stageName].stageStatus = statusMap[status] || status;
