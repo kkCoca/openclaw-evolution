@@ -13,6 +13,7 @@ const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
 const { promisify } = require('util');
+const { validateRoadmappingEntry } = require('../utils/validate-roadmapping-entry');
 
 // 引入 AI 工具适配器
 const { OpenCodeAdapter } = require('../adapters/opencode');
@@ -37,10 +38,12 @@ class StageExecutor {
   /**
    * 构造函数
    * @param {object} config - 配置对象
+   * @param {object} stateManager - 状态管理器（用于 Gate 校验）
    */
-  constructor(config) {
+  constructor(config, stateManager) {
     this.config = config || {};
     this.workspaceRoot = config.workspaceRoot || '/home/ouyp/Learning/Practice/openclaw-universe';
+    this.stateManager = stateManager;  // P0#2 修复：传入 stateManager 用于 Gate 校验
     
     // 初始化 AI 工具适配器
     this.aiAdapter = new OpenCodeAdapter({
@@ -148,6 +151,15 @@ class StageExecutor {
     console.log('[Stage-Executor] ════════════════════════════════════════');
     console.log('[Stage-Executor] 开始执行阶段：ROADMAPPING');
     console.log('[Stage-Executor] ════════════════════════════════════════');
+    
+    // P0#2 修复：Gate#2 防绕过校验（执行层）
+    if (this.stateManager) {
+      const validation = validateRoadmappingEntry(this.stateManager, this.stateManager.state);
+      if (!validation.ok) {
+        throw new Error(`roadmapping 入口门禁失败（Gate#2）: ${validation.reason}`);
+      }
+      console.log('[Stage-Executor] ✅ roadmapping 入口门禁校验通过（Gate#2）');
+    }
     
     const roadmappingPath = path.join(projectPath, '02_roadmapping');
     const designingPath = path.join(projectPath, '01_designing');

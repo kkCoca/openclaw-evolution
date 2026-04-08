@@ -237,6 +237,7 @@ class StateManager {
     this.state.stages[stageName].fixItems = fixItems;
     
     // 根据审阅结论更新状态
+    // P0#1 修复：删除 retryCount++，统一交给 while-loop 控制（避免重复自增）
     switch (decision) {
       case 'pass':
         this.state.stages[stageName].status = StageStatus.PASSED;
@@ -246,7 +247,7 @@ class StateManager {
         break;
       case 'reject':
         this.state.stages[stageName].status = StageStatus.REJECTED;
-        this.state.stages[stageName].retryCount++;
+        // retryCount++ 已删除，由 while-loop 手动控制
         break;
       case 'clarify':
         this.state.stages[stageName].status = StageStatus.REVIEWING; // 保持待审阅状态

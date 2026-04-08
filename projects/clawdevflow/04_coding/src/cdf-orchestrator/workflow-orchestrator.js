@@ -42,7 +42,7 @@ class WorkflowOrchestrator {
    */
   constructor(config) {
     this.config = config || {};
-    this.stageExecutor = new StageExecutor(config);
+    this.stageExecutor = null;  // 延迟初始化（需要 stateManager）
     this.stateManager = null;
     this.reviewOrchestrator = new ReviewOrchestrator(config);
     
@@ -85,6 +85,9 @@ class WorkflowOrchestrator {
       this.stateManager.setMetadata({ scenario, requirementsFile, startTime: new Date().toISOString() });
       console.log(`[Workflow-Orchestrator] ✅ 工作流 ID: ${this.stateManager.state.workflowId}`);
       console.log('');
+      
+      // P0#2 修复：初始化 StageExecutor（传入 stateManager 用于 Gate#2）
+      this.stageExecutor = new StageExecutor(this.config, this.stateManager);
 
       // 2. 执行阶段循环
       console.log('[Workflow-Orchestrator] 步骤 2/7: 开始执行阶段循环...');
@@ -271,10 +274,33 @@ class WorkflowOrchestrator {
             
             // 继续循环重试
             console.log('[Workflow-Orchestrator] 🔄 开始下一次重试...');
-          } else {
-            // conditional/clarify
-            console.log(`[Workflow-Orchestrator] ⚠️ 审阅结论：${reviewDecision.decision}`);
-            return { success: true };
+          } else if (reviewDecision.decision === 'conditional') {
+            // P0#3 修复：conditional 当作 reject 处理（触发返工）
+            console.log('[Workflow-Orchestrator] ⚠️ 条件通过，当作 reject 触发返工');
+            retryCount++;
+            this.stateManager.state.stages[stageName].retryCount = retryCount;
+            
+            if (reviewDecision.fixItems && reviewDecision.fixItems.length > 0) {
+              const hint = reviewDecision.fixItems.map(item => 
+                `【${item.id}】${item.suggestion || item.description}`
+              ).join('\n');
+              this.stateManager.state.stages[stageName].lastRegenerateHint = hint;
+            }
+            
+            this.stateManager.save();
+            
+            if (retryCount >= maxRetries) {
+              console.log('[Workflow-Orchestrator] ❌ 超过最大重试次数，终止流程');
+              this.stateManager.updateStage(stageName, StageStatus.TERMINATED);
+              return { success: false, error: '超过最大重试次数' };
+            }
+            
+            console.log('[Workflow-Orchestrator] 🔄 开始下一次重试...');
+          } else if (reviewDecision.decision === 'clarify') {
+            // P0#3 修复：clarify 不得直接放行，暂停流程
+            console.log('[Workflow-Orchestrator] ❓ 需澄清，暂停流程（需要人工介入）');
+            this.stateManager.updateStage(stageName, StageStatus.TERMINATED);
+            return { success: false, error: '需要澄清' };
           }
         }
         
