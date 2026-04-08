@@ -72,6 +72,29 @@
 
 ---
 
+### Reviewing 阶段 Release Readiness Gate（B 方案）
+
+**提交**: `2c384f1`
+
+**变更**：
+- reviewing 升级为 Releasing 的入口关口
+- 实现 Reviewing Gates（RG0-RG6：严格放行）
+- 写回 RELEASE_READINESS.json（B 方案核心：审阅阶段写文件）
+- StageExecutor 兜底 FINAL_REPORT.md 模板
+
+**影响**：
+- reviewing 成为 releasing 的唯一入口关口
+- RELEASE_READINESS.json 成为唯一放行凭证
+- releasing 实现时可直接消费 readiness，无需重复上游检查
+- 全链路（designing→…→releasing）收口清晰、证据闭环一致
+
+**代码统计**：
+- stage-executor.js: +60 行（兜底 FINAL_REPORT）
+- review-orchestrator.js: +200 行（RG0-RG6 + readiness 写回）
+- 新增文档：6.2KB
+
+---
+
 ### 专业收口最终整改（Pin SHA + 移除占位符）
 
 **提交**: `0071533`
