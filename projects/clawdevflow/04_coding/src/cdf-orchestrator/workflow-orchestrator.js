@@ -29,7 +29,8 @@ const STAGE_SEQUENCE = [
   Stage.DETAILING,
   Stage.CODING,
   Stage.TESTING,
-  Stage.REVIEWING
+  Stage.REVIEWING,
+  Stage.RELEASING
 ];
 
 /**

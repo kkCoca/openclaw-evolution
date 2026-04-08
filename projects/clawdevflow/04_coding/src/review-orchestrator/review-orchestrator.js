@@ -73,10 +73,11 @@ class ReviewOrchestrator {
       // - detailing: 走自动审阅（最小规则）并直接返回
       // - coding: 走自动审阅（真执行命令）
       // - testing: 走自动审阅（检查证据包）
-      // - reviewing: 走自动审阅（检查产物齐全）
+      // - reviewing: 走自动审阅（Release Readiness Gate）
+      // - releasing: 走自动审阅（检查 readiness + 产出证据）
       
-      if (stageName === 'roadmapping' || stageName === 'detailing' || stageName === 'coding' || stageName === 'testing' || stageName === 'reviewing') {
-        // 自动审阅模式（roadmapping/detailing/coding/testing/reviewing）
+      if (stageName === 'roadmapping' || stageName === 'detailing' || stageName === 'coding' || stageName === 'testing' || stageName === 'reviewing' || stageName === 'releasing') {
+        // 自动审阅模式（roadmapping/detailing/coding/testing/reviewing/releasing）
         console.log('[Review-Orchestrator] 步骤 1/1: 执行自动审阅...');
         const decision = await this.executeAutoReview(stageName, input, projectPath);
         console.log('[Review-Orchestrator] ✅ 自动审阅完成');
@@ -770,6 +771,73 @@ class ReviewOrchestrator {
           }))
         };
       }
+    } else if (stageName === 'releasing') {
+      // Releasing: 检查 readiness 并验证产出证据
+      const releasingPath = path.join(projectPath, '06_releasing');
+      
+      // 检查 readiness
+      const readinessPath = path.join(projectPath, '05_reviewing/RELEASE_READINESS.json');
+      if (!fs.existsSync(readinessPath)) {
+        return {
+          decision: 'reject',
+          notes: '05_reviewing/RELEASE_READINESS.json 文件不存在',
+          fixItems: [{
+            id: 'RL0_READINESS_MISSING',
+            description: 'RELEASE_READINESS.json 文件不存在',
+            suggestion: '请先完成 reviewing 阶段并获得 PASS 放行凭证'
+          }]
+        };
+      }
+      
+      const readiness = JSON.parse(fs.readFileSync(readinessPath, 'utf8'));
+      if (readiness.result !== 'PASS') {
+        return {
+          decision: 'reject',
+          notes: `Release Readiness 检查结果为 ${readiness.result}，不允许发布`,
+          fixItems: readiness.blockingIssues.map(issue => ({
+            id: `RL0_READINESS_${issue.gateId}`,
+            description: `Reviewing 阻塞项：${issue.description}`,
+            suggestion: issue.suggestion,
+            evidencePath: issue.evidencePath
+          }))
+        };
+      }
+      
+      // 检查 releasing 产出证据
+      const requiredFiles = [
+        '06_releasing/RELEASE_RECORD.json',
+        '06_releasing/RELEASE_NOTES.md',
+        '06_releasing/ARTIFACT_MANIFEST.json',
+        '06_releasing/CLEANUP_PLAN.json',
+        '06_releasing/CLEANUP_REPORT.json'
+      ];
+      
+      const missingFiles = [];
+      for (const file of requiredFiles) {
+        const filePath = path.join(projectPath, file);
+        if (!fs.existsSync(filePath)) {
+          missingFiles.push(file);
+        }
+      }
+      
+      if (missingFiles.length > 0) {
+        return {
+          decision: 'reject',
+          notes: `Releasing 产出文件缺失：${missingFiles.join(', ')}`,
+          fixItems: [{
+            id: 'RL1_OUTPUT_MISSING',
+            description: `缺少文件：${missingFiles.join(', ')}`,
+            suggestion: '请执行 Releasing 阶段生成完整的发布证据包'
+          }]
+        };
+      }
+      
+      // 所有检查通过
+      return {
+        decision: 'pass',
+        notes: 'Releasing 检查通过',
+        fixItems: []
+      };
     }
     
     // 未知阶段
