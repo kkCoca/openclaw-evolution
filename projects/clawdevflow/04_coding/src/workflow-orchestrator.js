@@ -1104,6 +1104,16 @@ ${input.regenerateHint}
       }
       
       const roadmapContent = fs.readFileSync(roadmapPath, 'utf8');
+      
+      // 待办建议 #1：空内容判空（ROADMAP.md 存在但为空时应 error）
+      if (!roadmapContent || roadmapContent.trim().length === 0) {
+        console.error('[Orchestrator] ROADMAP.md 文件存在但内容为空:', roadmapPath);
+        return {
+          error: `ROADMAP.md 文件存在但内容为空：${roadmapPath}`,
+          overall: { passed: false, score: 0, recommendation: 'error' }
+        };
+      }
+      
       input.roadmapContent = roadmapContent;
       
       console.log(`[Orchestrator] 已读取 ROADMAP.md: ${roadmapPath} (${roadmapContent.length} 字节)`);

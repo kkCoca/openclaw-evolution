@@ -121,12 +121,28 @@ class ReviewRoadmapAgentV1 extends ReviewAgentBase {
     const requirementsContent = input.requirementsContent || '';
     const roadmapContent = input.roadmapContent || '';
     
-    // 提取 REQUIREMENTS 中的所有 REQ ID
+    // 提取 REQUIREMENTS 中的所有 REQ ID（增强兼容性）
     const reqIds = [];
-    const reqPattern = /### (REQ-\d+):/g;
-    let match;
-    while ((match = reqPattern.exec(requirementsContent)) !== null) {
-      reqIds.push(match[1]);
+    // 待办建议 #2：增强需求提取规则，兼容多种书写格式
+    const reqPatterns = [
+      /### (REQ-\d+):/g,           // ### REQ-001: 需求描述
+      /## (REQ-\d+):/g,            // ## REQ-001: 需求描述
+      /### (REQ-\d+)\s/g,          // ### REQ-001 需求描述（无冒号）
+      /## (REQ-\d+)\s/g,           // ## REQ-001 需求描述（无冒号）
+      /REQ-\d+/g                   // 任意位置的 REQ-001（兜底）
+    ];
+    
+    // 使用多种模式提取，去重
+    const seen = new Set();
+    for (const pattern of reqPatterns) {
+      let match;
+      while ((match = pattern.exec(requirementsContent)) !== null) {
+        const reqId = match[1] || match[0];  // 有捕获组取捕获组，否则取全匹配
+        if (!seen.has(reqId)) {
+          seen.add(reqId);
+          reqIds.push(reqId);
+        }
+      }
     }
     
     console.log(`[Traceability] 提取到 ${reqIds.length} 条需求`);

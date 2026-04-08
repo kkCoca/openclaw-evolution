@@ -1,5 +1,96 @@
 # 变更日志 - ClawDevFlow
 
+## v3.5.0 (2026-04-08) - Roadmapping 待办建议修复
+
+### 修复
+
+- ✅ **空内容判空** - `executeRoadmapReviewV1` 增加 ROADMAP.md 空内容检测（待办建议 #1）
+- ✅ **需求提取规则增强** - ReviewRoadmapAgentV1 兼容多种 REQUIREMENTS 书写格式（待办建议 #2）
+- ✅ **集成测试** - 新增 5 个测试用例，覆盖所有待办场景（待办建议 #3）
+
+### 变更
+
+#### 1. 空内容判空（workflow-orchestrator.js）
+
+```javascript
+// 待办建议 #1：空内容判空（ROADMAP.md 存在但为空时应 error）
+if (!roadmapContent || roadmapContent.trim().length === 0) {
+  console.error('[Orchestrator] ROADMAP.md 文件存在但内容为空:', roadmapPath);
+  return {
+    error: `ROADMAP.md 文件存在但内容为空：${roadmapPath}`,
+    overall: { passed: false, score: 0, recommendation: 'error' }
+  };
+}
+```
+
+**修复前**：仅检查文件是否存在，不检查内容是否为空  
+**修复后**：文件存在但内容为空时返回 error，避免"审阅空文本"
+
+---
+
+#### 2. 需求提取规则增强（review-roadmap-v1.js）
+
+```javascript
+// 待办建议 #2：增强需求提取规则，兼容多种书写格式
+const reqPatterns = [
+  /### (REQ-\d+):/g,           // ### REQ-001: 需求描述
+  /## (REQ-\d+):/g,            // ## REQ-001: 需求描述
+  /### (REQ-\d+)\s/g,          // ### REQ-001 需求描述（无冒号）
+  /## (REQ-\d+)\s/g,           // ## REQ-001 需求描述（无冒号）
+  /REQ-\d+/g                   // 任意位置的 REQ-001（兜底）
+];
+```
+
+**修复前**：仅支持 `### REQ-001:` 单一格式  
+**修复后**：支持 5 种格式，去重提取，兼容性大幅提升
+
+---
+
+#### 3. 集成测试（test-roadmapping-integration.js）
+
+**测试用例**：
+1. ✅ 缺结构章节 → reject
+2. ✅ 引入 PRD 未定义 REQ → reject
+3. ✅ 完整 ROADMAP → pass
+4. ✅ 空内容判空
+5. ✅ 需求提取规则增强（4 种子格式）
+
+**测试结果**：5/5 通过
+
+---
+
+### 测试套件（5 个测试用例）
+
+| # | 测试用例 | 验证点 | 状态 |
+|---|---------|--------|------|
+| 1 | 缺结构章节 → reject | Structure Gate 失败 | ✅ |
+| 2 | 引入 PRD 未定义 REQ → reject | Scope Check 失败 | ✅ |
+| 3 | 完整 ROADMAP → pass | 所有检查通过 | ✅ |
+| 4 | 空内容判空 | 空内容检测 | ✅ |
+| 5 | 需求提取规则增强 | 4 种格式兼容 | ✅ |
+
+---
+
+### 文件变更
+
+**修改的文件 (2 个)**:
+- `04_coding/src/workflow-orchestrator.js` - 空内容判空逻辑
+- `04_coding/src/review-agents/review-roadmap-v1.js` - 需求提取规则增强
+
+**新增的文件 (1 个)**:
+- `04_coding/test/test-roadmapping-integration.js` - 集成测试
+
+---
+
+### 验收标准
+
+- ✅ 空内容判空逻辑正确
+- ✅ 需求提取规则兼容 4 种格式
+- ✅ 5 个测试用例全部通过
+- ✅ 代码已提交 Git
+
+---
+
 ## v3.4.0 (2026-04-07) - Designing Policy 优化完整修复（Stable 版本）🎉
 
 ### 🏆 重大成就
