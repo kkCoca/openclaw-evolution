@@ -52,6 +52,26 @@
 
 ---
 
+### Reviewing 阶段自动审阅（产物齐全检查）
+
+**提交**: `898d912`
+
+**变更**：
+- reviewing 纳入自动审阅分流（不再依赖 reviewing agent）
+- 实现 Reviewing Gates（RG0-RG2：只检查产物齐全）
+- 新增验收用例文档（3 条）
+
+**影响**：
+- reviewing 阶段可自动完成（不再报错"未知的审阅阶段"）
+- 只检查 05_reviewing/ 产物齐全，不执行命令
+- 与 testing/coding 保持同一套自动审阅体系
+
+**代码统计**：
+- review-orchestrator.js: +60 行
+- 新增文档：4.5KB
+
+---
+
 ### 专业收口最终整改（Pin SHA + 移除占位符）
 
 **提交**: `0071533`
