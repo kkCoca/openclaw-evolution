@@ -482,6 +482,20 @@ class ReviewOrchestrator {
         };
       }
       
+      // P0-1 修复：检查 TEST_RESULTS.json.RESULT === 'PASS'
+      const testResults = JSON.parse(fs.readFileSync(testResultsPath, 'utf8'));
+      if (testResults.RESULT !== 'PASS') {
+        return {
+          decision: 'reject',
+          notes: `测试未通过：${testResults.RESULT}`,
+          fixItems: [{
+            id: 'TG5_TEST_FAILED',  // P1 修复：与文档用例 3 对齐
+            description: `测试失败：${testResults.ERROR || '未知错误'}`,
+            suggestion: '请修复 failing tests / 修复依赖 / 更新断言，并重新执行 Testing 阶段'
+          }]
+        };
+      }
+      
       // TG2: VERIFY_RESULTS.json 存在
       const verifyResultsPath = path.join(testingPath, 'VERIFY_RESULTS.json');
       if (!fs.existsSync(verifyResultsPath)) {
@@ -520,6 +534,19 @@ class ReviewOrchestrator {
             id: 'TG4_FIELDS_INCOMPLETE',
             description: 'VERIFY_RESULTS.json 缺少必需字段',
             suggestion: '请确保 VERIFY_RESULTS.json 包含 VERIFY_CMD 和 RESULT 字段'
+          }]
+        };
+      }
+      
+      // P0-2 修复：检查 verify 命令是否缺失（来自 VERIFY_RESULTS.ERROR）
+      if (verifyResults.ERROR === 'VERIFY_COMMAND_MISSING') {
+        return {
+          decision: 'reject',
+          notes: 'PROJECT_MANIFEST.json 缺少 commands.verify 字段',
+          fixItems: [{
+            id: 'TG0_VERIFY_COMMAND_MISSING',  // P1 修复：与文档用例 2 对齐
+            description: 'PROJECT_MANIFEST.json 缺少 commands.verify 字段',
+            suggestion: '请在 PROJECT_MANIFEST.json 中添加 commands.verify 字段，建议使用 ./scripts/verify.sh 或自定义验收脚本'
           }]
         };
       }

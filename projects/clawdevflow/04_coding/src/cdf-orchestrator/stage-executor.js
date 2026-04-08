@@ -495,23 +495,30 @@ ${input.manifestFile ? '见 PROJECT_MANIFEST.json' : 'npm run build'}
 
       // T5: Verify（必需）
       console.log('[Stage-Executor] T5: Verify - 执行验收...');
-      const verifyCmd = manifest.commands?.verify || 'echo "verify skipped"';
+      const verifyCmd = manifest.commands?.verify;
       let verifyPassed = false;
       let verifyError = null;
       let verifyOutput = '';
       
-      try {
-        const verifyResult = await execAsync(verifyCmd, {
-          cwd: projectPath,
-          timeout: testContext.timeout
-        });
-        verifyOutput = verifyResult.stdout + verifyResult.stderr;
-        verifyPassed = true;
-        console.log('[Stage-Executor] ✅ T5: 验收通过');
-      } catch (error) {
-        verifyOutput = `验收失败：${error.message}\n${error.stdout || ''}\n${error.stderr || ''}`;
-        verifyError = error.message;
-        console.log('[Stage-Executor] ❌ T5: 验收失败');
+      // P0-2 修复：缺 verify 命令时不静默放行，直接标记 FAIL
+      if (!verifyCmd) {
+        verifyError = 'VERIFY_COMMAND_MISSING';
+        verifyOutput = '验收失败：PROJECT_MANIFEST.json 缺少 commands.verify 字段';
+        console.log('[Stage-Executor] ❌ T5: 缺少 verify 命令，标记为 FAIL');
+      } else {
+        try {
+          const verifyResult = await execAsync(verifyCmd, {
+            cwd: projectPath,
+            timeout: testContext.timeout
+          });
+          verifyOutput = verifyResult.stdout + verifyResult.stderr;
+          verifyPassed = true;
+          console.log('[Stage-Executor] ✅ T5: 验收通过');
+        } catch (error) {
+          verifyOutput = `验收失败：${error.message}\n${error.stdout || ''}\n${error.stderr || ''}`;
+          verifyError = error.message;
+          console.log('[Stage-Executor] ❌ T5: 验收失败');
+        }
       }
       
       fs.writeFileSync(
@@ -522,7 +529,7 @@ ${input.manifestFile ? '见 PROJECT_MANIFEST.json' : 'npm run build'}
       
       // 写入 VERIFY_RESULTS.json（结构化）
       const verifyResults = {
-        VERIFY_CMD: verifyCmd,
+        VERIFY_CMD: verifyCmd || 'MISSING',
         RESULT: verifyPassed ? 'PASS' : 'FAIL',
         DURATION: 0,  // 简化实现
         ERROR: verifyError
@@ -546,8 +553,9 @@ ${input.manifestFile ? '见 PROJECT_MANIFEST.json' : 'npm run build'}
 - 结果：${testResults.RESULT}
 
 ## 验收命令
-- VERIFY_CMD: \`${verifyCmd}\`
+- VERIFY_CMD: \`${verifyCmd || 'MISSING'}\`
 - 结果：${verifyResults.RESULT}
+${verifyError ? `\n## 错误信息\n${verifyError}` : ''}
 
 ## 最终判定
 **RESULT: ${testPassed && verifyPassed ? 'PASS' : 'FAIL'}**
