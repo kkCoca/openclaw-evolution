@@ -119,6 +119,28 @@
 
 ---
 
+### Releasing P0 修复（严格放行 + 安全阻断）
+
+**提交**: `9390134`
+
+**变更**：
+- P0-1: 执行层读取 readiness 并校验（禁止写死 PASS）
+- P0-2: 审阅层校验 securityFindings（发现敏感文件则 reject）
+- P0-3: 验收文档新增用例 5（命中敏感文件 → reject）
+
+**影响**：
+- readiness 缺失/FAIL 时 releasing 立即失败（不生成误导性证据包）
+- 发现敏感文件（.env/.pem/id_rsa 等）禁止发布
+- 发布流程安全性大幅提升
+
+**代码统计**：
+- stage-executor.js: +40 行（readiness 前置校验）
+- review-orchestrator.js: +35 行（RL2/RL3 gates）
+- RELEASING-GATES-ACCEPTANCE.md: +35 行（用例 5）
+- 总计：+110 行
+
+---
+
 ### 专业收口最终整改（Pin SHA + 移除占位符）
 
 **提交**: `0071533`
