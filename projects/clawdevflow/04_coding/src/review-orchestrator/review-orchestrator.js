@@ -721,6 +721,11 @@ class ReviewOrchestrator {
       // 计算 readiness.result
       const result = blockingIssues.length === 0 ? 'PASS' : 'FAIL';
       
+      // 确保 05_reviewing/ 目录存在（保证 FAIL 也能落盘 readiness）
+      if (!fs.existsSync(reviewingPath)) {
+        fs.mkdirSync(reviewingPath, { recursive: true });
+      }
+      
       // 写回 RELEASE_READINESS.json（B 方案核心：审阅阶段写文件）
       const readiness = {
         schemaVersion: 'v1',
