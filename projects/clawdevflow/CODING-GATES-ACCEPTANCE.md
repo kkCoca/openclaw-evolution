@@ -310,6 +310,7 @@ rm -f PROJECT_MANIFEST.json
 |------|-----------|------|
 | repo | `9b71c91` | restore auto-convergence |
 | repo | `a05104e` | 更新验收用例 |
+| repo | `0071533` | professional closure docs (acceptance 8/8 + terminated semantics + changelog) |
 
 ### 测试结果
 
