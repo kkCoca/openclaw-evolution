@@ -635,6 +635,82 @@ ${verifyError ? `\n## 错误信息\n${verifyError}` : ''}
       }))
     };
   }
+
+  /**
+   * 执行 Reviewing 阶段（兜底生成 FINAL_REPORT.md 模板）
+   */
+  async executeReviewing(input, projectPath) {
+    console.log('[Stage-Executor] ════════════════════════════════════════');
+    console.log('[Stage-Executor] 开始执行阶段：REVIEWING');
+    console.log('[Stage-Executor] ════════════════════════════════════════');
+    
+    const reviewingPath = path.join(projectPath, '05_reviewing');
+    
+    // 确保目录存在
+    if (!fs.existsSync(reviewingPath)) {
+      fs.mkdirSync(reviewingPath, { recursive: true });
+      console.log(`[Stage-Executor] 创建目录：${reviewingPath}`);
+    }
+
+    try {
+      // 兜底：若 FINAL_REPORT.md 不存在，生成非空模板
+      const finalReportPath = path.join(reviewingPath, 'FINAL_REPORT.md');
+      if (!fs.existsSync(finalReportPath)) {
+        console.log('[Stage-Executor] 兜底生成 FINAL_REPORT.md 模板...');
+        const finalReportContent = `# 项目收口报告 - Reviewing 阶段
+
+## 执行信息
+- 时间：${new Date().toISOString()}
+- 项目路径：${projectPath}
+
+## 收口结论
+待 AI 或人工填充...
+
+## 证据引用
+- Testing 验收报告：05_testing/VERIFICATION_REPORT.md
+- 变更说明：04_coding/CHANGESET.md
+- 项目 Manifest: PROJECT_MANIFEST.json
+
+## 发布就绪
+详见：05_reviewing/RELEASE_READINESS.json
+`;
+        fs.writeFileSync(finalReportPath, finalReportContent, 'utf8');
+        console.log('[Stage-Executor] ✅ FINAL_REPORT.md 模板已生成');
+      }
+
+      // 调用 AI 工具执行 Reviewing 阶段（可选，若配置了 AI 工具）
+      console.log('[Stage-Executor] 调用 AI 工具执行 Reviewing 阶段...');
+      
+      const result = await this.aiAdapter.execute('reviewing', {
+        projectPath: projectPath,
+        reviewingPath: reviewingPath,
+        outputDir: reviewingPath
+      });
+      
+      if (!result.success) {
+        throw new Error(`Reviewing 阶段执行失败：${result.error}`);
+      }
+      
+      console.log('[Stage-Executor] ✅ Reviewing 阶段完成');
+      console.log(`[Stage-Executor]   产出：${result.outputs.length} 个文件`);
+      
+      return {
+        success: true,
+        outputs: result.outputs.map(o => ({
+          name: path.basename(o),
+          path: path.relative(projectPath, o)
+        }))
+      };
+
+    } catch (error) {
+      console.error('[Stage-Executor] ❌ Reviewing 阶段执行失败:', error.message);
+      return {
+        success: false,
+        outputs: [],
+        error: error.message
+      };
+    }
+  }
 }
 
 module.exports = StageExecutor;

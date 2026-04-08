@@ -572,82 +572,199 @@ class ReviewOrchestrator {
         fixItems: []
       };
     } else if (stageName === 'reviewing') {
-      // Reviewing: 检查产物齐全（不执行命令）
+      // Reviewing: Release Readiness Gate（B 方案：自动计算 + 写回凭证）
       const reviewingPath = path.join(projectPath, '05_reviewing');
+      const testingPath = path.join(projectPath, '05_testing');
+      const codingPath = path.join(projectPath, '04_coding');
+      
+      const blockingIssues = [];
       
       // RG0: 05_reviewing/ 目录存在
       if (!fs.existsSync(reviewingPath)) {
-        return {
-          decision: 'reject',
-          notes: '05_reviewing/ 目录不存在',
-          fixItems: [{
-            id: 'RG0_REVIEWING_DIR_MISSING',
-            description: '05_reviewing/ 目录不存在',
-            suggestion: '请执行 Reviewing 阶段生成验收报告'
-          }]
-        };
+        blockingIssues.push({
+          stage: 'reviewing',
+          gateId: 'RG0_REVIEWING_DIR_MISSING',
+          description: '05_reviewing/ 目录不存在',
+          suggestion: '执行 reviewing 阶段生成收口产物（FINAL_REPORT + readiness）',
+          evidencePath: '05_reviewing/'
+        });
       }
       
-      // RG1: 05_reviewing/ 目录至少有一个 .md 文件且非空
-      const mdFiles = fs.readdirSync(reviewingPath).filter(f => f.endsWith('.md'));
-      if (mdFiles.length === 0) {
-        return {
-          decision: 'reject',
-          notes: '05_reviewing/ 目录没有任何 .md 文件',
-          fixItems: [{
-            id: 'RG1_REVIEWING_OUTPUT_EMPTY',
-            description: '05_reviewing/ 目录没有任何 .md 文件',
-            suggestion: '请执行 Reviewing 阶段生成至少一个 markdown 验收报告'
-          }]
-        };
-      }
-      
-      // 检查至少有一个非空的 .md 文件
-      let hasNonEmptyMd = false;
-      for (const file of mdFiles) {
-        const filePath = path.join(reviewingPath, file);
-        const stats = fs.statSync(filePath);
-        if (stats.size > 0) {
-          hasNonEmptyMd = true;
-          break;
-        }
-      }
-      
-      if (!hasNonEmptyMd) {
-        return {
-          decision: 'reject',
-          notes: '05_reviewing/ 目录所有 .md 文件均为空',
-          fixItems: [{
-            id: 'RG1_REVIEWING_OUTPUT_EMPTY',
-            description: '05_reviewing/ 目录所有 .md 文件均为空',
-            suggestion: '请执行 Reviewing 阶段生成非空的验收报告'
-          }]
-        };
-      }
-      
-      // RG2（可选增强）：若存在 FINAL_REPORT.md，则必须非空
+      // RG1: FINAL_REPORT.md 存在且非空
       const finalReportPath = path.join(reviewingPath, 'FINAL_REPORT.md');
-      if (fs.existsSync(finalReportPath)) {
+      if (!fs.existsSync(finalReportPath)) {
+        blockingIssues.push({
+          stage: 'reviewing',
+          gateId: 'RG1_FINAL_REPORT_MISSING',
+          description: 'FINAL_REPORT.md 文件不存在',
+          suggestion: '生成 FINAL_REPORT.md（范围/结论/风险/证据引用）',
+          evidencePath: '05_reviewing/FINAL_REPORT.md'
+        });
+      } else {
         const stats = fs.statSync(finalReportPath);
         if (stats.size === 0) {
-          return {
-            decision: 'reject',
-            notes: 'FINAL_REPORT.md 文件为空',
-            fixItems: [{
-              id: 'RG2_REVIEWING_REPORT_EMPTY',
-              description: 'FINAL_REPORT.md 文件为空',
-              suggestion: '请重新生成 Reviewing 阶段报告，确保 FINAL_REPORT.md 非空并包含结论/变更摘要/验证链接'
-            }]
-          };
+          blockingIssues.push({
+            stage: 'reviewing',
+            gateId: 'RG1_FINAL_REPORT_EMPTY',
+            description: 'FINAL_REPORT.md 文件为空',
+            suggestion: '填充收口报告（范围/结论/风险/证据引用）',
+            evidencePath: '05_reviewing/FINAL_REPORT.md'
+          });
         }
       }
       
-      // 所有 Gate 通过
-      return {
-        decision: 'pass',
-        notes: 'Reviewing 产物齐全',
-        fixItems: []
+      // RG2: testing 证据包完整
+      const requiredTestingFiles = [
+        '05_testing/TEST_RESULTS.json',
+        '05_testing/VERIFY_RESULTS.json',
+        '05_testing/VERIFICATION_REPORT.md'
+      ];
+      for (const file of requiredTestingFiles) {
+        const filePath = path.join(projectPath, file);
+        if (!fs.existsSync(filePath)) {
+          blockingIssues.push({
+            stage: 'testing',
+            gateId: 'RG2_TESTING_EVIDENCE_MISSING',
+            description: `${file} 文件不存在`,
+            suggestion: '重新执行 testing 阶段生成完整 evidence pack',
+            evidencePath: file
+          });
+        }
+      }
+      
+      // RG3: testing 结果必须 PASS
+      const testResultsPath = path.join(testingPath, 'TEST_RESULTS.json');
+      const verifyResultsPath = path.join(testingPath, 'VERIFY_RESULTS.json');
+      
+      if (fs.existsSync(testResultsPath)) {
+        const testResults = JSON.parse(fs.readFileSync(testResultsPath, 'utf8'));
+        if (testResults.RESULT !== 'PASS') {
+          blockingIssues.push({
+            stage: 'testing',
+            gateId: 'RG3_TESTING_NOT_PASS',
+            description: `测试未通过：${testResults.RESULT}`,
+            suggestion: '修复 failing tests / 修复依赖 / 更新断言，并重跑 testing',
+            evidencePath: '05_testing/TEST_RESULTS.json'
+          });
+        }
+      }
+      
+      if (fs.existsSync(verifyResultsPath)) {
+        const verifyResults = JSON.parse(fs.readFileSync(verifyResultsPath, 'utf8'));
+        if (verifyResults.RESULT !== 'PASS') {
+          blockingIssues.push({
+            stage: 'testing',
+            gateId: 'RG3_TESTING_NOT_PASS',
+            description: `验收未通过：${verifyResults.RESULT}`,
+            suggestion: '修复验收失败问题并重跑 testing',
+            evidencePath: '05_testing/VERIFY_RESULTS.json'
+          });
+        }
+      }
+      
+      // RG4: manifest 存在且有效
+      const manifestPath = path.join(projectPath, 'PROJECT_MANIFEST.json');
+      if (!fs.existsSync(manifestPath)) {
+        blockingIssues.push({
+          stage: 'coding',
+          gateId: 'RG4_MANIFEST_MISSING_OR_INVALID',
+          description: 'PROJECT_MANIFEST.json 文件不存在',
+          suggestion: '创建 PROJECT_MANIFEST.json 并定义 commands.test/verify',
+          evidencePath: 'PROJECT_MANIFEST.json'
+        });
+      } else {
+        try {
+          const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+          if (!manifest.commands?.test || !manifest.commands?.verify) {
+            blockingIssues.push({
+              stage: 'coding',
+              gateId: 'RG4_MANIFEST_MISSING_OR_INVALID',
+              description: 'PROJECT_MANIFEST.json 缺少 commands.test 或 commands.verify 字段',
+              suggestion: '补齐 commands.test 和 commands.verify 字段',
+              evidencePath: 'PROJECT_MANIFEST.json'
+            });
+          }
+        } catch (error) {
+          blockingIssues.push({
+            stage: 'coding',
+            gateId: 'RG4_MANIFEST_MISSING_OR_INVALID',
+            description: `PROJECT_MANIFEST.json 解析失败：${error.message}`,
+            suggestion: '修复 PROJECT_MANIFEST.json 格式',
+            evidencePath: 'PROJECT_MANIFEST.json'
+          });
+        }
+      }
+      
+      // RG5: changeset 存在
+      const changesetPath = path.join(codingPath, 'CHANGESET.md');
+      if (!fs.existsSync(changesetPath)) {
+        blockingIssues.push({
+          stage: 'coding',
+          gateId: 'RG5_CHANGESET_MISSING',
+          description: 'CHANGESET.md 文件不存在',
+          suggestion: '补齐变更说明与运行方式（test/lint/build/verify）',
+          evidencePath: '04_coding/CHANGESET.md'
+        });
+      } else {
+        const stats = fs.statSync(changesetPath);
+        if (stats.size === 0) {
+          blockingIssues.push({
+            stage: 'coding',
+            gateId: 'RG5_CHANGESET_MISSING',
+            description: 'CHANGESET.md 文件为空',
+            suggestion: '填充变更说明与运行方式',
+            evidencePath: '04_coding/CHANGESET.md'
+          });
+        }
+      }
+      
+      // 计算 readiness.result
+      const result = blockingIssues.length === 0 ? 'PASS' : 'FAIL';
+      
+      // 写回 RELEASE_READINESS.json（B 方案核心：审阅阶段写文件）
+      const readiness = {
+        schemaVersion: 'v1',
+        result: result,
+        generatedAt: new Date().toISOString(),
+        inputs: {
+          projectPath: projectPath,
+          attempt: input.attempt || 1
+        },
+        evidence: {
+          manifest: 'PROJECT_MANIFEST.json',
+          changeset: '04_coding/CHANGESET.md',
+          testing: {
+            test_results: '05_testing/TEST_RESULTS.json',
+            verify_results: '05_testing/VERIFY_RESULTS.json',
+            verification_report: '05_testing/VERIFICATION_REPORT.md'
+          }
+        },
+        blockingIssues: blockingIssues
       };
+      
+      const readinessPath = path.join(reviewingPath, 'RELEASE_READINESS.json');
+      fs.writeFileSync(readinessPath, JSON.stringify(readiness, null, 2), 'utf8');
+      console.log(`[Review-Orchestrator] ✅ RELEASE_READINESS.json 已写入（result: ${result}）`);
+      
+      // RG6: 根据 readiness.result 决定 pass/reject
+      if (result === 'PASS') {
+        return {
+          decision: 'pass',
+          notes: 'Release Readiness 检查通过',
+          fixItems: []
+        };
+      } else {
+        return {
+          decision: 'reject',
+          notes: `Release Readiness 检查失败：${blockingIssues.length} 个 blocking issue`,
+          fixItems: blockingIssues.map(issue => ({
+            id: issue.gateId,
+            description: issue.description,
+            suggestion: issue.suggestion,
+            evidencePath: issue.evidencePath
+          }))
+        };
+      }
     }
     
     // 未知阶段
