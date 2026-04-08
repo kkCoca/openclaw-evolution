@@ -31,6 +31,27 @@
 
 ---
 
+### Testing Gates 对齐修复（Block Test Fail + Require Verify）
+
+**提交**: `ecf8b3a`
+
+**变更**：
+- P0-1: 补齐 'Test 必须 PASS' gate（检查 TEST_RESULTS.json.RESULT）
+- P0-2: 移除 verify 默认命令占位（缺 verify 标记 FAIL）
+- P1: 统一 gate id 命名（TG5_TEST_FAILED / TG0_VERIFY_COMMAND_MISSING）
+
+**影响**：
+- test FAIL 一定导致 testing reject（即使 verify PASS）
+- 缺 commands.verify 一定导致 testing reject + 自动返工
+- 验收用例与实现完全对齐
+
+**代码统计**：
+- review-orchestrator.js: +25 行
+- stage-executor.js: +15 行
+- 总计：+40 行（规则一致性修复）
+
+---
+
 ### 专业收口最终整改（Pin SHA + 移除占位符）
 
 **提交**: `0071533`
