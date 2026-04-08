@@ -41,7 +41,7 @@ EOF
 
 ---
 
-## 验收用例（6 条）
+## 验收用例（8 条）
 
 ### 用例 1: 无 PROJECT_MANIFEST.json → reject
 
@@ -194,8 +194,49 @@ EOF
 
 **期望结果**：
 - stage-executor 自动创建 CHANGESET.md 模板
-- CHANGESET.md 包含 test 命令
+- CHANGESET.md 包含真实 test 命令（从 manifest 读取）
 - coding 阶段自动审阅 pass
+
+**状态**: ✅ 待验证
+
+---
+
+### 用例 R1: roadmapping 缺 ROADMAP.md → reject → 自动返工（新增）
+
+**测试步骤**：
+```bash
+# 删除 ROADMAP.md
+rm -f 02_roadmapping/ROADMAP.md
+
+# 启动流程到 roadmapping 阶段
+```
+
+**期望结果**：
+- roadmapping 自动审阅 reject
+- fixItems: `[{ id: 'ROADMAP_MISSING', ... }]`
+- retryCount++
+- 自动返工触发（不出现 BLOCKED）
+
+**状态**: ✅ 待验证
+
+---
+
+### 用例 C1: coding 缺 manifest → reject → 自动返工补齐（新增）
+
+**测试步骤**：
+```bash
+# 删除 PROJECT_MANIFEST.json
+rm -f PROJECT_MANIFEST.json
+
+# 启动流程到 coding 阶段
+```
+
+**期望结果**：
+- coding 自动审阅 reject
+- fixItems: `[{ id: 'MANIFEST_MISSING', ... }]`
+- retryCount++
+- 写入 lastRegenerateHint
+- 自动返工补齐 manifest（不出现 BLOCKED）
 
 **状态**: ✅ 待验证
 
