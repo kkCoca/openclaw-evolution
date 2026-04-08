@@ -71,10 +71,10 @@ class ReviewOrchestrator {
       // - designing: 走现有 workflow.execute()（人工确认）
       // - roadmapping: 走自动审阅（ReviewRoadmapAgentV1）并直接返回
       // - detailing: 走自动审阅（最小规则）并直接返回
-      // - coding: 走现有 workflow.execute()（人工确认）
+      // - coding: 走自动审阅（真执行命令）
       
-      if (stageName === 'roadmapping' || stageName === 'detailing') {
-        // 自动审阅模式（roadmapping/detailing）
+      if (stageName === 'roadmapping' || stageName === 'detailing' || stageName === 'coding') {
+        // 自动审阅模式（roadmapping/detailing/coding）
         console.log('[Review-Orchestrator] 步骤 1/1: 执行自动审阅...');
         const decision = await this.executeAutoReview(stageName, input, projectPath);
         console.log('[Review-Orchestrator] ✅ 自动审阅完成');
@@ -270,6 +270,155 @@ class ReviewOrchestrator {
       return {
         decision: 'pass',
         notes: '所有检查通过',
+        fixItems: []
+      };
+    } else if (stageName === 'coding') {
+      // Coding: 真执行命令（Gate C0-C5）
+      const { exec } = require('child_process');
+      const { promisify } = require('util');
+      const execAsync = promisify(exec);
+      
+      const manifestPath = input.manifestFile || path.join(projectPath, 'PROJECT_MANIFEST.json');
+      
+      // Gate C0: PROJECT_MANIFEST.json 存在
+      if (!fs.existsSync(manifestPath)) {
+        return {
+          decision: 'reject',
+          notes: 'PROJECT_MANIFEST.json 文件不存在',
+          fixItems: [{
+            id: 'MANIFEST_MISSING',
+            description: 'PROJECT_MANIFEST.json 文件不存在',
+            suggestion: '请创建 PROJECT_MANIFEST.json 并定义 test/lint/build 命令'
+          }]
+        };
+      }
+      
+      // Gate C1: 解析 manifest 并验证 commands.test 存在
+      let manifest;
+      try {
+        manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+      } catch (error) {
+        return {
+          decision: 'reject',
+          notes: `PROJECT_MANIFEST.json 解析失败：${error.message}`,
+          fixItems: [{
+            id: 'MANIFEST_INVALID',
+            description: 'PROJECT_MANIFEST.json 不是有效的 JSON',
+            suggestion: '请修复 PROJECT_MANIFEST.json 格式'
+          }]
+        };
+      }
+      
+      if (!manifest.commands || !manifest.commands.test) {
+        return {
+          decision: 'reject',
+          notes: 'PROJECT_MANIFEST.json 缺少 commands.test 字段',
+          fixItems: [{
+            id: 'TEST_COMMAND_MISSING',
+            description: 'PROJECT_MANIFEST.json 缺少 commands.test 字段',
+            suggestion: '请在 PROJECT_MANIFEST.json 中添加 commands.test 字段'
+          }]
+        };
+      }
+      
+      // Gate C2: 执行 commands.test
+      const testCmd = manifest.commands.test;
+      try {
+        console.log(`[Review-Orchestrator] 执行测试命令：${testCmd}`);
+        const testResult = await execAsync(testCmd, { 
+          cwd: projectPath,
+          timeout: 300000 // 5 分钟超时
+        });
+        console.log('[Review-Orchestrator] ✅ 测试通过');
+      } catch (error) {
+        return {
+          decision: 'reject',
+          notes: `测试命令执行失败：${error.message}`,
+          fixItems: [{
+            id: 'TEST_FAILED',
+            description: `测试命令执行失败：${error.message}`,
+            suggestion: '请修复测试失败问题'
+          }]
+        };
+      }
+      
+      // Gate C3: 若 commands.lint 存在则必须通过
+      if (manifest.commands.lint) {
+        const lintCmd = manifest.commands.lint;
+        try {
+          console.log(`[Review-Orchestrator] 执行 Lint 命令：${lintCmd}`);
+          await execAsync(lintCmd, { 
+            cwd: projectPath,
+            timeout: 300000
+          });
+          console.log('[Review-Orchestrator] ✅ Lint 通过');
+        } catch (error) {
+          return {
+            decision: 'reject',
+            notes: `Lint 命令执行失败：${error.message}`,
+            fixItems: [{
+              id: 'LINT_FAILED',
+              description: `Lint 命令执行失败：${error.message}`,
+              suggestion: '请修复 Lint 问题'
+            }]
+          };
+        }
+      }
+      
+      // Gate C4: 若 commands.build 存在则必须通过
+      if (manifest.commands.build) {
+        const buildCmd = manifest.commands.build;
+        try {
+          console.log(`[Review-Orchestrator] 执行构建命令：${buildCmd}`);
+          await execAsync(buildCmd, { 
+            cwd: projectPath,
+            timeout: 600000 // 10 分钟超时
+          });
+          console.log('[Review-Orchestrator] ✅ 构建通过');
+        } catch (error) {
+          return {
+            decision: 'reject',
+            notes: `构建命令执行失败：${error.message}`,
+            fixItems: [{
+              id: 'BUILD_FAILED',
+              description: `构建命令执行失败：${error.message}`,
+              suggestion: '请修复构建问题'
+            }]
+          };
+        }
+      }
+      
+      // Gate C5: CHANGESET.md 必存在且包含 test 命令
+      const changesetPath = path.join(projectPath, '04_coding/CHANGESET.md');
+      if (!fs.existsSync(changesetPath)) {
+        return {
+          decision: 'reject',
+          notes: '04_coding/CHANGESET.md 文件不存在',
+          fixItems: [{
+            id: 'CHANGESET_MISSING',
+            description: '04_coding/CHANGESET.md 文件不存在',
+            suggestion: '请创建 CHANGESET.md 并说明如何跑 test/lint/build'
+          }]
+        };
+      }
+      
+      const changesetContent = fs.readFileSync(changesetPath, 'utf8');
+      if (!changesetContent.includes(testCmd)) {
+        return {
+          decision: 'reject',
+          notes: 'CHANGESET.md 未包含 test 命令',
+          fixItems: [{
+            id: 'CHANGESET_NO_TEST',
+            description: 'CHANGESET.md 未包含 test 命令',
+            suggestion: `请在 CHANGESET.md 中添加 test 命令：${testCmd}`
+          }]
+        };
+      }
+      
+      // 所有 Gate 通过
+      return {
+        decision: 'pass',
+        notes: '所有质量门禁通过',
         fixItems: []
       };
     }

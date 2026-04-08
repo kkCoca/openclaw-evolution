@@ -114,11 +114,15 @@ class StateManager {
         },
         coding: {
           status: StageStatus.PENDING,
+          stageStatus: 'pending',  // 用于入口门禁校验
           retryCount: 0,
           outputs: [],
           reviewDecision: null,
           reviewNotes: '',
-          fixItems: []
+          fixItems: [],
+          lastRegenerateHint: '',
+          lastBlockingIssues: [],
+          lastAutoReviewReport: null
         },
         testing: {
           status: StageStatus.PENDING,

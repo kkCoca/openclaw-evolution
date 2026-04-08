@@ -255,13 +255,32 @@ class StageExecutor {
       console.log(`[Stage-Executor] 创建目录：${srcPath}`);
     }
 
+    // Gate 防绕过：校验 manifest 存在 + commands.test 存在
+    const manifestPath = path.join(projectPath, 'PROJECT_MANIFEST.json');
+    if (fs.existsSync(manifestPath)) {
+      try {
+        const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+        if (!manifest.commands || !manifest.commands.test) {
+          throw new Error('PROJECT_MANIFEST.json 缺少 commands.test 字段');
+        }
+        console.log('[Stage-Executor] ✅ PROJECT_MANIFEST.json 校验通过');
+      } catch (error) {
+        throw new Error(`PROJECT_MANIFEST.json 校验失败：${error.message}`);
+      }
+    } else {
+      console.log('[Stage-Executor] ⚠️ PROJECT_MANIFEST.json 不存在，将在审阅阶段 reject');
+    }
+
     console.log('[Stage-Executor] 调用 AI 工具执行 Coding 阶段...');
     
+    // 传递 attempt + regenerateHint（自动返工闭环）
     const result = await this.aiAdapter.execute('coding', {
       projectPath: projectPath,
       designingPath: path.join(projectPath, '01_designing'),
       detailingPath: path.join(projectPath, '03_detailing'),
-      outputDir: srcPath
+      outputDir: srcPath,
+      attempt: input.attempt || 1,
+      regenerateHint: input.regenerateHint || ''
     });
     
     if (!result.success) {
@@ -270,6 +289,37 @@ class StageExecutor {
     
     console.log('[Stage-Executor] ✅ Coding 阶段完成');
     console.log(`[Stage-Executor]   产出：${result.outputs.length} 个文件`);
+    
+    // 确保 CHANGESET.md 一定存在（不依赖 AI）
+    const changesetPath = path.join(codingPath, 'CHANGESET.md');
+    if (!fs.existsSync(changesetPath)) {
+      console.log('[Stage-Executor] 创建 CHANGESET.md 模板...');
+      const changesetContent = `# 变更说明 - Coding 阶段
+
+## 本次变更
+- 时间：${new Date().toISOString()}
+- 尝试次数：${input.attempt || 1}
+
+## 如何跑命令
+请根据 PROJECT_MANIFEST.json 执行以下命令：
+
+\`\`\`bash
+# 测试
+${input.manifestFile ? '见 PROJECT_MANIFEST.json' : 'npm test'}
+
+# Lint（如有）
+npm run lint
+
+# 构建（如有）
+npm run build
+\`\`\`
+
+## 变更详情
+待补充...
+`;
+      fs.writeFileSync(changesetPath, changesetContent, 'utf8');
+      console.log('[Stage-Executor] ✅ CHANGESET.md 模板已创建');
+    }
     
     return {
       success: true,
