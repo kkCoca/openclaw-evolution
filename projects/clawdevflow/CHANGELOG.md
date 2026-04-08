@@ -8,7 +8,30 @@
 
 ## 2026-04-08
 
-### 专业收口（Docs & Acceptance Closure）
+### Testing 阶段实现（Evidence Pack + 自动返工）
+
+**提交**: `17647b1`
+
+**变更**：
+- testing 纳入自动返工循环（maxRetries=2）
+- executeTesting 实现（T0-T5：产出证据包）
+- testing gates 自动审阅（TG0-TG5）
+- 新增验收用例文档（6 条）
+
+**影响**：
+- Testing 阶段可重复执行、可审计、可签字
+- 与 coding/roadmapping 保持同一套自动返工闭环
+
+**代码统计**：
+- workflow-orchestrator.js: +10 行
+- stage-executor.js: +200 行（T0-T5 实现）
+- review-orchestrator.js: +100 行（TG0-TG5）
+- state-manager.js: +5 行
+- 新增文档：5.3KB
+
+---
+
+### 专业收口最终整改（Pin SHA + 移除占位符）
 
 **提交**: `0071533`
 
