@@ -30,6 +30,7 @@ const STAGE_SEQUENCE = [
   Stage.CODING,
   Stage.TESTING,
   Stage.REVIEWING,
+  Stage.PRECOMMIT,
   Stage.RELEASING
 ];
 

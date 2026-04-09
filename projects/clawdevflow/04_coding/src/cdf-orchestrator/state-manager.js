@@ -143,6 +143,22 @@ class StateManager {
           reviewDecision: null,
           reviewNotes: '',
           fixItems: []
+        },
+        precommit: {
+          status: StageStatus.PENDING,
+          retryCount: 0,
+          outputs: [],
+          reviewDecision: null,
+          reviewNotes: '',
+          fixItems: []
+        },
+        releasing: {
+          status: StageStatus.PENDING,
+          retryCount: 0,
+          outputs: [],
+          reviewDecision: null,
+          reviewNotes: '',
+          fixItems: []
         }
       },
       metadata: {

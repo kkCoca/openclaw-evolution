@@ -771,6 +771,77 @@ class ReviewOrchestrator {
           }))
         };
       }
+    } else if (stageName === 'precommit') {
+      // Precommit: 检查证据文件存在 + gate 结果 PASS
+      const precommitPath = path.join(projectPath, '07_precommit');
+      
+      // 检查必需的证据文件
+      const requiredFiles = [
+        '07_precommit/PRECOMMIT_PLAN.json',
+        '07_precommit/PRECOMMIT_REPORT.json',
+        '07_precommit/PRECOMMIT_SUMMARY.md'
+      ];
+      
+      const missingFiles = [];
+      for (const file of requiredFiles) {
+        const filePath = path.join(projectPath, file);
+        if (!fs.existsSync(filePath)) {
+          missingFiles.push(file);
+        }
+      }
+      
+      if (missingFiles.length > 0) {
+        return {
+          decision: 'reject',
+          notes: `Precommit 证据文件缺失：${missingFiles.join(', ')}`,
+          fixItems: [{
+            id: 'PC0_EVIDENCE_MISSING',
+            description: `Precommit 证据文件缺失：${missingFiles.join(', ')}`,
+            suggestion: '请执行 precommit 阶段生成完整的证据包',
+            evidencePath: '07_precommit/'
+          }]
+        };
+      }
+      
+      // 检查 PRECOMMIT_REPORT.json 的 result
+      const reportPath = path.join(projectPath, '07_precommit/PRECOMMIT_REPORT.json');
+      let report;
+      try {
+        report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+      } catch (error) {
+        return {
+          decision: 'reject',
+          notes: `PRECOMMIT_REPORT.json 解析失败：${error.message}`,
+          fixItems: [{
+            id: 'PC0_REPORT_INVALID',
+            description: `PRECOMMIT_REPORT.json 解析失败：${error.message}`,
+            suggestion: '请修复 PRECOMMIT_REPORT.json 格式',
+            evidencePath: '07_precommit/PRECOMMIT_REPORT.json'
+          }]
+        };
+      }
+      
+      // 检查 result 是否为 PASS
+      if (report.result !== 'PASS') {
+        const blockingIssues = report.blockingIssues || [];
+        return {
+          decision: 'reject',
+          notes: `Precommit 检查结果为 ${report.result}，禁止提交`,
+          fixItems: blockingIssues.map(issue => ({
+            id: issue.gateId,
+            description: issue.description,
+            suggestion: issue.suggestion,
+            evidencePath: issue.evidencePath
+          }))
+        };
+      }
+      
+      // 所有检查通过
+      return {
+        decision: 'pass',
+        notes: 'Precommit 检查通过，可以安全提交',
+        fixItems: []
+      };
     } else if (stageName === 'releasing') {
       // Releasing: 检查 readiness 并验证产出证据
       const releasingPath = path.join(projectPath, '06_releasing');
