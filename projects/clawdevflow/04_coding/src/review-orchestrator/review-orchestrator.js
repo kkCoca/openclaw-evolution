@@ -15,7 +15,7 @@ const ReviewDesignAgent = require('../review-agents/review-design');
 const ReviewCodeAgent = require('../review-agents/review-code');
 const ReviewRoadmapAgentV1 = require('../review-agents/review-roadmap-v1');
 const ReviewWorkflow = require('./review-workflow');
-const { executeAutoReview } = require('./auto-review/auto-review-executor');
+const { autoReview } = require('./auto-review/index');
 
 /**
  * 审阅编排器
@@ -80,7 +80,7 @@ class ReviewOrchestrator {
       if (stageName === 'roadmapping' || stageName === 'detailing' || stageName === 'coding' || stageName === 'testing' || stageName === 'reviewing' || stageName === 'releasing') {
         // 自动审阅模式（roadmapping/detailing/coding/testing/reviewing/releasing）
         console.log('[Review-Orchestrator] 步骤 1/1: 执行自动审阅...');
-        const decision = await executeAutoReview({
+        const decision = await autoReview({
           stageName,
           input,
           projectPath,
