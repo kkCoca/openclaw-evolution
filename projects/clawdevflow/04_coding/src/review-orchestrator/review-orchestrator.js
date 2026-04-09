@@ -80,7 +80,12 @@ class ReviewOrchestrator {
       if (stageName === 'roadmapping' || stageName === 'detailing' || stageName === 'coding' || stageName === 'testing' || stageName === 'reviewing' || stageName === 'releasing') {
         // 自动审阅模式（roadmapping/detailing/coding/testing/reviewing/releasing）
         console.log('[Review-Orchestrator] 步骤 1/1: 执行自动审阅...');
-        const decision = await this.executeAutoReview(stageName, input, projectPath);
+        const decision = await executeAutoReview({
+          stageName,
+          input,
+          projectPath,
+          agents: this.agents
+        });
         console.log('[Review-Orchestrator] ✅ 自动审阅完成');
         console.log('');
         return decision;
