@@ -182,9 +182,9 @@ class WorkflowOrchestrator {
         console.log('[Workflow-Orchestrator] ✅ roadmapping 入口门禁校验通过');
       }
 
-      // 自动返工循环（roadmapping/detailing/coding/testing）
-      const autoRetryStages = ['roadmapping', 'detailing', 'coding', 'testing'];
-      const maxRetries = stageName === 'testing' ? 2 : 3;  // testing 最大重试 2 次，其他 3 次
+      // 自动返工循环（除 designing 外所有阶段）
+      const autoRetryStages = ['roadmapping', 'detailing', 'coding', 'testing', 'reviewing', 'precommit', 'releasing'];
+      const maxRetries = this.config.stages?.[stageName]?.maxRetries || 3;
       
       if (autoRetryStages.includes(stageName)) {
         // 自动返工模式：while 循环控制重试

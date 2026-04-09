@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-const { OpenCodeAdapter } = require('../adapters/opencode');
+const AITools = require('../ai-tools');
 
 // 引入阶段模块（8 个阶段）
 const stages = {
@@ -48,18 +48,12 @@ class StageExecutor {
    */
   constructor(config, stateManager) {
     this.config = config || {};
-    this.workspaceRoot = config.workspaceRoot || '/home/ouyp/Learning/Practice/openclaw-universe';
+    this.workspaceRoot = config.global?.workspaceRoot || '/home/ouyp/Learning/Practice/openclaw-universe';
     this.stateManager = stateManager;
     
-    // 初始化 AI 工具适配器
-    this.aiAdapter = new OpenCodeAdapter({
-      workspaceRoot: this.workspaceRoot,
-      timeoutSeconds: config.timeoutSeconds || 1800
-    });
-    
-    console.log('[Stage-Executor] 阶段执行器初始化完成（路由层）');
+    console.log('[Stage-Executor] 阶段执行器初始化完成（Actions 模式）');
     console.log(`[Stage-Executor]   工作区根目录：${this.workspaceRoot}`);
-    console.log(`[Stage-Executor]   AI 工具：opencode`);
+    console.log(`[Stage-Executor]   AI 工具：从配置动态加载`);
   }
 
   /**
@@ -84,8 +78,14 @@ class StageExecutor {
         throw new Error(`未知阶段：${stageName}`);
       }
       
+      // 使用 AI Tools 工厂创建工具实例
+      const aiTool = AITools.fromConfig(this.config, stageName);
+      
       // 调用阶段模块的 execute 函数（统一接口）
-      return await stageModule.execute(this.aiAdapter, this.stateManager, projectPath, input);
+      return await stageModule.execute(aiTool, this.stateManager, projectPath, {
+        ...input,
+        config: this.config
+      });
     } catch (error) {
       console.error(`[Stage-Executor] ❌ 阶段执行失败:`, error.message);
       return {

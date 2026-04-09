@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test": "node ../../tests/run-all-tests.js",
+    "lint:docs": "node scripts/lint-docs.js",
     "test:state": "node ../../tests/test-state-manager.js",
     "test:adapter": "node ../../tests/test-ai-tool-adapter.js",
     "test:env": "node ../../tests/test-substitute-env.js",
