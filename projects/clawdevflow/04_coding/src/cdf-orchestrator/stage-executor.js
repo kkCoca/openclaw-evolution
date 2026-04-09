@@ -903,14 +903,20 @@ ${verifyError ? `\n## 错误信息\n${verifyError}` : ''}
         }
       }
       
-      // PC1: 未跟踪文件检查（仅当有非 allowlist 的未跟踪文件时失败）
-      const problematicUntracked = precommitReport.untrackedFiles.filter(
-        f => !f.isProtectedDir
-      );
-      if (problematicUntracked.length > 0 && precommitReport.blockingIssues.length === 0) {
-        // 仅当没有其他 blocking issues 时，才将 PC1 作为 blocking issue
-        // （因为 PC0/PC2 优先级更高）
-        console.log(`[Stage-Executor] ⚠️ PC1: 发现 ${problematicUntracked.length} 个未跟踪文件（非 blocking）`);
+      // PC1: 未跟踪文件检查（硬阻断：不在白名单的未跟踪文件必须 FAIL）
+      if (precommitReport.untrackedFiles.length > 0) {
+        precommitReport.result = 'FAIL';
+        for (const untracked of precommitReport.untrackedFiles) {
+          precommitReport.blockingIssues.push({
+            gateId: 'PC1',
+            description: `未跟踪文件：${untracked.path}（不在白名单）`,
+            evidencePath: '07_precommit/PRECOMMIT_REPORT.json',
+            suggestion: untracked.isProtectedDir
+              ? `受保护目录内容不应提交，请删除或加入 .gitignore：${untracked.path}`
+              : `确认是否应提交；不应提交则删除或加入 .gitignore：${untracked.path}`
+          });
+        }
+        console.log(`[Stage-Executor] ❌ PC1: 发现 ${precommitReport.untrackedFiles.length} 个未跟踪文件，阻断提交`);
       }
       
       // PC2: releasing 目录检查（已在 B3 中添加到 blockingIssues）
