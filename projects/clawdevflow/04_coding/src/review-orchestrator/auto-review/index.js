@@ -9,9 +9,6 @@
  * @license MIT
  */
 
-const path = require('path');
-const fs = require('fs');
-
 // 引入 auto-review 模块（7 个阶段）
 const autoReviewers = {
   roadmapping: require('./roadmapping'),
@@ -22,11 +19,6 @@ const autoReviewers = {
   precommit: require('./precommit'),
   releasing: require('./releasing')
 };
-
-// 引入审阅代理（roadmapping 需要）
-const ReviewRoadmapAgentV1 = require('../../review-agents/review-roadmap-v1');
-const ReviewDesignAgent = require('../../review-agents/review-design');
-const ReviewCodeAgent = require('../../review-agents/review-code');
 
 /**
  * 自动审阅路由函数

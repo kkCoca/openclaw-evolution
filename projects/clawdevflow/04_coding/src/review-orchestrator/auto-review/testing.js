@@ -11,7 +11,7 @@
 
 const path = require('path');
 const fs = require('fs');
-const { readJson } = require('../../utils/json');
+const { readJson, tryReadJson } = require('../../utils/json');
 
 /**
  * Testing 自动审阅
@@ -34,28 +34,14 @@ async function review(ctx) {
   const manifestPath = path.join(projectPath, 'PROJECT_MANIFEST.json');
   
   // Gate TG0: manifest 存在且可解析
-  if (!fs.existsSync(manifestPath)) {
+  const manifestResult = tryReadJson(manifestPath);
+  if (!manifestResult.ok) {
     return {
       decision: 'reject',
-      notes: 'PROJECT_MANIFEST.json 文件不存在',
-      fixItems: [{
-        id: 'TG0_MANIFEST_MISSING',
-        description: 'PROJECT_MANIFEST.json 文件不存在',
-        suggestion: '请创建 PROJECT_MANIFEST.json',
-        evidencePath: 'PROJECT_MANIFEST.json'
-      }]
-    };
-  }
-  
-  try {
-    JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-  } catch (error) {
-    return {
-      decision: 'reject',
-      notes: `PROJECT_MANIFEST.json 解析失败：${error.message}`,
+      notes: `PROJECT_MANIFEST.json 解析失败：${manifestResult.error}`,
       fixItems: [{
         id: 'TG0_MANIFEST_INVALID',
-        description: `PROJECT_MANIFEST.json 解析失败：${error.message}`,
+        description: `PROJECT_MANIFEST.json 解析失败：${manifestResult.error}`,
         suggestion: '请修复 PROJECT_MANIFEST.json 格式',
         evidencePath: 'PROJECT_MANIFEST.json'
       }]

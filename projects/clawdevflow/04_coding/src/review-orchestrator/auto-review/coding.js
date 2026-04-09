@@ -12,6 +12,7 @@
 const path = require('path');
 const fs = require('fs');
 const { runCmd } = require('../../utils/cmd');
+const { tryReadJson } = require('../../utils/json');
 
 /**
  * Coding 自动审阅
@@ -48,21 +49,21 @@ async function review(ctx) {
   }
   
   // Gate C1: manifest 可解析且存在 commands.test
-  let manifest;
-  try {
-    manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-  } catch (error) {
+  const manifestResult = tryReadJson(manifestPath);
+  if (!manifestResult.ok) {
     return {
       decision: 'reject',
-      notes: `PROJECT_MANIFEST.json 解析失败：${error.message}`,
+      notes: `PROJECT_MANIFEST.json 解析失败：${manifestResult.error}`,
       fixItems: [{
         id: 'C1_MANIFEST_INVALID',
-        description: `PROJECT_MANIFEST.json 解析失败：${error.message}`,
+        description: `PROJECT_MANIFEST.json 解析失败：${manifestResult.error}`,
         suggestion: '请修复 PROJECT_MANIFEST.json 格式',
         evidencePath: 'PROJECT_MANIFEST.json'
       }]
     };
   }
+  
+  const manifest = manifestResult.data;
   
   if (!manifest.commands?.test) {
     return {
