@@ -16,12 +16,13 @@ const { runCmd } = require('../utils/cmd');
 
 /**
  * 执行 Testing 阶段
- * @param {object} aiAdapter - AI 工具适配器
+ * @param {object} aiAdapter - AI 工具适配器（未使用，保持接口一致）
+ * @param {object} stateManager - 状态管理器（未使用，保持接口一致）
  * @param {string} projectPath - 项目路径
  * @param {object} input - 阶段输入
  * @returns {Promise<{success: boolean, outputs: Array}>}
  */
-async function executeTesting(aiAdapter, projectPath, input) {
+async function executeTesting(aiAdapter, stateManager, projectPath, input) {
   console.log('[Stage-Executor] ════════════════════════════════════════');
   console.log('[Stage-Executor] 开始执行阶段：TESTING');
   console.log('[Stage-Executor] ════════════════════════════════════════');

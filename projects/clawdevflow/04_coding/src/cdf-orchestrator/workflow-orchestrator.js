@@ -18,21 +18,8 @@ const ReviewOrchestrator = require('../review-orchestrator/review-orchestrator')
 const StageModule = require('./stage-executor');
 const Stage = StageModule.Stage;
 const StageStatus = require('./state-manager').StageStatus;
+const { STAGE_SEQUENCE } = require('./constants');
 const { validateRoadmappingEntry } = require('../utils/validate-roadmapping-entry');
-
-/**
- * 阶段序列
- */
-const STAGE_SEQUENCE = [
-  Stage.DESIGNING,
-  Stage.ROADMAPPING,
-  Stage.DETAILING,
-  Stage.CODING,
-  Stage.TESTING,
-  Stage.REVIEWING,
-  Stage.PRECOMMIT,
-  Stage.RELEASING
-];
 
 /**
  * 流程编排器

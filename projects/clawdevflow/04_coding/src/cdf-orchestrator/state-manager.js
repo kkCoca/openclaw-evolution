@@ -12,8 +12,8 @@
 const fs = require('fs');
 const path = require('path');
 
-// 引入 STAGE_SEQUENCE（单一事实来源）
-const { STAGE_SEQUENCE } = require('./workflow-orchestrator');
+// 引入常量（单一事实来源）
+const { STAGE_SEQUENCE, STAGE_COUNT } = require('./constants');
 
 /**
  * 状态枚举
@@ -363,14 +363,13 @@ class StateManager {
    */
   getCurrentStageIndex() {
     // 从 STAGE_SEQUENCE 派生（单一事实来源）
-    const stageNames = STAGE_SEQUENCE.map(s => s.toLowerCase());
     const current = this.state.currentStage;
     
     if (!current) {
       return 0;
     }
     
-    const index = stageNames.indexOf(current);
+    const index = STAGE_SEQUENCE.indexOf(current);
     return index >= 0 ? index : 0;
   }
 
@@ -415,7 +414,6 @@ class StateManager {
     ).length;
     
     const totalFixItems = this.getAllFixItems().length;
-    const totalStages = STAGE_SEQUENCE.length;  // 从 STAGE_SEQUENCE 派生（单一事实来源）
     
     return {
       workflowId: this.state.workflowId,
@@ -423,9 +421,9 @@ class StateManager {
       status: this.state.status,
       currentStage: this.state.currentStage,
       progress: {
-        total: totalStages,
+        total: STAGE_COUNT,  // 从常量派生（单一事实来源）
         passed: passedCount,
-        percentage: Math.round((passedCount / totalStages) * 100)
+        percentage: Math.round((passedCount / STAGE_COUNT) * 100)
       },
       totalFixItems,
       createdAt: this.state.createdAt,
