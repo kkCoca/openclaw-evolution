@@ -193,6 +193,13 @@ class StateManager {
       return;
     }
     this.state.updatedAt = new Date().toISOString();
+    
+    // 确保目录存在
+    const dir = path.dirname(this.stateFile);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    
     fs.writeFileSync(this.stateFile, JSON.stringify(this.state, null, 2), 'utf-8');
     console.log(`[State-Manager] ✅ 状态已保存`);
   }

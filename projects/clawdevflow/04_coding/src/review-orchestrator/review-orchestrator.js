@@ -11,7 +11,7 @@
 
 const path = require('path');
 const fs = require('fs');
-const ReviewDesignAgent = require('../review-agents/review-design');
+const ReviewDesignAgent = require('../review-agents/review-design-v2');
 const ReviewCodeAgent = require('../review-agents/review-code');
 const ReviewRoadmapAgentV1 = require('../review-agents/review-roadmap-v1');
 const ReviewWorkflow = require('./review-workflow');
