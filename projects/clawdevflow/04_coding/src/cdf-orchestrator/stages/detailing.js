@@ -56,5 +56,5 @@ async function executeDetailing(aiAdapter, stateManager, projectPath, input) {
 }
 
 module.exports = {
-  executeDetailing
+  execute: executeDetailing
 };

@@ -322,5 +322,5 @@ ${precommitReport.result === 'PASS'
 }
 
 module.exports = {
-  executePrecommit
+  execute: executePrecommit
 };

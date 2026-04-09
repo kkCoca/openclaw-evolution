@@ -118,5 +118,5 @@ ${input.manifestFile ? '见 PROJECT_MANIFEST.json' : 'npm run build'}
 }
 
 module.exports = {
-  executeCoding
+  execute: executeCoding
 };

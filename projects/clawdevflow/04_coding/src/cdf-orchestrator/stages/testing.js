@@ -228,5 +228,5 @@ ${verifyError ? `\n## 错误信息\n${verifyError}` : ''}
 }
 
 module.exports = {
-  executeTesting
+  execute: executeTesting
 };

@@ -303,5 +303,5 @@ async function executeReleasing(aiAdapter, stateManager, projectPath, input) {
 }
 
 module.exports = {
-  executeReleasing
+  execute: executeReleasing
 };

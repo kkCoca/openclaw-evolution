@@ -89,5 +89,5 @@ async function executeReviewing(aiAdapter, stateManager, projectPath, input) {
 }
 
 module.exports = {
-  executeReviewing
+  execute: executeReviewing
 };

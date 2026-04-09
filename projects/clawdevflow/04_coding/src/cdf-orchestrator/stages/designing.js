@@ -54,5 +54,5 @@ async function executeDesigning(aiAdapter, stateManager, projectPath, input) {
 }
 
 module.exports = {
-  executeDesigning
+  execute: executeDesigning
 };

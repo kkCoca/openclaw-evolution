@@ -66,5 +66,5 @@ async function executeRoadmapping(aiAdapter, stateManager, projectPath, input) {
 }
 
 module.exports = {
-  executeRoadmapping
+  execute: executeRoadmapping
 };
