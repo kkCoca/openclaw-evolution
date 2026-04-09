@@ -12,6 +12,9 @@
 const fs = require('fs');
 const path = require('path');
 
+// 引入 STAGE_SEQUENCE（单一事实来源）
+const { STAGE_SEQUENCE } = require('./workflow-orchestrator');
+
 /**
  * 状态枚举
  */
@@ -359,14 +362,15 @@ class StateManager {
    * @returns {number} 阶段索引
    */
   getCurrentStageIndex() {
-    const stages = ['designing', 'roadmapping', 'detailing', 'coding', 'testing', 'reviewing'];
+    // 从 STAGE_SEQUENCE 派生（单一事实来源）
+    const stageNames = STAGE_SEQUENCE.map(s => s.toLowerCase());
     const current = this.state.currentStage;
     
     if (!current) {
       return 0;
     }
     
-    const index = stages.indexOf(current);
+    const index = stageNames.indexOf(current);
     return index >= 0 ? index : 0;
   }
 
@@ -411,6 +415,7 @@ class StateManager {
     ).length;
     
     const totalFixItems = this.getAllFixItems().length;
+    const totalStages = STAGE_SEQUENCE.length;  // 从 STAGE_SEQUENCE 派生（单一事实来源）
     
     return {
       workflowId: this.state.workflowId,
@@ -418,9 +423,9 @@ class StateManager {
       status: this.state.status,
       currentStage: this.state.currentStage,
       progress: {
-        total: 6,
+        total: totalStages,
         passed: passedCount,
-        percentage: Math.round((passedCount / 6) * 100)
+        percentage: Math.round((passedCount / totalStages) * 100)
       },
       totalFixItems,
       createdAt: this.state.createdAt,

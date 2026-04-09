@@ -26,6 +26,11 @@ Thumbs.db
 
 # 依赖
 node_modules/
+dist/
+build/
 
-# 状态文件（可选，根据需求决定是否提交）
-# .cdf-state.json
+# 运行态文件（禁止入库）
+.cdf-state.json
+05_testing/
+06_releasing/
+07_precommit/

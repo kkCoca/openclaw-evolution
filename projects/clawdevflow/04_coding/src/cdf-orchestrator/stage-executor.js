@@ -952,7 +952,7 @@ ${verifyError ? `\n## 错误信息\n${verifyError}` : ''}
 | Gate | 描述 | 状态 |
 |------|------|------|
 | PC0 | 敏感文件检查 | ${precommitReport.securityFindings.length > 0 ? '❌ FAIL' : '✅ PASS'} |
-| PC1 | 未跟踪文件检查 | ${precommitReport.untrackedFiles.length > 0 ? '⚠️ 警告' : '✅ PASS'} |
+| PC1 | 未跟踪文件检查 | ${precommitReport.untrackedFiles.length > 0 ? '❌ FAIL' : '✅ PASS'} |
 | PC2 | releasing 目录检查 | ${precommitReport.blockingIssues.some(i => i.gateId === 'PC2') ? '❌ FAIL' : '✅ PASS'} |
 
 ## 发现汇总
