@@ -1,70 +1,44 @@
 /**
- * Roadmapping 阶段执行器
- * 
- * ClawDevFlow (CDF) 阶段模块
- * 执行 Roadmapping 阶段：生成 ROADMAP.md
+ * Roadmapping 阶段执行器（Actions 模式）
  * 
  * @version 3.4.0
- * @author openclaw-ouyp
- * @license MIT
  */
 
 const path = require('path');
-const { ensureDir } = require('../utils/fsx');
-const { validateRoadmappingEntry } = require('../utils/validate-roadmapping-entry');
 
-/**
- * 执行 Roadmapping 阶段
- * @param {object} aiAdapter - AI 工具适配器
- * @param {object} stateManager - 状态管理器
- * @param {string} projectPath - 项目路径
- * @param {object} input - 阶段输入
- * @returns {Promise<{success: boolean, outputs: Array}>}
- */
-async function executeRoadmapping(aiAdapter, stateManager, projectPath, input) {
-  console.log('[Stage-Executor] ════════════════════════════════════════');
-  console.log('[Stage-Executor] 开始执行阶段：ROADMAPPING');
-  console.log('[Stage-Executor] ════════════════════════════════════════');
+async function execute(aiTool, stateManager, projectPath, input) {
+  console.log('[Stage-Roadmapping] 开始执行阶段：ROADMAPPING');
   
-  // Gate#2 防绕过校验（执行层）
-  if (stateManager) {
-    const validation = validateRoadmappingEntry(stateManager, stateManager.state);
-    if (!validation.ok) {
-      throw new Error(`roadmapping 入口门禁失败（Gate#2）: ${validation.reason}`);
-    }
-    console.log('[Stage-Executor] ✅ roadmapping 入口门禁校验通过（Gate#2）');
-  }
+  const config = input.config;
+  const stageConfig = config.stages.roadmapping;
+  const outputDir = stageConfig.outputDir;
+  const outputsAllOf = stageConfig.outputsAllOf;
   
-  const roadmappingPath = path.join(projectPath, '02_roadmapping');
-  ensureDir(roadmappingPath);
+  const taskText = `
+# 任务：Roadmapping 阶段 - 研发路线规划
 
-  console.log('[Stage-Executor] 调用 AI 工具执行 Roadmapping 阶段...');
-  
-  // 传递 attempt + regenerateHint（自动返工闭环）
-  const result = await aiAdapter.execute('roadmapping', {
-    projectPath: projectPath,
-    designingPath: path.join(projectPath, '01_designing'),
-    outputDir: roadmappingPath,
-    attempt: input.attempt || 1,
-    regenerateHint: input.regenerateHint || ''
+## 输入
+- PRD：${projectPath}/01_designing/PRD.md
+- TRD：${projectPath}/01_designing/TRD.md
+
+## 输出要求
+你必须把所有输出写入目录：${projectPath}/${outputDir}/
+你必须生成以下文件（必须非空）：${outputsAllOf.join(', ')}
+禁止在 ${projectPath} 根目录直接写文件
+${input.regenerateHint ? `修复：${input.regenerateHint}` : ''}
+
+## 任务内容
+1. 阅读 PRD.md 和 TRD.md
+2. 生成 ROADMAP.md：里程碑、任务分解、依赖关系、验收标准
+`;
+
+  const result = await aiTool.runStage({
+    config, stateManager, stageName: 'roadmapping', projectPath, taskText,
+    attempt: input.attempt || 1, regenerateHint: input.regenerateHint || ''
   });
   
-  if (!result.success) {
-    throw new Error(`Roadmapping 阶段执行失败：${result.error}`);
-  }
-  
-  console.log('[Stage-Executor] ✅ Roadmapping 阶段完成');
-  console.log(`[Stage-Executor]   产出：${result.outputs.length} 个文件`);
-  
-  return {
-    success: true,
-    outputs: result.outputs.map(o => ({
-      name: path.basename(o),
-      path: path.relative(projectPath, o)
-    }))
-  };
+  console.log('[Stage-Roadmapping] ✅ 阶段完成');
+  return result;
 }
 
-module.exports = {
-  execute: executeRoadmapping
-};
+module.exports = { execute };

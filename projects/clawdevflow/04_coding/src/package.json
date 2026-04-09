@@ -39,6 +39,9 @@
   "devDependencies": {
     "nyc": "^15.1.0"
   },
+  "dependencies": {
+    "yaml": "^2.5.0"
+  },
   "nyc": {
     "include": [
       "cdf-orchestrator/**/*.js",

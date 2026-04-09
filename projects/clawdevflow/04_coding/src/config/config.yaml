@@ -1,0 +1,77 @@
+global:
+  workspaceRoot: ${OPENCLAW_WORKSPACE_ROOT:-../../..}
+  defaultAITool: opencode
+  logLevel: info
+
+openclaw:
+  command: "/sessions_spawn"
+  defaultSpawnSkill: "opencode"
+  timeoutSecondsDefault: 1800
+
+stages:
+  designing:
+    aiTool: opencode
+    requireReview: true
+    timeoutSeconds: 1800
+    maxRetries: 3
+    outputDir: 01_designing
+    outputsAllOf: [PRD.md, TRD.md]
+
+  roadmapping:
+    aiTool: opencode
+    requireReview: true
+    timeoutSeconds: 1800
+    maxRetries: 3
+    outputDir: 02_roadmapping
+    outputsAllOf: [ROADMAP.md]
+
+  detailing:
+    aiTool: opencode
+    requireReview: true
+    timeoutSeconds: 1800
+    maxRetries: 3
+    outputDir: 03_detailing
+    outputsAllOf: [DETAIL.md]
+
+  coding:
+    aiTool: opencode
+    requireReview: true
+    timeoutSeconds: 3600
+    maxRetries: 3
+    outputDir: 04_coding
+    outputsAllOf: [src/]
+
+  testing:
+    aiTool: opencode
+    requireReview: true
+    timeoutSeconds: 1800
+    maxRetries: 2
+    outputDir: 06_testing
+    outputsAllOf: [TEST-REPORT.md]
+
+  reviewing:
+    aiTool: opencode
+    requireReview: true
+    timeoutSeconds: 1800
+    maxRetries: 2
+    outputDir: 05_reviewing
+    outputsAllOf: [REVIEW-REPORT.md]
+
+  precommit:
+    aiTool: opencode
+    requireReview: true
+    timeoutSeconds: 1800
+    maxRetries: 2
+    outputDir: 07_precommit
+    outputsAllOf: [PRECOMMIT-CHECKLIST.md]
+
+  releasing:
+    aiTool: opencode
+    requireReview: true
+    timeoutSeconds: 1800
+    maxRetries: 2
+    outputDir: 08_releasing
+    outputsAllOf: [RELEASE-NOTES.md]
+
+rollback:
+  strategy: A

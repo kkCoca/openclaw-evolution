@@ -11,6 +11,7 @@
 
 const path = require('path');
 const fs = require('fs');
+const YAML = require('yaml');
 const WorkflowOrchestrator = require('./cdf-orchestrator/workflow-orchestrator');
 
 /**
@@ -95,7 +96,7 @@ async function executeWorkflow(taskConfig) {
  * 加载配置文件
  */
 function loadConfig() {
-  const configPath = path.join(__dirname, 'config.yaml');
+  const configPath = path.join(__dirname, 'config/config.yaml');
   
   // 使用环境变量或相对路径
   const defaultWorkspaceRoot = process.env.OPENCLAW_WORKSPACE_ROOT || 
@@ -108,11 +109,14 @@ function loadConfig() {
       logLevel: 'info'
     },
     stages: {
-      designing: { aiTool: 'opencode', requireReview: true, timeoutSeconds: 1800 },
-      roadmapping: { aiTool: 'opencode', requireReview: true, timeoutSeconds: 1800 },
-      detailing: { aiTool: 'opencode', requireReview: true, timeoutSeconds: 1800 },
-      coding: { aiTool: 'opencode', requireReview: true, timeoutSeconds: 1800 },
-      reviewing: { aiTool: 'opencode', requireReview: true, timeoutSeconds: 1800 }
+      designing: { aiTool: 'opencode', requireReview: true, timeoutSeconds: 1800, maxRetries: 3 },
+      roadmapping: { aiTool: 'opencode', requireReview: true, timeoutSeconds: 1800, maxRetries: 3 },
+      detailing: { aiTool: 'opencode', requireReview: true, timeoutSeconds: 1800, maxRetries: 3 },
+      coding: { aiTool: 'opencode', requireReview: true, timeoutSeconds: 3600, maxRetries: 3 },
+      testing: { aiTool: 'opencode', requireReview: true, timeoutSeconds: 1800, maxRetries: 2 },
+      reviewing: { aiTool: 'opencode', requireReview: true, timeoutSeconds: 1800, maxRetries: 2 },
+      precommit: { aiTool: 'opencode', requireReview: true, timeoutSeconds: 1800, maxRetries: 2 },
+      releasing: { aiTool: 'opencode', requireReview: true, timeoutSeconds: 1800, maxRetries: 2 }
     },
     rollback: {
       strategy: 'A',
@@ -125,12 +129,26 @@ function loadConfig() {
       let yamlContent = fs.readFileSync(configPath, 'utf8');
       // 替换环境变量
       yamlContent = substituteEnvVars(yamlContent);
-      // 简单 YAML 解析（仅支持基本结构）
-      const config = parseSimpleYaml(yamlContent);
-      return { ...defaultConfig, ...config };
+      // 使用 YAML parser 解析
+      const config = YAML.parse(yamlContent);
+      
+      // 合并默认配置
+      const mergedConfig = {
+        global: { ...defaultConfig.global, ...config.global },
+        stages: { ...defaultConfig.stages, ...config.stages },
+        openclaw: config.openclaw || {},
+        rollback: { ...defaultConfig.rollback, ...config.rollback }
+      };
+      
+      console.log(`[CDF] 配置加载成功`);
+      console.log(`[CDF]   默认 AI 工具：${mergedConfig.global.defaultAITool}`);
+      console.log(`[CDF]   阶段数量：${Object.keys(mergedConfig.stages).length}`);
+      
+      return mergedConfig;
     }
   } catch (error) {
-    console.log('[CDF] ⚠️ YAML 解析失败，使用默认配置');
+    console.log(`[CDF] ⚠️ YAML 解析失败：${error.message}`);
+    console.log('[CDF] 使用默认配置');
   }
   
   return defaultConfig;
@@ -183,43 +201,6 @@ function substituteEnvVars(str) {
     
     return value;
   });
-}
-
-/**
- * 简单 YAML 解析器
- */
-function parseSimpleYaml(content) {
-  const result = {};
-  const lines = content.split('\n');
-  let currentSection = null;
-  let currentSubsection = null;
-  
-  for (const line of lines) {
-    if (line.startsWith('#') || line.trim() === '') continue;
-    
-    const indent = line.search(/\S/);
-    const trimmed = line.trim();
-    
-    if (indent === 0 && trimmed.endsWith(':')) {
-      currentSection = trimmed.slice(0, -1);
-      result[currentSection] = {};
-      currentSubsection = null;
-    } else if (indent === 2 && trimmed.endsWith(':')) {
-      currentSubsection = trimmed.slice(0, -1);
-      if (currentSection) {
-        result[currentSection][currentSubsection] = {};
-      }
-    } else if (indent >= 4 && trimmed.includes(':')) {
-      const [key, value] = trimmed.split(':').map(s => s.trim());
-      if (currentSubsection && result[currentSection][currentSubsection]) {
-        result[currentSection][currentSubsection][key] = value.replace(/"/g, '');
-      } else if (currentSection && result[currentSection]) {
-        result[currentSection][key] = value.replace(/"/g, '');
-      }
-    }
-  }
-  
-  return result;
 }
 
 /**
