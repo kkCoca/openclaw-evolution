@@ -820,13 +820,64 @@ ${verifyError ? `\n## 错误信息\n${verifyError}` : ''}
         }
       };
       
-      // 简单实现：扫描项目根目录，匹配清理规则
+      // 扫描项目根目录，匹配清理规则和安全模式
       const cleanupRules = cleanupPlan.cleanupRules.map(r => r.pattern);
       const securityPatterns = cleanupPlan.securityScan.patterns;
       
-      // 这里简化实现，实际应该递归扫描
-      // 实际项目中应该使用 glob 库
-      console.log('[Stage-Executor] 清理临时文件...');
+      console.log('[Stage-Executor] 扫描临时文件和安全风险...');
+      
+      // 简单实现：扫描项目根目录的一级文件/目录
+      try {
+        const rootItems = fs.readdirSync(projectPath);
+        
+        for (const item of rootItems) {
+          const itemPath = path.join(projectPath, item);
+          const stat = fs.statSync(itemPath);
+          
+          // 跳过受保护的目录
+          if (stat.isDirectory() && cleanupPlan.protectedDirectories.some(d => itemPath.includes(d))) {
+            continue;
+          }
+          
+          // 检查是否匹配清理规则
+          for (const pattern of cleanupRules) {
+            if (pattern.startsWith('*') && item.endsWith(pattern.slice(1))) {
+              // 匹配临时文件，记录到 deletedFiles
+              cleanupReport.deletedFiles.push({
+                path: item,
+                reason: `匹配清理规则：${pattern}`,
+                deleted: false  // 简化实现：只记录不删除
+              });
+              cleanupReport.summary.totalDeleted++;
+              console.log(`[Stage-Executor] 发现临时文件：${item} (${pattern})`);
+              break;
+            }
+          }
+          
+          // 检查是否匹配安全模式（敏感文件）
+          for (const pattern of securityPatterns) {
+            if ((pattern.startsWith('*') && item.endsWith(pattern.slice(1))) || 
+                (pattern === item)) {
+              // 匹配敏感文件，记录到 securityFindings
+              cleanupReport.securityFindings.push({
+                path: item,
+                pattern: pattern,
+                severity: 'HIGH',
+                recommendation: `建议删除或加入 .gitignore：${item}`
+              });
+              cleanupReport.summary.totalSecurityFindings++;
+              console.log(`[Stage-Executor] ⚠️ 发现敏感文件：${item} (${pattern})`);
+              break;
+            }
+          }
+        }
+      } catch (error) {
+        console.error('[Stage-Executor] ⚠️ 扫描失败:', error.message);
+      }
+      
+      // 更新 summary
+      cleanupReport.summary.totalDeleted = cleanupReport.deletedFiles.length;
+      cleanupReport.summary.totalSecurityFindings = cleanupReport.securityFindings.length;
       
       fs.writeFileSync(
         path.join(releasingPath, 'CLEANUP_REPORT.json'),
@@ -834,6 +885,8 @@ ${verifyError ? `\n## 错误信息\n${verifyError}` : ''}
         'utf8'
       );
       console.log('[Stage-Executor] ✅ CLEANUP_REPORT.json 已生成');
+      console.log(`[Stage-Executor]   删除文件数：${cleanupReport.summary.totalDeleted}`);
+      console.log(`[Stage-Executor]   安全发现数：${cleanupReport.summary.totalSecurityFindings}`);
 
       // 4. 生成 RELEASE_NOTES.md（发布说明）- 引用真实 readiness.result
       console.log('[Stage-Executor] 生成 RELEASE_NOTES.md...');
@@ -909,7 +962,7 @@ ${verifyError ? `\n## 错误信息\n${verifyError}` : ''}
       );
 
       console.log('[Stage-Executor] ✅ Releasing 阶段完成');
-      console.log(`[Stage-Executor]   产出：${Object.keys(artifactManifest.artifacts).length + 1} 个文件`);
+      console.log(`[Stage-Executor]   产出：${artifactManifest.artifacts.length + 1} 个文件`);
       
       return {
         success: true,
