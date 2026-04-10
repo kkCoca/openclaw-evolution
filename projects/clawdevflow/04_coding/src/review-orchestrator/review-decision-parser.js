@@ -137,7 +137,7 @@ class ReviewDecisionParser {
       /\b(pass|conditional|reject|clarify|terminate|通过 | 条件通过 | 驳回 | 需澄清 | 终止)\b/i,
       
       // 匹配数字选项
-      /^\s*([1-4])\s*$/m
+      /^\s*([1-5])\s*$/m
     ];
 
     for (const pattern of patterns) {

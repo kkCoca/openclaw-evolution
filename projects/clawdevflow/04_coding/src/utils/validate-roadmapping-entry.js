@@ -1,3 +1,6 @@
+const fs = require('fs');
+const crypto = require('crypto');
+
 /**
  * Roadmapping Entry Gate 验证（P0-1 入口门禁）
  * 
@@ -14,9 +17,6 @@
  * @param {object} state - 当前状态
  * @returns {{ok: boolean, reason?: string, details?: object}} 验证结果
  */
-const fs = require('fs');
-const crypto = require('crypto');
-
 function validateRoadmappingEntry(stateManager, state) {
   const designingStage = state.stages.designing;
   
