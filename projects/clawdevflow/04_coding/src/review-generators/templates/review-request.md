@@ -74,8 +74,7 @@
 
 ## 🔗 相关链接
 
-- [工作流状态](../logs/{workflowId}/state.json)
-- [流程日志](../logs/{workflowId}/log.jsonl)
+- [工作流状态](../.cdf-state.json)
 - [AGENTS.md](../../../.openclaw/workspace/AGENTS.md)
 
 ---

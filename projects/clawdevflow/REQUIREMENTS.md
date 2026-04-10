@@ -12,6 +12,8 @@
 
 ---
 
+> **说明**: 当前实现仅支持 OpenCode，文档中“工具无关/多工具”相关条目为规划项。
+
 ## 需求列表
 
 ### REQ-001: 流程引擎 Skill 基础功能
@@ -602,8 +604,8 @@ PRD.md 和 TRD.md 中硬编码描述"使用 OpenCode"，应该描述为"根据 c
 - ❌ 无法灵活切换 AI 工具
 
 **修复方案**:
-1. PRD.md 修改为："根据 config.yaml 配置选择 AI 工具（默认 opencode，可配置为 claude-code/custom）"
-2. TRD.md 修改为："根据 config.yaml 配置选择 AI 工具（默认 opencode，可配置为 claude-code/custom）"
+1. PRD.md 修改为："根据 config.yaml 配置选择 AI 工具（默认 opencode）"
+2. TRD.md 修改为："根据 config.yaml 配置选择 AI 工具（默认 opencode）"
 3. 更新 PRD-template.md 和 TRD-template.md
 
 **验收标准**:

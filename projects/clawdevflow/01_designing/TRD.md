@@ -4,6 +4,8 @@
 > **日期**: 2026-04-02  
 > **状态**: 评审通过 ✅
 
+> **说明**: 当前实现仅支持 OpenCode，状态文件以 `.cdf-state.json` 为准；文档中提及的其他 AI 工具为规划项。
+
 ---
 
 ## 文档元数据
@@ -56,7 +58,7 @@
 ┌─────────────────────────────────────┐
 │  AI 工具 (执行者)                    │
 │  • 根据 config.yaml 配置选择          │
-│  • 支持 OpenCode/Claude Code/其他    │
+│  • 当前仅支持 OpenCode（预留扩展）  │
 │  • designing → PRD + TRD            │
 │  • roadmapping → ROADMAP            │
 │  • detailing → DETAIL               │
@@ -410,8 +412,8 @@ rollback:
 
 | 术语 | 说明 |
 |------|------|
-| AI 工具 | 执行者，负责具体研发任务执行（根据 config.yaml 配置选择，支持 OpenCode/Claude Code/其他） |
-| config.yaml | 流程引擎配置文件，包含 AI 工具配置、审阅配置、回滚策略等 |
+| AI 工具 | 执行者，负责具体研发任务执行（根据 config.yaml 配置选择，当前仅 OpenCode） |
+| config.yaml | 流程引擎配置文件，包含阶段参数与回滚策略等 |
 | 流程引擎 | 编排者，负责流程监督和 skill 调用 |
 | openclaw-ouyp | 审阅者，负责任务分配和验收验证 |
 | 审阅驱动 | 每个阶段必须审阅确认后才继续 |
@@ -610,7 +612,7 @@ DESIGNING 阶段审查报告显示 TRD.md 缺少以下关键章节：
 
 | 降级场景 | 触发条件 | 降级策略 | 备选方案 |
 |---------|---------|---------|---------|
-| AI 工具不可用 | OpenCode/Claude Code API 连续失败≥3 次 | 切换到备用 AI 工具 | 使用配置文件中配置的备用 AI 工具 |
+| AI 工具不可用 | OpenCode API 连续失败≥3 次 | 切换到备用 AI 工具 | 使用配置文件中配置的备用 AI 工具 |
 | AI 工具不可用 | 所有 AI 工具均不可用 | 降级为手动模式 | 生成任务清单，由用户手动执行并回填结果 |
 | 文件系统不可用 | 磁盘空间不足/权限错误 | 切换到只读模式 | 使用内存临时存储，恢复后同步到磁盘 |
 | 文件系统不可用 | 文件锁冲突 | 等待重试 | 指数退避重试，超过 3 次后终止 |
@@ -852,13 +854,13 @@ class AIToolAdapter {
    */
   async callOpenCode(task, options)
   
-  /**
-   * 调用 Claude Code
-   * @param {string} task - 任务描述
-   * @param {object} options - 选项
-   * @returns {Promise<object>} 执行结果
-   */
-  async callClaudeCode(task, options)
+   /**
+    * 预留其他 AI 工具（未实现）
+    * @param {string} task - 任务描述
+    * @param {object} options - 选项
+    * @returns {Promise<object>} 执行结果
+    */
+  async callOtherTool(task, options)
 }
 ```
 
@@ -1291,7 +1293,7 @@ PRD.md 和 TRD.md 中硬编码描述"使用 OpenCode"，应该描述为"根据 c
 ┌─────────────────────────────────────┐
 │  AI 工具 (执行者)                    │
 │  • 根据 config.yaml 配置选择          │
-│  • 支持 OpenCode/Claude Code/其他    │
+│  • 当前仅支持 OpenCode（预留扩展）  │
 │  • designing → PRD + TRD            │
 │  • roadmapping → ROADMAP            │
 │  • detailing → DETAIL               │
@@ -1305,7 +1307,7 @@ PRD.md 和 TRD.md 中硬编码描述"使用 OpenCode"，应该描述为"根据 c
 ┌─────────────────────────────────────┐
 │  AI 工具 (执行者)                    │
 │  • 根据 config.yaml 配置选择          │
-│  • 支持 OpenCode/Claude Code/其他    │
+│  • 当前仅支持 OpenCode（预留扩展）  │
 │  • designing → PRD + TRD            │
 │  • roadmapping → ROADMAP            │
 │  • detailing → DETAIL               │
@@ -1357,8 +1359,8 @@ PRD.md 和 TRD.md 中硬编码描述"使用 OpenCode"，应该描述为"根据 c
 ```markdown
 | 术语 | 说明 |
 |------|------|
-| AI 工具 | 执行者，负责具体研发任务执行（根据 config.yaml 配置选择，支持 OpenCode/Claude Code/其他） |
-| config.yaml | 流程引擎配置文件，包含 AI 工具配置、审阅配置、回滚策略等 |
+| AI 工具 | 执行者，负责具体研发任务执行（根据 config.yaml 配置选择，当前仅 OpenCode） |
+| config.yaml | 流程引擎配置文件，包含阶段参数与回滚策略等 |
 | 流程引擎 | 编排者，负责流程监督和 skill 调用 |
 | openclaw-ouyp | 审阅者，负责任务分配和验收验证 |
 ```

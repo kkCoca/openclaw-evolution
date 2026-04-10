@@ -4,7 +4,7 @@
  * ClawDevFlow (CDF) 主入口
  * 负责解析任务参数、加载配置、执行流程编排
  * 
- * @version 3.0.1
+ * @version 3.4.0
  * @author openclaw-ouyp
  * @license MIT
  */
@@ -28,7 +28,7 @@ async function executeWorkflow(taskConfig) {
     console.log('');
     console.log('╔═══════════════════════════════════════════════════════════╗');
     console.log('║   ClawDevFlow (CDF) - 爪刃研发流                           ║');
-    console.log('║   AI 辅助研发流程编排引擎 v3.0.1                            ║');
+    console.log('║   AI 辅助研发流程编排引擎 v3.4.0                            ║');
     console.log('╚═══════════════════════════════════════════════════════════╝');
     console.log('');
     

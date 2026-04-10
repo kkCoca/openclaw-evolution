@@ -12,7 +12,6 @@
 const path = require('path');
 const fs = require('fs');
 const ReviewDesignAgent = require('../review-agents/review-design-v2');
-const ReviewCodeAgent = require('../review-agents/review-code');
 const ReviewRoadmapAgentV1 = require('../review-agents/review-roadmap-v1');
 const ReviewWorkflow = require('./review-workflow');
 const { autoReview, autoReviewers } = require('./auto-review/index');
@@ -29,7 +28,6 @@ class ReviewOrchestrator {
     this.config = config || {};
     this.agents = {
       designing: new ReviewDesignAgent(config),
-      coding: new ReviewCodeAgent(config),
       roadmapping: new ReviewRoadmapAgentV1(config)
       // detailing 使用 auto-review/detailing.js 最小规则检查
     };

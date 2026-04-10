@@ -1,7 +1,7 @@
 ---
 name: clawdevflow
 displayName: ClawDevFlow (CDF) - 爪刃研发流
-description: AI 辅助研发流程编排引擎 v3.4.0，审阅驱动 + 会话隔离 + 工具无关，自动化编排 designing→roadmapping→detailing→coding→testing→reviewing→precommit→releasing 完整流程
+description: AI 辅助研发流程编排引擎 v3.4.0，审阅驱动 + 会话隔离 + 仅支持 OpenCode，自动化编排 designing→roadmapping→detailing→coding→testing→reviewing→precommit→releasing 完整流程
 triggers:
   - /sessions_spawn clawdevflow
   - /sessions_spawn cdf
@@ -33,7 +33,7 @@ license: MIT
 - ✅ **兼容 OpenClaw 生态** - 以 Skill 形式提供，安装/使用方式一致
 - ✅ **内部复杂，外部简单** - 用户无需关心实现细节
 - ✅ **审阅驱动** - 每个阶段必须确认后继续，质量可控
-- ✅ **工具无关** - 可灵活切换 AI 工具（OpenCode/Claude Code/Custom）
+- ✅ **工具适配层预留** - 当前仅支持 OpenCode，后续可扩展其他工具
 
 ## 核心特性 v2.0
 
@@ -41,8 +41,8 @@ license: MIT
 |------|------|------|
 | **审阅驱动** | 每个阶段必须 openclaw-ouyp 确认后才继续 | 质量可控，错误不传递 |
 | **会话隔离** | 每个阶段独立子会话执行 | 上下文不膨胀，Token 节省 |
-| **工具无关** | 可配置 AI 工具（OpenCode/Claude Code/Custom） | 灵活切换，不绑定厂商 |
-| **状态可追溯** | state.json 持久化，支持断点续传 | 中断后可恢复，决策可追溯 |
+| **工具适配层预留** | 当前仅支持 OpenCode（保留扩展接口） | 为后续扩展留空间 |
+| **状态可追溯** | .cdf-state.json 持久化，支持断点续传 | 中断后可恢复，决策可追溯 |
 | **回滚灵活** | 策略 A（驳回后重新执行当前阶段） | 不影响已通过阶段 |
 
 ## 支持的场景
@@ -146,7 +146,7 @@ projects/{项目名}/
 
 ### 配置文件
 
-`config.yaml` - 支持 AI 工具选择、审阅配置、回滚策略等
+`config.yaml` - 支持阶段参数与回滚策略配置
 
 ```yaml
 global:
@@ -167,51 +167,20 @@ rollback:
 
 ### AI 工具配置
 
-支持 3 种 AI 工具：
+当前版本仅支持 **OpenCode**（`opencode`），其他工具适配未实现。
+如需调整 OpenCode CLI 参数，请修改 `config.yaml` 的 `openclaw` 配置。
 
-| 工具 | 配置项 | 说明 |
-|------|--------|------|
-| **OpenCode** | `opencode` | CDF 直接 spawn opencode CLI 执行 |
-| **Claude Code** | `claude-code` | 通过 CLI 命令行调用 |
-| **Custom** | `custom` | 支持任意自定义 AI 工具 |
-
-**配置示例**：
-
-```yaml
-aiTools:
-  # OpenCode 配置
-  opencode:
-    timeoutSeconds: 1800
-    
-  # Claude Code 配置
-  claude-code:
-    args:
-      - --print
-      - --permission-mode
-      - bypassPermissions
-    timeoutSeconds: 1800
-    
-  # 自定义工具配置
-  custom:
-    command: /path/to/custom/tool
-    args:
-      - --stage
-      - '{stage}'
-    env:
-      API_KEY: ${CUSTOM_AI_API_KEY}
-```
-
-详见 `ai-tools/` 目录。
+详见 `ai-tools/opencode.js`。
 
 ## 状态管理
 
 ### 状态文件
 
-`state.json` - 记录流程执行状态，支持断点续传
+`.cdf-state.json` - 记录流程执行状态，支持断点续传（位于项目目录）
 
 ```json
 {
-  "workflowId": "wf-20260328-001",
+  "workflowId": "cdf-20260328-ABCD",
   "currentStage": "detailing",
   "stages": {
     "designing": {
@@ -228,26 +197,14 @@ aiTools:
 流程中断后，可从中断点继续：
 
 ```bash
-# 流程会自动检测 state.json 并恢复
+# 流程会自动检测 .cdf-state.json 并恢复
 /sessions_spawn clawdevflow
 # 任务：恢复流程
 ```
 
 ## 日志
 
-### 日志文件
-
-`logs/{workflowId}.log` - JSON Lines 格式，完整记录执行过程
-
-### 查询日志
-
-```bash
-# 查看流程执行日志
-cat logs/wf-20260328-001.log | jq
-
-# 查看特定阶段日志
-cat logs/wf-20260328-001.log | jq 'select(.stage == "designing")'
-```
+当前版本仅输出控制台日志，尚未生成 `logs/{workflowId}.log` 文件。
 
 ## 依赖
 
@@ -273,11 +230,11 @@ cat logs/wf-20260328-001.log | jq 'select(.stage == "designing")'
 |------|------|------|
 | 审阅机制 | 无 | ✅ 每个阶段必须审阅 |
 | 会话模式 | 单会话 | ✅ 每个阶段独立子会话 |
-| AI 工具 | 仅 OpenCode | ✅ 可配置（OpenCode/Claude Code/Custom） |
-| 状态持久化 | 无 | ✅ state.json |
+| AI 工具 | 仅 OpenCode | ✅ 当前仅 OpenCode（预留扩展接口） |
+| 状态持久化 | 无 | ✅ .cdf-state.json |
 | 回滚策略 | 无 | ✅ 策略 A/B/C 可配置 |
 | 断点续传 | 无 | ✅ 支持 |
-| 日志追溯 | 基础 | ✅ 完整 JSON Lines |
+| 日志追溯 | 基础 | ✅ 控制台日志 |
 
 ## 版本历史
 
@@ -286,7 +243,7 @@ cat logs/wf-20260328-001.log | jq 'select(.stage == "designing")'
 | 1.0.0 | 2026-03-26 | 初始版本 |
 | 1.1.0 | 2026-03-26 | FEATURE-001：增加 OpenCode 调用说明 |
 | 1.2.0 | 2026-03-27 | 按 AGENTS.md v11.0 标准更新文档 |
-| **2.0.0** | **2026-03-28** | **FEATURE-002：审阅驱动 + 会话隔离 + 工具无关** |
+| **2.0.0** | **2026-03-28** | **FEATURE-002：审阅驱动 + 会话隔离 + 适配层预留** |
 
 ## 许可证
 
