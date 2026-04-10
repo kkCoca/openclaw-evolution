@@ -9,6 +9,27 @@ openclaw:
   timeoutSecondsDefault: 1800
   autoSpawn: true
 
+aiTools:
+  opencode:
+    timeoutSeconds: 1800
+  claude-code:
+    command: "claude"
+    args:
+      - --print
+      - --permission-mode
+      - bypassPermissions
+    timeoutSeconds: 1800
+  custom:
+    command: "/path/to/custom/tool"
+    args:
+      - --stage
+      - "{stage}"
+      - --task
+      - "{task}"
+    env:
+      CUSTOM_AI_API_KEY: ${CUSTOM_AI_API_KEY}
+    timeoutSeconds: 1800
+
 stages:
   designing:
     aiTool: opencode

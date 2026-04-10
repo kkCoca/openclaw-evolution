@@ -53,6 +53,40 @@ openclaw:
 
 ---
 
+## AI 工具配置
+
+```yaml
+aiTools:
+  # OpenCode 配置
+  opencode:
+    timeoutSeconds: 1800
+
+  # Claude Code 配置
+  claude-code:
+    command: "claude"
+    args:
+      - --print
+      - --permission-mode
+      - bypassPermissions
+    timeoutSeconds: 1800
+
+  # Custom 配置
+  custom:
+    command: "/path/to/custom/tool"
+    args:
+      - --stage
+      - "{stage}"
+      - --task
+      - "{task}"
+    env:
+      CUSTOM_AI_API_KEY: ${CUSTOM_AI_API_KEY}
+    timeoutSeconds: 1800
+```
+
+> `aiTool` 可在每个阶段单独指定为 `opencode` / `claude-code` / `custom`。
+
+---
+
 ## 各阶段配置
 
 ```yaml

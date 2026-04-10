@@ -10,6 +10,7 @@ AI 辅助研发流程引擎，自动化编排完整研发流程。
 - ✅ **跨平台** - Windows/Linux/macOS
 - ✅ **零感知依赖** - bundled skills 自动注册
 - ✅ **易于分享** - 支持 clawhub/脚本/压缩包多种安装方式
+- ✅ **规约绑定** - 遵循 ~/.openclaw/workspace/AGENTS.md（Plan-and-Execute）
 
 ## 快速开始
 
@@ -59,6 +60,7 @@ clawhub install openclaw-research-workflow
 # 
 # 重要要求：
 # 输出到项目目录（01_designing/02_roadmapping/03_detailing/04_coding/05_reviewing/06_testing/07_precommit/08_releasing）
+# 遵循 ~/.openclaw/workspace/AGENTS.md，禁止 write 局部改动
 # 全新功能：生成 PRD.md + TRD.md + src/ + CHANGELOG.md
 # 增量需求：读取完整 REQUIREMENTS.md，追加 PRD.md 章节
 # 问题修复：记录根因到 TRD.md，更新 CHANGELOG.md
@@ -206,7 +208,8 @@ openclaw-research-workflow/
 └─────────────────────────────────────┘
               ↓ 调用
 ┌─────────────────────────────────────┐
-│  OpenCode (执行者)                  │
+│  AI 工具 (执行者)                   │
+│  • OpenCode / Claude Code / Custom  │
 │  • designing → PRD + TRD            │
 │  • roadmapping → ROADMAP            │
 │  • detailing → DETAIL               │
@@ -220,7 +223,7 @@ openclaw-research-workflow/
 每个阶段的调用流程如下：
 
 ```
-用户需求 → openclaw-ouyp → sessions_spawn → 流程引擎 → 调用 → OpenCode → 执行 skill → 输出
+用户需求 → openclaw-ouyp → sessions_spawn → 流程引擎 → 调用 → AI 工具 → 执行 skill → 输出
 ```
 
 ### 阶段调用说明

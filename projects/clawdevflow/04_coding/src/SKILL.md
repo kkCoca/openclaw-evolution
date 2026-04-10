@@ -34,6 +34,7 @@ license: MIT
 - ✅ **内部复杂，外部简单** - 用户无需关心实现细节
 - ✅ **审阅驱动** - 每个阶段必须确认后继续，质量可控
 - ✅ **工具无关** - 可灵活切换 AI 工具（OpenCode/Claude Code/Custom）
+- ✅ **规约绑定** - 严格遵循 `~/.openclaw/workspace/AGENTS.md`，禁止 write 局部修改
 
 ## 核心特性 v2.0
 
@@ -67,6 +68,7 @@ license: MIT
 # 重要要求：
 # - 必须按照 01_designing~08_releasing 目录结构输出
 # - 禁止直接输出到项目根目录
+# - 必须遵循 ~/.openclaw/workspace/AGENTS.md（Plan-and-Execute），禁止 write 局部改动
 # - 增量需求：读取原有 PRD.md 并追加新章节
 # - Bugfix 规范：REQUIREMENTS.md 不更新，使用 ISSUES.md
 ```

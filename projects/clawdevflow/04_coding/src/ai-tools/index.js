@@ -10,6 +10,8 @@
 
 const { ToolType } = require('./types');
 const opencode = require('./opencode');
+const claudeCode = require('./claude-code');
+const custom = require('./custom');
 
 /**
  * 从配置创建 AI 工具实例
@@ -19,19 +21,26 @@ const opencode = require('./opencode');
  * @returns {object} AI 工具实例
  */
 function fromConfig(config, stageName) {
-  const stageConfig = config.stages[stageName];
+  const stageConfig = config.stages?.[stageName];
   if (!stageConfig) {
     throw new Error(`配置中未找到阶段：${stageName}`);
   }
-  
-  const aiTool = stageConfig.aiTool;
-  
-  // 目前只支持 opencode
+
+  const aiTool = stageConfig.aiTool || config.global?.defaultAITool || ToolType.OPENCODE;
+
   if (aiTool === ToolType.OPENCODE) {
     return opencode;
   }
-  
-  throw new Error(`不支持的 AI 工具：${aiTool}，目前只支持：opencode`);
+
+  if (aiTool === ToolType.CLAUDE_CODE) {
+    return claudeCode;
+  }
+
+  if (aiTool === ToolType.CUSTOM) {
+    return custom;
+  }
+
+  throw new Error(`不支持的 AI 工具：${aiTool}，支持：opencode | claude-code | custom`);
 }
 
 module.exports = {

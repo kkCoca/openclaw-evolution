@@ -83,6 +83,7 @@ projects/{项目名}/
 
 **禁止**直接输出到项目根目录！
 **禁止**覆盖原有 PRD.md（增量需求采用追加式）！
+**必须遵循** `~/.openclaw/workspace/AGENTS.md`（Plan-and-Execute），禁止 write 局部改动！
 
 **追加式更新规范**：
 - 全新功能：创建 REQUIREMENTS.md 和 PRD.md

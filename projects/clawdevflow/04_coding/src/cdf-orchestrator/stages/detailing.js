@@ -22,6 +22,7 @@ async function execute(aiTool, stateManager, projectPath, input) {
 你必须把所有输出写入目录：${projectPath}/${outputDir}/
 你必须生成以下文件（必须非空）：${outputsAllOf.join(', ')}
 禁止在 ${projectPath} 根目录直接写文件
+必须遵循 ~/.openclaw/workspace/AGENTS.md（Plan-and-Execute），禁止使用 write 指令做局部修改
 ${input.regenerateHint ? `修复：${input.regenerateHint}` : ''}
 
 ## 任务内容
