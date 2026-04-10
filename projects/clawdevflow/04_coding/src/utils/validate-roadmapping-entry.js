@@ -1,6 +1,18 @@
 const fs = require('fs');
 const crypto = require('crypto');
 
+const REQUIRED_APPROVED_FIELDS = [
+  'requirementsHash',
+  'prdHash',
+  'trdHash',
+  'requirementsPath',
+  'prdPath',
+  'trdPath',
+  'approvedBy',
+  'approvedAt',
+  'transitionId'
+];
+
 /**
  * Roadmapping Entry Gate 验证（P0-1 入口门禁）
  * 
@@ -39,32 +51,20 @@ function validateRoadmappingEntry(stateManager, state) {
       reason: 'APPROVED_SNAPSHOT_MISSING',
       details: {
         message: 'designing.approved 快照不存在',
-        required: ['requirementsHash', 'prdHash', 'trdHash', 'requirementsPath', 'prdPath', 'trdPath', 'approvedBy', 'approvedAt', 'transitionId']
+        required: REQUIRED_APPROVED_FIELDS
       }
     };
   }
   
   const approved = designingStage.approved;
-  const requiredFields = [
-    'requirementsHash',
-    'prdHash',
-    'trdHash',
-    'requirementsPath',
-    'prdPath',
-    'trdPath',
-    'approvedBy',
-    'approvedAt',
-    'transitionId'
-  ];
-  
-  const missingFields = requiredFields.filter(field => !approved[field]);
+  const missingFields = REQUIRED_APPROVED_FIELDS.filter(field => !approved[field]);
   if (missingFields.length > 0) {
     return {
       ok: false,
       reason: 'APPROVED_FIELDS_INCOMPLETE',
       details: {
         missingFields,
-        required: requiredFields
+        required: REQUIRED_APPROVED_FIELDS
       }
     };
   }

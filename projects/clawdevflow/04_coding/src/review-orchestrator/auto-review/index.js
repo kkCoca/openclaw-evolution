@@ -39,7 +39,13 @@ async function autoReview(ctx) {
     throw new Error(`未知阶段的自动审阅：${stageName}`);
   }
   
-  return await reviewer.review(ctx);
+  if (typeof reviewer === 'function') {
+    return await reviewer(ctx);
+  }
+  if (typeof reviewer.review === 'function') {
+    return await reviewer.review(ctx);
+  }
+  throw new Error(`自动审阅模块未暴露 review 方法：${stageName}`);
 }
 
 module.exports = {
