@@ -1,7 +1,7 @@
 # 流程引擎配置文件
 
 > **版本**: v3.4.0 (Stable)  
-> **说明**: 流程引擎运行时配置，支持 AI 工具选择、审阅配置、回滚策略等  
+> **说明**: 流程引擎运行时配置，支持 OpenCode 调用、审阅配置、回滚策略等  
 > **发布说明**: Designing Policy 优化完整修复 - 22 个问题全部修复，29/29 测试通过
 
 ---
@@ -50,42 +50,6 @@ openclaw:
   # 是否自动触发 sessions_spawn（默认 true）
   autoSpawn: true
 ```
-
----
-
-## AI 工具配置
-
-```yaml
-aiTools:
-  # OpenCode 配置
-  opencode:
-    timeoutSeconds: 1800
-
-  # Claude Code 配置
-  claude-code:
-    command: "claude"
-    args:
-      - --print
-      - --permission-mode
-      - bypassPermissions
-    timeoutSeconds: 1800
-
-  # Custom 配置
-  custom:
-    command: "/path/to/custom/tool"
-    args:
-      - --stage
-      - "{stage}"
-      - --task
-      - "{task}"
-    env:
-      CUSTOM_AI_API_KEY: ${CUSTOM_AI_API_KEY}
-    timeoutSeconds: 1800
-```
-
-> `aiTool` 可在每个阶段单独指定为 `opencode` / `claude-code` / `custom`。
-
----
 
 ## 各阶段配置
 
@@ -411,38 +375,6 @@ parallel:
   
   # 并行任务数限制
   maxConcurrentTasks: 3
-```
-
----
-
-## AI 工具配置
-
-```yaml
-aiTools:
-  # ========== OpenCode 配置 ==========
-  opencode:
-    command: opencode
-    args:
-      - --print
-      - --permission-mode
-      - bypassPermissions
-    env: {}
-  
-  # ========== Claude Code 配置 ==========
-  claude-code:
-    command: claude
-    args:
-      - --print
-      - --permission-mode
-      - bypassPermissions
-    env: {}
-  
-  # ========== 自定义 AI 工具配置 ==========
-  custom:
-    command: /path/to/custom/tool
-    args: []
-    env:
-      API_KEY: ${CUSTOM_AI_API_KEY}
 ```
 
 ---

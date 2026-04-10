@@ -208,8 +208,7 @@ openclaw-research-workflow/
 └─────────────────────────────────────┘
               ↓ 调用
 ┌─────────────────────────────────────┐
-│  AI 工具 (执行者)                   │
-│  • OpenCode / Claude Code / Custom  │
+│  OpenCode (执行者)                  │
 │  • designing → PRD + TRD            │
 │  • roadmapping → ROADMAP            │
 │  • detailing → DETAIL               │
@@ -223,7 +222,7 @@ openclaw-research-workflow/
 每个阶段的调用流程如下：
 
 ```
-用户需求 → openclaw-ouyp → sessions_spawn → 流程引擎 → 调用 → AI 工具 → 执行 skill → 输出
+用户需求 → openclaw-ouyp → sessions_spawn → 流程引擎 → 调用 → OpenCode → 执行 skill → 输出
 ```
 
 ### 阶段调用说明

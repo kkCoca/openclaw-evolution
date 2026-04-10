@@ -1,7 +1,7 @@
 ---
 name: clawdevflow
 displayName: ClawDevFlow (CDF) - 爪刃研发流
-description: AI 辅助研发流程编排引擎 v3.4.0，审阅驱动 + 会话隔离 + 工具无关，自动化编排 designing→roadmapping→detailing→coding→testing→reviewing→precommit→releasing 全流程
+description: AI 辅助研发流程编排引擎 v3.4.0，审阅驱动 + 会话隔离 + OpenCode 执行，自动化编排 designing→roadmapping→detailing→coding→testing→reviewing→precommit→releasing 全流程
 triggers:
   - /sessions_spawn clawdevflow
   - /sessions_spawn cdf
@@ -27,13 +27,13 @@ license: MIT
 | **代码规模** | ~100-500 行 | ~5500 行 |
 | **状态管理** | 无 | 完整状态机 + 断点续传 |
 | **可配置性** | 简单 | 完整 config.yaml |
-| **扩展性** | 有限 | 插件式 AI 工具适配层 |
+| **扩展性** | 有限 | OpenCode 执行适配 |
 
 **设计理念**：
 - ✅ **兼容 OpenClaw 生态** - 以 Skill 形式提供，安装/使用方式一致
 - ✅ **内部复杂，外部简单** - 用户无需关心实现细节
 - ✅ **审阅驱动** - 每个阶段必须确认后继续，质量可控
-- ✅ **工具无关** - 可灵活切换 AI 工具（OpenCode/Claude Code/Custom）
+- ✅ **OpenCode 驱动** - 通过 OpenClaw sessions_spawn 调用
 - ✅ **规约绑定** - 严格遵循 `~/.openclaw/workspace/AGENTS.md`，禁止 write 局部修改
 
 ## 核心特性 v2.0
@@ -42,7 +42,7 @@ license: MIT
 |------|------|------|
 | **审阅驱动** | 每个阶段必须 openclaw-ouyp 确认后才继续 | 质量可控，错误不传递 |
 | **会话隔离** | 每个阶段独立子会话执行 | 上下文不膨胀，Token 节省 |
-| **工具无关** | 可配置 AI 工具（OpenCode/Claude Code/Custom） | 灵活切换，不绑定厂商 |
+| **AI 工具** | 仅 OpenCode | 与 OpenClaw 保持一致 |
 | **状态可追溯** | state.json 持久化，支持断点续传 | 中断后可恢复，决策可追溯 |
 | **回滚灵活** | 策略 A（驳回后重新执行当前阶段） | 不影响已通过阶段 |
 
@@ -152,44 +152,6 @@ rollback:
 
 详见 `config.yaml`
 
-### AI 工具配置
-
-支持 3 种 AI 工具：
-
-| 工具 | 配置项 | 说明 |
-|------|--------|------|
-| **OpenCode** | `opencode` | 通过 OpenClaw sessions_spawn 调用 |
-| **Claude Code** | `claude-code` | 通过 CLI 命令行调用 |
-| **Custom** | `custom` | 支持任意自定义 AI 工具 |
-
-**配置示例**：
-
-```yaml
-aiTools:
-  # OpenCode 配置
-  opencode:
-    timeoutSeconds: 1800
-    
-  # Claude Code 配置
-  claude-code:
-    args:
-      - --print
-      - --permission-mode
-      - bypassPermissions
-    timeoutSeconds: 1800
-    
-  # 自定义工具配置
-  custom:
-    command: /path/to/custom/tool
-    args:
-      - --stage
-      - '{stage}'
-    env:
-      API_KEY: ${CUSTOM_AI_API_KEY}
-```
-
-详见 `ai-tool-adapter.js` 和 `adapters/` 目录。
-
 ## 状态管理
 
 ### 状态文件
@@ -260,7 +222,7 @@ cat logs/wf-20260328-001.log | jq 'select(.stage == "designing")'
 |------|------|------|
 | 审阅机制 | 无 | ✅ 每个阶段必须审阅 |
 | 会话模式 | 单会话 | ✅ 每个阶段独立子会话 |
-| AI 工具 | 仅 OpenCode | ✅ 可配置（OpenCode/Claude Code/Custom） |
+| AI 工具 | 仅 OpenCode | ✅ 与 OpenClaw 保持一致 |
 | 状态持久化 | 无 | ✅ state.json |
 | 回滚策略 | 无 | ✅ 策略 A/B/C 可配置 |
 | 断点续传 | 无 | ✅ 支持 |
@@ -273,7 +235,7 @@ cat logs/wf-20260328-001.log | jq 'select(.stage == "designing")'
 | 1.0.0 | 2026-03-26 | 初始版本 |
 | 1.1.0 | 2026-03-26 | FEATURE-001：增加 OpenCode 调用说明 |
 | 1.2.0 | 2026-03-27 | 按 AGENTS.md v11.0 标准更新文档 |
-| **2.0.0** | **2026-03-28** | **FEATURE-002：审阅驱动 + 会话隔离 + 工具无关** |
+| **2.0.0** | **2026-03-28** | **FEATURE-002：审阅驱动 + 会话隔离 + OpenCode 执行** |
 
 ## 许可证
 

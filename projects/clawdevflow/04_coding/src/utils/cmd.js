@@ -20,24 +20,18 @@ const execAsync = promisify(exec);
  * @param {object} options - 选项
  * @param {string} options.cwd - 工作目录
  * @param {number} options.timeout - 超时时间（毫秒，默认 30000）
- * @param {object} options.env - 环境变量（可选）
  * @returns {Promise<{stdout: string, stderr: string}>}
  */
 async function runCmd(command, options = {}) {
   const {
     cwd = process.cwd(),
-    timeout = 30000,
-    env = {}
+    timeout = 30000
   } = options;
   
   try {
     const result = await execAsync(command, {
       cwd,
-      timeout,
-      env: {
-        ...process.env,
-        ...env
-      }
+      timeout
     });
     return {
       stdout: result.stdout,

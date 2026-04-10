@@ -12,9 +12,7 @@
  * AI 工具类型枚举
  */
 const ToolType = {
-  OPENCODE: 'opencode',
-  CLAUDE_CODE: 'claude-code',
-  CUSTOM: 'custom'
+  OPENCODE: 'opencode'
 };
 
 /**
