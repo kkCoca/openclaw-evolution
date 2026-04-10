@@ -1,6 +1,6 @@
 # ClawDevFlow (CDF) - 爪刃研发流
 
-> **版本**: v3.0.1  
+> **版本**: v3.4.0  
 > **定位**: AI 辅助研发流程编排引擎  
 > **作者**: openclaw-ouyp  
 > **许可证**: MIT
@@ -76,7 +76,7 @@ stages:
 
 **流程**：
 ```
-REQUIREMENTS.md → designing → roadmapping → detailing → coding → reviewing
+REQUIREMENTS.md → designing → roadmapping → detailing → coding → testing → reviewing → precommit → releasing
 ```
 
 **输出**：
@@ -85,7 +85,10 @@ REQUIREMENTS.md → designing → roadmapping → detailing → coding → revie
 - `02_roadmapping/ROADMAP.md` - 研发路线图
 - `03_detailing/DETAIL.md` - 详细设计
 - `04_coding/src/` - 源代码
+- `06_testing/TEST-REPORT.md` - 测试报告
 - `05_reviewing/REVIEW-REPORT.md` - 验收报告
+- `07_precommit/PRECOMMIT-CHECKLIST.md` - 提交前检查
+- `08_releasing/RELEASE-NOTES.md` - 发布说明
 - `CHANGELOG.md` - 变更日志
 
 ### 2. 增量需求开发
@@ -130,9 +133,9 @@ ISSUES.md → 分析根因 → 最小化修复 → 回归测试
 ### 阶段执行流程
 
 ```
-designing → [审阅] → roadmapping → [审阅] → detailing → [审阅] → coding → [审阅] → reviewing → [验收]
-    ↓            ↓           ↓           ↓          ↓           ↓         ↓           ↓         ↓
-  PRD+TRD    通过/驳回   ROADMAP    通过/驳回    DETAIL    通过/驳回    src/     通过/驳回  REVIEW-REPORT
+designing → [审阅] → roadmapping → [审阅] → detailing → [审阅] → coding → [审阅] → testing → [审阅] → reviewing → [审阅] → precommit → [审阅] → releasing
+    ↓            ↓           ↓           ↓          ↓           ↓         ↓           ↓         ↓           ↓         ↓           ↓         ↓           ↓
+  PRD+TRD    通过/驳回   ROADMAP    通过/驳回    DETAIL    通过/驳回    src/     通过/驳回  TEST-REPORT 通过/驳回  REVIEW-REPORT 通过/驳回  PRECOMMIT 通过/驳回  RELEASE-NOTES
 ```
 
 ### 审阅结论选项
@@ -165,6 +168,12 @@ projects/{项目名}/
 │   └── src/                # AI 生成（增量修改）
 ├── 05_reviewing/
 │   └── REVIEW-REPORT.md    # AI 生成
+├── 06_testing/
+│   └── TEST-REPORT.md      # AI 生成
+├── 07_precommit/
+│   └── PRECOMMIT-CHECKLIST.md # AI 生成
+└── 08_releasing/
+    └── RELEASE-NOTES.md    # AI 生成
 └── CHANGELOG.md            # AI 生成（追加式）
 ```
 
@@ -173,23 +182,26 @@ projects/{项目名}/
 ```
 clawdevflow/
 ├── README.md               # 本文件
-├── SKILL.md                # OpenClaw 技能定义
-├── config.yaml             # 配置文件
 ├── 04_coding/src/
+│   ├── SKILL.md                # OpenClaw 技能定义
+│   ├── config/                 # 配置文件
+│   │   └── config.yaml
 │   ├── workflow-executor.js     # 流程执行器
 │   ├── workflow-orchestrator.js # 流程编排器
-│   ├── ai-tool-adapter.js       # AI 工具适配器
-│   ├── state-manager.js         # 状态管理器
-│   ├── adapters/                # AI 工具适配器实现
+│   ├── ai-tools/                # AI 工具适配层
 │   │   ├── opencode.js
-│   │   ├── claude-code.js
-│   │   └── custom.js
+│   │   ├── types.js
+│   │   └── index.js
+│   ├── state-manager.js         # 状态管理器
 │   ├── bundled-skills/          # 内置 skills
 │   │   ├── designing/
 │   │   ├── roadmapping/
 │   │   ├── detailing/
 │   │   ├── coding/
-│   │   └── reviewing/
+│   │   ├── testing/
+│   │   ├── reviewing/
+│   │   ├── precommit/
+│   │   └── releasing/
 │   └── review-*/                # 审阅相关模块
 └── install.sh / install.bat     # 安装脚本
 ```
@@ -473,7 +485,7 @@ start coverage/index.html
 - [AGENTS.md](../../.openclaw/workspace/AGENTS.md) - 操作手册
 - [REQUIREMENTS.md](REQUIREMENTS.md) - 需求说明
 - [SKILL.md](04_coding/src/SKILL.md) - OpenClaw 技能定义
-- [workflow.md](04_coding/src/workflow.md) - 流程编排逻辑
+- [workflow-executor.js](04_coding/src/workflow-executor.js) - 流程执行入口
 - [TASK-TEMPLATE.md](04_coding/src/TASK-TEMPLATE.md) - 任务模板
 
 ---

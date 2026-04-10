@@ -21,33 +21,33 @@ AI 辅助研发流程引擎，自动化编排完整研发流程。
 
 **Linux/macOS**:
 ```bash
-cd openclaw-research-workflow
+cd clawdevflow
 ./install.sh
 ```
 
 **Windows**:
 ```batch
-cd openclaw-research-workflow
+cd clawdevflow
 install.bat
 ```
 
 #### 方法 2: Node.js 安装（跨平台）
 
 ```bash
-cd openclaw-research-workflow
+cd clawdevflow
 node install.js
 ```
 
 #### 方法 3: clawhub 安装
 
 ```bash
-clawhub install openclaw-research-workflow
+clawhub install clawdevflow
 ```
 
 ### 2. 使用
 
 ```bash
-/sessions_spawn openclaw-research-workflow
+/sessions_spawn clawdevflow
 
 # 任务：{任务描述}
 # 场景类型：[全新功能 | 增量需求 | 问题修复]
@@ -109,9 +109,9 @@ projects/{项目名}/
 ## 目录结构
 
 ```
-openclaw-research-workflow/
+clawdevflow/
 ├── SKILL.md              # 主 Skill 定义
-├── workflow.md           # 流程编排逻辑
+├── workflow-executor.js  # 流程执行入口
 ├── README.md             # 使用文档
 ├── install.sh            # Linux/macOS 安装脚本
 ├── install.bat           # Windows 安装脚本

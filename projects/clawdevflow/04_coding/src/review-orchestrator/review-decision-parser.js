@@ -19,7 +19,8 @@ const ReviewDecision = {
   PASS: 'pass',           // 通过
   CONDITIONAL: 'conditional', // 条件通过
   REJECT: 'reject',       // 驳回
-  CLARIFY: 'clarify'      // 需澄清
+  CLARIFY: 'clarify',     // 需澄清
+  TERMINATE: 'terminate'  // 终止
 };
 
 /**
@@ -31,24 +32,28 @@ const DECISION_MAP = {
   'conditional': ReviewDecision.CONDITIONAL,
   'reject': ReviewDecision.REJECT,
   'clarify': ReviewDecision.CLARIFY,
+  'terminate': ReviewDecision.TERMINATE,
   
   // 中文
   '通过': ReviewDecision.PASS,
   '条件通过': ReviewDecision.CONDITIONAL,
   '驳回': ReviewDecision.REJECT,
   '需澄清': ReviewDecision.CLARIFY,
+  '终止': ReviewDecision.TERMINATE,
   
   // 数字选项
   '1': ReviewDecision.PASS,
   '2': ReviewDecision.CONDITIONAL,
   '3': ReviewDecision.REJECT,
   '4': ReviewDecision.CLARIFY,
+  '5': ReviewDecision.TERMINATE,
   
   // Emoji
   '✅': ReviewDecision.PASS,
   '⚠️': ReviewDecision.CONDITIONAL,
   '❌': ReviewDecision.REJECT,
-  '❓': ReviewDecision.CLARIFY
+  '❓': ReviewDecision.CLARIFY,
+  '🛑': ReviewDecision.TERMINATE
 };
 
 /**
@@ -129,10 +134,10 @@ class ReviewDecisionParser {
       /审阅结论 [:：]\s*([a-zA-Z]+)/,
       
       // 直接匹配结论关键词
-      /\b(pass|conditional|reject|clarify|通过 | 条件通过 | 驳回 | 需澄清)\b/i,
+      /\b(pass|conditional|reject|clarify|terminate|通过 | 条件通过 | 驳回 | 需澄清 | 终止)\b/i,
       
       // 匹配数字选项
-      /^\s*([1-4])\s*$/m
+      /^\s*([1-5])\s*$/m
     ];
 
     for (const pattern of patterns) {

@@ -1,3 +1,18 @@
+const fs = require('fs');
+const crypto = require('crypto');
+
+const REQUIRED_APPROVED_FIELDS = [
+  'requirementsHash',
+  'prdHash',
+  'trdHash',
+  'requirementsPath',
+  'prdPath',
+  'trdPath',
+  'approvedBy',
+  'approvedAt',
+  'transitionId'
+];
+
 /**
  * Roadmapping Entry Gate 验证（P0-1 入口门禁）
  * 
@@ -36,51 +51,51 @@ function validateRoadmappingEntry(stateManager, state) {
       reason: 'APPROVED_SNAPSHOT_MISSING',
       details: {
         message: 'designing.approved 快照不存在',
-        required: ['requirementsHash', 'prdHash', 'trdHash', 'prdContent', 'trdContent', 'approvedBy', 'approvedAt', 'transitionId']
+        required: REQUIRED_APPROVED_FIELDS
       }
     };
   }
   
   const approved = designingStage.approved;
-  const requiredFields = [
-    'requirementsHash',
-    'prdHash',
-    'trdHash',
-    'prdContent',
-    'trdContent',
-    'approvedBy',
-    'approvedAt',
-    'transitionId'
-  ];
-  
-  const missingFields = requiredFields.filter(field => !approved[field]);
+  const missingFields = REQUIRED_APPROVED_FIELDS.filter(field => !approved[field]);
   if (missingFields.length > 0) {
     return {
       ok: false,
       reason: 'APPROVED_FIELDS_INCOMPLETE',
       details: {
         missingFields,
-        required: requiredFields
+        required: REQUIRED_APPROVED_FIELDS
       }
     };
   }
   
-  // 3. 检查 approved 内容是否为空
-  if (!approved.prdContent || !approved.trdContent) {
+  // 3. 检查 approved 路径文件存在
+  const missingPaths = [];
+  for (const key of ['requirementsPath', 'prdPath', 'trdPath']) {
+    const value = approved[key];
+    if (!value) {
+      missingPaths.push({ key, path: null, reason: 'missing' });
+      continue;
+    }
+    if (!fs.existsSync(value)) {
+      missingPaths.push({ key, path: value, reason: 'not_found' });
+    }
+  }
+  if (missingPaths.length > 0) {
     return {
       ok: false,
-      reason: 'APPROVED_DOC_EMPTY',
+      reason: 'APPROVED_PATH_MISSING',
       details: {
-        prdContentEmpty: !approved.prdContent,
-        trdContentEmpty: !approved.trdContent
+        missingPaths
       }
     };
   }
   
   // 4. 漂移校验：当前 PRD/TRD hash 与 approved hash 一致
-  const crypto = require('crypto');
-  const currentPrdHash = crypto.createHash('sha256').update(approved.prdContent).digest('hex');
-  const currentTrdHash = crypto.createHash('sha256').update(approved.trdContent).digest('hex');
+  const prdContent = fs.readFileSync(approved.prdPath, 'utf8');
+  const trdContent = fs.readFileSync(approved.trdPath, 'utf8');
+  const currentPrdHash = crypto.createHash('sha256').update(prdContent).digest('hex');
+  const currentTrdHash = crypto.createHash('sha256').update(trdContent).digest('hex');
   
   if (currentPrdHash !== approved.prdHash) {
     return {

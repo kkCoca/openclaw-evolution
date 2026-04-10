@@ -115,7 +115,7 @@ REQUIREMENTS.md → designing → roadmapping → detailing → coding → testi
 
 ### 5. Testing 阶段
 
-**目录**: `05_testing/`
+**目录**: `06_testing/`
 
 | 类型 | 文件 | 必需 | Schema/格式 | 说明 |
 |------|------|------|-------------|------|
@@ -184,7 +184,7 @@ REQUIREMENTS.md → designing → roadmapping → detailing → coding → testi
 | **产出** | `PRECOMMIT_SUMMARY.md` | ✅ | Markdown | 人类可读报告 |
 | **门禁检查** | PC0: 无敏感文件 | ✅ | - | .env, *.pem, *.key, id_rsa |
 | **门禁检查** | PC1: 无未跟踪文件 (不在白名单) | ✅ | - | git status ?? |
-| **门禁检查** | PC2: releasing 目录未被 git 跟踪 | ✅ | - | 06_releasing/ |
+| **门禁检查** | PC2: releasing 目录未被 git 跟踪 | ✅ | - | 08_releasing/ |
 
 **PRECOMMIT_REPORT.json Schema**:
 ```json
@@ -214,7 +214,7 @@ REQUIREMENTS.md → designing → roadmapping → detailing → coding → testi
 
 ### 8. Releasing 阶段
 
-**目录**: `06_releasing/`
+**目录**: `08_releasing/`
 
 | 类型 | 文件 | 必需 | Schema/格式 | 说明 |
 |------|------|------|-------------|------|
@@ -284,8 +284,8 @@ REQUIREMENTS.md → designing → roadmapping → detailing → coding → testi
 | 目录/文件 | 保留策略 | 说明 |
 |----------|---------|------|
 | `.cdf-state.json` | ❌ 不入库 | 运行态状态文件 |
-| `05_testing/` | ❌ 不入库 | 测试临时产物 |
-| `06_releasing/` | ❌ 不入库 | 发布审计产物（留档用，不提交） |
+| `06_testing/` | ❌ 不入库 | 测试临时产物 |
+| `08_releasing/` | ❌ 不入库 | 发布审计产物（留档用，不提交） |
 | `07_precommit/` | ❌ 不入库 | 提交前检查产物 |
 | `01_designing/` | ✅ 入库 | 设计文档 |
 | `02_roadmapping/` | ✅ 入库 | 路线图 |

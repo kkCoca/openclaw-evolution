@@ -94,7 +94,7 @@ function main() {
 
     // 3. 获取脚本所在目录
     const scriptDir = __dirname;
-    const skillName = 'openclaw-research-workflow';
+    const skillName = 'clawdevflow';
     const targetDir = path.join(skillsDir, skillName);
 
     // 4. 检查是否已安装
@@ -144,7 +144,7 @@ function main() {
         
         const requiredFiles = [
             'SKILL.md',
-            'workflow.md',
+            'workflow-executor.js',
             'README.md',
             'install.sh',
             'install.bat',
@@ -171,7 +171,7 @@ function main() {
         }
 
         // 检查 bundled skills
-        const bundledSkills = ['designing', 'roadmapping', 'detailing', 'coding', 'reviewing'];
+        const bundledSkills = ['designing', 'roadmapping', 'detailing', 'coding', 'testing', 'reviewing', 'precommit', 'releasing'];
         const missingSkills = [];
         for (const skill of bundledSkills) {
             if (!fs.existsSync(path.join(targetDir, 'bundled-skills', skill))) {
@@ -194,7 +194,7 @@ function main() {
         printInfo(`📍 安装位置：${targetDir}`);
         console.log('');
         printInfo('使用方法:');
-        console.log('  /sessions_spawn openclaw-research-workflow');
+        console.log('  /sessions_spawn clawdevflow');
         console.log('');
         printInfo('查看文档:');
         console.log(`  cat ${path.join(targetDir, 'README.md')}`);

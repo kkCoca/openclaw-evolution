@@ -18,9 +18,9 @@ const { readJson, tryReadJson } = require('../../utils/json');
  * 
  * Gates:
  * - TG0: manifest 存在且可解析
- * - TG1: 05_testing/TEST_RESULTS.json 存在
- * - TG2: 05_testing/VERIFY_RESULTS.json 存在
- * - TG3: 05_testing/VERIFICATION_REPORT.md 存在
+ * - TG1: 06_testing/TEST_RESULTS.json 存在
+ * - TG2: 06_testing/VERIFY_RESULTS.json 存在
+ * - TG3: 06_testing/VERIFICATION_REPORT.md 存在
  * - TG4: 若 VERIFY_RESULTS.ERROR == VERIFY_COMMAND_MISSING => reject
  * - TG5: TEST_RESULTS.RESULT == PASS 且 VERIFY_RESULTS.RESULT == PASS
  * 
@@ -48,7 +48,7 @@ async function review(ctx) {
     };
   }
   
-  const testingPath = path.join(projectPath, '05_testing');
+  const testingPath = path.join(projectPath, '06_testing');
   
   // Gate TG1: TEST_RESULTS.json 存在
   const testResultsPath = path.join(testingPath, 'TEST_RESULTS.json');
@@ -60,7 +60,7 @@ async function review(ctx) {
         id: 'TG1_TEST_RESULTS_MISSING',
         description: 'TEST_RESULTS.json 文件不存在',
         suggestion: '请执行 testing 阶段生成 TEST_RESULTS.json',
-        evidencePath: '05_testing/TEST_RESULTS.json'
+        evidencePath: '06_testing/TEST_RESULTS.json'
       }]
     };
   }
@@ -75,7 +75,7 @@ async function review(ctx) {
         id: 'TG2_VERIFY_RESULTS_MISSING',
         description: 'VERIFY_RESULTS.json 文件不存在',
         suggestion: '请执行 testing 阶段生成 VERIFY_RESULTS.json',
-        evidencePath: '05_testing/VERIFY_RESULTS.json'
+        evidencePath: '06_testing/VERIFY_RESULTS.json'
       }]
     };
   }
@@ -90,7 +90,7 @@ async function review(ctx) {
         id: 'TG3_VERIFICATION_MISSING',
         description: 'VERIFICATION_REPORT.md 文件不存在',
         suggestion: '请执行 testing 阶段生成 VERIFICATION_REPORT.md',
-        evidencePath: '05_testing/VERIFICATION_REPORT.md'
+        evidencePath: '06_testing/VERIFICATION_REPORT.md'
       }]
     };
   }
@@ -122,7 +122,7 @@ async function review(ctx) {
         id: 'TG5_TEST_OR_VERIFY_FAILED',
         description: `测试：${testResults.RESULT}, 验收：${verifyResults.RESULT}`,
         suggestion: '请修复测试和验收失败的问题',
-        evidencePath: '05_testing/'
+        evidencePath: '06_testing/'
       }]
     };
   }

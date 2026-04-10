@@ -494,6 +494,13 @@ class WorkflowOrchestrator {
         console.log('[Workflow-Orchestrator] ❓ 需澄清，等待补充信息');
         return { success: false, error: '需要澄清' };
 
+      case 'terminate': {
+        const reason = reviewDecision.notes || '审阅终止';
+        console.log(`[Workflow-Orchestrator] 🛑 审阅终止：${reason}`);
+        this.stateManager.terminate(reason);
+        return { success: false, error: reason };
+      }
+
       default:
         return { success: false, error: `未知审阅结论：${reviewDecision.decision}` };
     }
@@ -579,6 +586,12 @@ class WorkflowOrchestrator {
       if (this.stateManager.isStagePassed(stageName)) {
         console.log(`[Workflow-Orchestrator] ⏭️ 跳过已通过阶段：${stageName}`);
         continue;
+      }
+
+      if (stage.status === StageStatus.BLOCKED) {
+        const reason = stage.blockReason || '阶段被阻断，需人工解除';
+        console.log(`[Workflow-Orchestrator] 🛑 阶段 ${stageName} 处于 BLOCKED：${reason}`);
+        return { success: false, blocked: true, blockedStage: stageName, error: reason };
       }
 
       // 执行阶段
