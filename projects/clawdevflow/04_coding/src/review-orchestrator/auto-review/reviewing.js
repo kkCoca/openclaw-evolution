@@ -65,7 +65,7 @@ async function review(ctx) {
       gateId: 'RG2',
       description: 'TEST_RESULTS.json 文件不存在',
       suggestion: '请执行 testing 阶段生成 TEST_RESULTS.json',
-        evidencePath: '06_testing/TEST_RESULTS.json'
+      evidencePath: '06_testing/TEST_RESULTS.json'
     });
   }
   
@@ -74,7 +74,7 @@ async function review(ctx) {
       gateId: 'RG2',
       description: 'VERIFY_RESULTS.json 文件不存在',
       suggestion: '请执行 testing 阶段生成 VERIFY_RESULTS.json',
-        evidencePath: '06_testing/VERIFY_RESULTS.json'
+      evidencePath: '06_testing/VERIFY_RESULTS.json'
     });
   }
   
@@ -83,7 +83,7 @@ async function review(ctx) {
       gateId: 'RG2',
       description: 'VERIFICATION_REPORT.md 文件不存在',
       suggestion: '请执行 testing 阶段生成 VERIFICATION_REPORT.md',
-        evidencePath: '06_testing/VERIFICATION_REPORT.md'
+      evidencePath: '06_testing/VERIFICATION_REPORT.md'
     });
   }
   
