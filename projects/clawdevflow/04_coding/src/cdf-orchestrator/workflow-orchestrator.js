@@ -469,14 +469,29 @@ class WorkflowOrchestrator {
         return { success: true };
 
       case 'reject':
-        // P0-3 修复：禁止递归调用 executeStage，统一由 while-loop 控制重试
-        // 此处仅返回失败，重试逻辑由 executeStage() 内的 while-loop 统一处理
+        // Designing 阶段：进入 BLOCKED（人工返工）
+        if (stageName === 'designing') {
+          console.log('[Workflow-Orchestrator] ❌ 审阅驳回（designing -> BLOCKED）');
+          const reason = reviewDecision.notes || '用户驳回';
+          this.stateManager.updateStage(stageName, StageStatus.BLOCKED, { blockReason: reason });
+          return { success: false, blocked: true, error: reason };
+        }
+        
+        // 其它阶段：由 executeStage() 内的 while-loop 控制重试
         console.log('[Workflow-Orchestrator] ❌ 审阅驳回');
         return { success: false, error: 'rejected' };
 
       case 'clarify':
+        // Designing 阶段：进入 BLOCKED（可恢复暂停）
+        if (stageName === 'designing') {
+          console.log('[Workflow-Orchestrator] ❓ 需澄清（designing -> BLOCKED）');
+          const reason = reviewDecision.notes || '需要澄清';
+          this.stateManager.updateStage(stageName, StageStatus.BLOCKED, { blockReason: reason });
+          return { success: false, blocked: true, error: reason };
+        }
+        
+        // 其它阶段：暂停流程
         console.log('[Workflow-Orchestrator] ❓ 需澄清，等待补充信息');
-        // TODO: 等待用户澄清
         return { success: false, error: '需要澄清' };
 
       default:
