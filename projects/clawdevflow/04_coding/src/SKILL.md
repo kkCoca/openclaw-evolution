@@ -242,6 +242,9 @@ cat logs/wf-20260328-001.log | jq 'select(.stage == "designing")'
 - detailing
 - coding
 - reviewing
+- testing
+- precommit
+- releasing
 
 安装时自动注册，无需单独安装。
 

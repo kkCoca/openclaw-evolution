@@ -11,6 +11,7 @@
  * @license MIT
  */
 
+/* global sessions_spawn */
 const { writeAction } = require('../utils/actions-writer');
 const { scanOutputsAllOf } = require('../utils/output-scanner');
 const { runCmd } = require('../utils/cmd');
