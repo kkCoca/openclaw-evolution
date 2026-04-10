@@ -70,9 +70,17 @@ function validateRoadmappingEntry(stateManager, state) {
   }
   
   // 3. 检查 approved 路径文件存在
-  const missingPaths = ['requirementsPath', 'prdPath', 'trdPath'].filter(
-    key => !approved[key] || !fs.existsSync(approved[key])
-  );
+  const missingPaths = [];
+  for (const key of ['requirementsPath', 'prdPath', 'trdPath']) {
+    const value = approved[key];
+    if (!value) {
+      missingPaths.push({ key, path: null, reason: 'missing' });
+      continue;
+    }
+    if (!fs.existsSync(value)) {
+      missingPaths.push({ key, path: value, reason: 'not_found' });
+    }
+  }
   if (missingPaths.length > 0) {
     return {
       ok: false,
