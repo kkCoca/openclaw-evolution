@@ -59,8 +59,13 @@ async function runStage({ config, stateManager, stageName, projectPath, taskText
   const taskArg = typeof openclawConfig.taskArg === 'string' ? openclawConfig.taskArg : '--task';
   const args = [...baseArgs, taskArg, taskText];
   const timeoutMs = timeoutSeconds * 1000;
+  const commandPreview = [command, ...baseArgs, taskArg, `<task:${taskText.length} chars>`]
+    .filter(Boolean)
+    .join(' ');
+  const taskPreview = taskText.replace(/\s+/g, ' ').slice(0, 120);
   
-  console.log(`[OpenCode]   CLI 命令：${command} ${args.join(' ')}`);
+  console.log(`[OpenCode]   CLI 命令：${commandPreview}`);
+  console.log(`[OpenCode]   任务预览：${taskPreview}${taskText.length > 120 ? '...' : ''}`);
   
   const execution = await new Promise(resolve => {
     const child = spawn(command, args, {
