@@ -1,8 +1,0 @@
-{
-  "language": "javascript",
-  "commands": {
-    "install": "npm install",
-    "test": "npm test",
-    "verify": "npm run verify"
-  }
-}
