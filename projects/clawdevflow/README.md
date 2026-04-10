@@ -29,11 +29,11 @@ ClawDevFlow 是一个**审阅驱动**的流程编排系统，自动化编排 AI 
 
 ```bash
 # Linux / macOS
-cd /path/to/openclaw-evolution/projects/clawdevflow/04_coding/src
+cd <path-to-repo>/projects/clawdevflow/04_coding/src
 ./install.sh
 
 # Windows PowerShell
-cd /path/to/openclaw-evolution/projects/clawdevflow/04_coding/src
+cd <path-to-repo>/projects/clawdevflow/04_coding/src
 .\install.bat
 ```
 
