@@ -87,6 +87,18 @@ class WorkflowOrchestrator {
         const stageResult = await this.executeStage(stageName, workflowConfig);
         
         if (!stageResult.success) {
+          // P1-1 修复：blocked 状态不调用 terminate，返回 blocked 状态便于恢复
+          if (stageResult.blocked) {
+            console.log(`[Workflow-Orchestrator] 🛑 阶段 ${stageName} 被 BLOCKED`);
+            return {
+              success: false,
+              status: 'blocked',
+              workflowId: this.stateManager.state.workflowId,
+              blockedStage: stageName,
+              reason: stageResult.error
+            };
+          }
+          
           console.log(`[Workflow-Orchestrator] ❌ 阶段 ${stageName} 执行失败`);
           this.stateManager.terminate(`阶段 ${stageName} 执行失败：${stageResult.error}`);
           return {
@@ -172,10 +184,11 @@ class WorkflowOrchestrator {
         const validation = validateRoadmappingEntry(this.stateManager, this.stateManager.state);
         if (!validation.ok) {
           console.error(`[Workflow-Orchestrator] ❌ roadmapping 入口门禁校验失败：${validation.reason}`);
-          // TODO-3 修复：Gate 失败改用 BLOCKED（可恢复暂停）
+          // P1-1 修复：Gate 失败改用 BLOCKED（可恢复暂停），添加 blocked 字段
           this.stateManager.updateStage('roadmapping', StageStatus.BLOCKED, { blockReason: validation.reason });
           return {
             success: false,
+            blocked: true,
             error: `roadmapping 入口门禁失败：${validation.reason}`
           };
         }
@@ -295,9 +308,9 @@ class WorkflowOrchestrator {
           } else if (reviewDecision.decision === 'clarify') {
             // P0#3 修复：clarify 不得直接放行，暂停流程
             console.log('[Workflow-Orchestrator] ❓ 需澄清，暂停流程（需要人工介入）');
-            // TODO-3 修复：clarify 改用 BLOCKED（可恢复暂停）
+            // P1-1 修复：clarify 改用 BLOCKED（可恢复暂停），添加 blocked 字段
             this.stateManager.updateStage(stageName, StageStatus.BLOCKED, { blockReason: '需要澄清' });
-            return { success: false, error: '需要澄清' };
+            return { success: false, blocked: true, error: '需要澄清' };
           }
         }
         
@@ -456,15 +469,10 @@ class WorkflowOrchestrator {
         return { success: true };
 
       case 'reject':
-        const stage = this.stateManager.getStage(stageName);
-        if (stage.retryCount >= 3) {
-          console.log('[Workflow-Orchestrator] ❌ 超过最大重试次数，终止流程');
-          return { success: false, error: '超过最大重试次数' };
-        }
-        
-        console.log('[Workflow-Orchestrator] ❌ 审阅驳回，重新执行当前阶段');
-        // 重新执行当前阶段
-        return await this.executeStage(stageName, workflowConfig);
+        // P0-3 修复：禁止递归调用 executeStage，统一由 while-loop 控制重试
+        // 此处仅返回失败，重试逻辑由 executeStage() 内的 while-loop 统一处理
+        console.log('[Workflow-Orchestrator] ❌ 审阅驳回');
+        return { success: false, error: 'rejected' };
 
       case 'clarify':
         console.log('[Workflow-Orchestrator] ❓ 需澄清，等待补充信息');
@@ -498,14 +506,14 @@ class WorkflowOrchestrator {
       const prdHash = crypto.createHash('sha256').update(prdContent).digest('hex');
       const trdHash = crypto.createHash('sha256').update(trdContent).digest('hex');
       
-      // 写入 approved 快照
+      // P1-2 修复：只保留 hash + 文件路径，删除全文内容防止 state 膨胀
       this.stateManager.state.stages.designing.approved = {
         requirementsHash,
         prdHash,
         trdHash,
-        requirementsContent,
-        prdContent,
-        trdContent,
+        requirementsPath,
+        prdPath,
+        trdPath,
         approvedBy: 'openclaw-ouyp',
         approvedAt: new Date().toISOString(),
         transitionId: `DESIGNING_APPROVED_${Date.now()}`

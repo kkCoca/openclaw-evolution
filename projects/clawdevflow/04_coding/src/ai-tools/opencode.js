@@ -32,6 +32,13 @@ async function runStage({ config, stateManager, stageName, projectPath, taskText
   console.log(`[OpenCode]   项目路径：${projectPath}`);
   console.log(`[OpenCode]   尝试次数：${attempt}`);
   
+  // P0-1 修复：workflowId 必须来自 stateManager，禁止每次生成新值
+  const workflowId = stateManager?.state?.workflowId;
+  if (!workflowId) {
+    throw new Error('Missing workflowId from stateManager');
+  }
+  console.log(`[OpenCode]   工作流 ID：${workflowId}`);
+  
   // 1. 从配置获取阶段参数
   const stageConfig = config.stages[stageName];
   if (!stageConfig) {
@@ -50,7 +57,7 @@ async function runStage({ config, stateManager, stageName, projectPath, taskText
   
   // 2. 生成 action 对象
   const action = {
-    workflowId: `cdf-${Date.now()}`,
+    workflowId,  // P0-1 修复：使用 stateManager 的 workflowId
     stage: stageName,
     actionId: `act-${Date.now().toString(36)}`,
     status: 'pending',

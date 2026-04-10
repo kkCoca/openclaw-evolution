@@ -39,31 +39,15 @@ function scanOutputsAllOf({ projectPath, outputDir, outputsAllOf }) {
   
   // 逐个检查期望输出
   for (const item of outputsAllOf) {
-    const isDirectory = item.endsWith('/') || item.includes('/');
-    const itemPath = path.join(fullOutputPath, isDirectory && !item.endsWith('/') ? item : item.replace(/\/$/, ''));
+    // P0-2 修复：目录只以 endsWith('/') 判定，允许文件包含相对路径
+    const isDirectory = item.endsWith('/');
+    const normalized = isDirectory ? item.slice(0, -1) : item;
+    const itemPath = path.join(fullOutputPath, normalized);
     
-    if (isDirectory && !item.endsWith('/')) {
-      // 目录路径（如 src/）
-      const dirPath = itemPath;
-      if (fs.existsSync(dirPath) && fs.statSync(dirPath).isDirectory()) {
-        // 检查目录下是否有非隐藏文件
-        const files = fs.readdirSync(dirPath).filter(f => !f.startsWith('.'));
-        if (files.length > 0) {
-          found.push(item);
-          console.log(`[Output-Scanner] ✅ 目录存在且非空：${item}`);
-        } else {
-          missing.push(item);
-          console.log(`[Output-Scanner] ❌ 目录为空：${item}`);
-        }
-      } else {
-        missing.push(item);
-        console.log(`[Output-Scanner] ❌ 目录不存在：${item}`);
-      }
-    } else if (item.endsWith('/')) {
+    if (isDirectory) {
       // 目录路径（以 / 结尾）
-      const dirPath = itemPath;
-      if (fs.existsSync(dirPath) && fs.statSync(dirPath).isDirectory()) {
-        const files = fs.readdirSync(dirPath).filter(f => !f.startsWith('.'));
+      if (fs.existsSync(itemPath) && fs.statSync(itemPath).isDirectory()) {
+        const files = fs.readdirSync(itemPath).filter(f => !f.startsWith('.'));
         if (files.length > 0) {
           found.push(item);
           console.log(`[Output-Scanner] ✅ 目录存在且非空：${item}`);
@@ -76,7 +60,7 @@ function scanOutputsAllOf({ projectPath, outputDir, outputsAllOf }) {
         console.log(`[Output-Scanner] ❌ 目录不存在：${item}`);
       }
     } else {
-      // 文件路径
+      // 文件路径（允许包含相对路径如 reports/TEST-REPORT.md）
       if (fs.existsSync(itemPath) && fs.statSync(itemPath).isFile()) {
         const stat = fs.statSync(itemPath);
         if (stat.size > 0) {
