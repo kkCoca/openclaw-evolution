@@ -73,10 +73,33 @@ projects/{项目名}/
 ├── 01_designing/
 │   ├── PRD.md              # AI 生成（追加式）
 │   └── TRD.md              # AI 生成（追加式）
+├── 02_roadmapping/
+│   └── ROADMAP.md          # AI 生成
+├── 03_detailing/
+│   └── DETAIL.md           # AI 生成
 ├── 04_coding/
-│   └── src/                # AI 生成（增量修改）
+│   ├── src/                # AI 生成（增量修改）
+│   └── CHANGESET.md        # AI 生成（变更说明）
 ├── 05_reviewing/
-│   └── REVIEW-REPORT.md    # AI 生成
+│   ├── FINAL_REPORT.md     # AI 生成
+│   └── RELEASE_READINESS.json # AI 生成
+├── 06_testing/
+│   ├── TEST_CONTEXT.json   # AI 生成
+│   ├── TEST.log            # AI 生成
+│   ├── TEST_RESULTS.json   # AI 生成
+│   ├── VERIFY.log          # AI 生成
+│   ├── VERIFY_RESULTS.json # AI 生成
+│   └── VERIFICATION_REPORT.md # AI 生成
+├── 07_precommit/
+│   ├── PRECOMMIT_PLAN.json   # AI 生成
+│   ├── PRECOMMIT_REPORT.json # AI 生成
+│   └── PRECOMMIT_SUMMARY.md  # AI 生成
+└── 08_releasing/
+    ├── RELEASE_RECORD.json   # AI 生成
+    ├── RELEASE_NOTES.md      # AI 生成
+    ├── ARTIFACT_MANIFEST.json # AI 生成
+    ├── CLEANUP_PLAN.json     # AI 生成
+    └── CLEANUP_REPORT.json   # AI 生成
 ├── CHANGELOG.md            # AI 生成（追加式）
 └── ISSUES.md               # openclaw-ouyp 提供（Bugfix 使用）
 ```

@@ -4,8 +4,9 @@ global:
   logLevel: info
 
 openclaw:
-  command: "/sessions_spawn"
-  defaultSpawnSkill: "opencode"
+  command: "opencode"
+  args: ["--print"]
+  taskArg: "--task"
   timeoutSecondsDefault: 1800
 
 stages:
@@ -39,7 +40,7 @@ stages:
     timeoutSeconds: 3600
     maxRetries: 3
     outputDir: 04_coding
-    outputsAllOf: [src/]
+    outputsAllOf: [src/, CHANGESET.md]
 
   testing:
     aiTool: opencode
@@ -47,7 +48,7 @@ stages:
     timeoutSeconds: 1800
     maxRetries: 2
     outputDir: 06_testing
-    outputsAllOf: [TEST-REPORT.md]
+    outputsAllOf: [TEST_CONTEXT.json, TEST.log, TEST_RESULTS.json, VERIFY.log, VERIFY_RESULTS.json, VERIFICATION_REPORT.md]
 
   reviewing:
     aiTool: opencode
@@ -55,7 +56,7 @@ stages:
     timeoutSeconds: 1800
     maxRetries: 2
     outputDir: 05_reviewing
-    outputsAllOf: [REVIEW-REPORT.md]
+    outputsAllOf: [FINAL_REPORT.md, RELEASE_READINESS.json]
 
   precommit:
     aiTool: opencode
@@ -63,7 +64,7 @@ stages:
     timeoutSeconds: 1800
     maxRetries: 2
     outputDir: 07_precommit
-    outputsAllOf: [PRECOMMIT-CHECKLIST.md]
+    outputsAllOf: [PRECOMMIT_PLAN.json, PRECOMMIT_REPORT.json, PRECOMMIT_SUMMARY.md]
 
   releasing:
     aiTool: opencode
@@ -71,7 +72,7 @@ stages:
     timeoutSeconds: 1800
     maxRetries: 2
     outputDir: 08_releasing
-    outputsAllOf: [RELEASE-NOTES.md]
+    outputsAllOf: [RELEASE_RECORD.json, RELEASE_NOTES.md, ARTIFACT_MANIFEST.json, CLEANUP_PLAN.json, CLEANUP_REPORT.json]
 
 rollback:
   strategy: A

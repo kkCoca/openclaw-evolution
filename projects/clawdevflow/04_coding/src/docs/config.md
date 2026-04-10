@@ -34,6 +34,20 @@ global:
 
 ---
 
+## OpenCode 执行配置
+
+```yaml
+openclaw:
+  # opencode CLI 命令
+  command: "opencode"
+  # 固定参数（可选）
+  args: ["--print"]
+  # 任务参数名（默认 --task）
+  taskArg: "--task"
+```
+
+---
+
 ## 各阶段配置
 
 ```yaml
@@ -116,7 +130,7 @@ stages:
     outputDir: 01_designing
     
     # 输出文件
-    outputs:
+    outputsAllOf:
       - PRD.md
       - TRD.md
     
@@ -148,7 +162,7 @@ stages:
     timeoutSeconds: 1800
     maxRetries: 3
     outputDir: 02_roadmapping
-    outputs:
+    outputsAllOf:
       - ROADMAP.md
     reviewCheckpoints:
       - id: R1
@@ -177,7 +191,7 @@ stages:
     timeoutSeconds: 1800
     maxRetries: 3
     outputDir: 03_detailing
-    outputs:
+    outputsAllOf:
       - DETAIL.md
     reviewCheckpoints:
       - id: D1
@@ -206,10 +220,9 @@ stages:
     timeoutSeconds: 3600
     maxRetries: 3
     outputDir: 04_coding
-    outputs:
+    outputsAllOf:
       - src/
-      - tests/
-      - README.md
+      - CHANGESET.md
     reviewCheckpoints:
       - id: C1
         name: 功能完整实现
@@ -240,8 +253,9 @@ stages:
     timeoutSeconds: 1800
     maxRetries: 3
     outputDir: 05_reviewing
-    outputs:
-      - REVIEW-REPORT.md
+    outputsAllOf:
+      - FINAL_REPORT.md
+      - RELEASE_READINESS.json
     reviewCheckpoints:
       - id: V1
         name: 需求对齐验证

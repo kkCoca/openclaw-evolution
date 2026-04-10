@@ -24,7 +24,8 @@ async function execute(aiTool, stateManager, projectPath, input) {
 ## 任务内容
 1. 扫描敏感文件（.env, *.pem, *.key, id_rsa）
 2. 检查未跟踪文件（git status）
-3. 生成 PRECOMMIT-CHECKLIST.md：检查清单、风险提示
+3. 检查 08_releasing/ 是否被 git 跟踪
+4. 生成 PRECOMMIT_PLAN.json、PRECOMMIT_REPORT.json、PRECOMMIT_SUMMARY.md
 `;
 
   const result = await aiTool.runStage({

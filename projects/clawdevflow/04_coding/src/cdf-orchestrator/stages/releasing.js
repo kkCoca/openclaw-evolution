@@ -14,8 +14,7 @@ async function execute(aiTool, stateManager, projectPath, input) {
 # 任务：Releasing 阶段 - 发布准备
 
 ## 输入
-- 审阅报告：${projectPath}/05_reviewing/REVIEW-REPORT.md
-- 测试报告：${projectPath}/06_testing/TEST-REPORT.md
+- 发布就绪凭证：${projectPath}/05_reviewing/RELEASE_READINESS.json
 
 ## 输出要求
 你必须把所有输出写入目录：${projectPath}/${outputDir}/
@@ -23,8 +22,10 @@ async function execute(aiTool, stateManager, projectPath, input) {
 禁止在 ${projectPath} 根目录直接写文件
 
 ## 任务内容
-1. 确认审阅通过
-2. 生成 RELEASE-NOTES.md：版本号、变更列表、升级说明
+1. 确认 RELEASE_READINESS.json 为 PASS
+2. 生成发布记录与发布说明
+3. 生成制品清单与清理计划
+4. 执行清理扫描并生成清理报告
 `;
 
   const result = await aiTool.runStage({

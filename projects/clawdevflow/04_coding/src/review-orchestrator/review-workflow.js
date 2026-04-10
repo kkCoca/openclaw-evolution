@@ -271,7 +271,7 @@ ${requestPath}
       'coding': 'Code（代码）',
       'testing': 'Test（测试）',
       'reviewing': 'Review（验收）',
-      'release': 'Release（发布）'
+      'releasing': 'Release（发布）'
     };
     return names[stageName] || stageName;
   }

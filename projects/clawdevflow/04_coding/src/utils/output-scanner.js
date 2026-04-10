@@ -60,7 +60,7 @@ function scanOutputsAllOf({ projectPath, outputDir, outputsAllOf }) {
         console.log(`[Output-Scanner] ❌ 目录不存在：${item}`);
       }
     } else {
-      // 文件路径（允许包含相对路径如 reports/TEST-REPORT.md）
+    // 文件路径（允许包含相对路径如 reports/VERIFICATION_REPORT.md）
       if (fs.existsSync(itemPath) && fs.statSync(itemPath).isFile()) {
         const stat = fs.statSync(itemPath);
         if (stat.size > 0) {

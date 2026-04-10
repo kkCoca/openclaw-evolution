@@ -2,20 +2,18 @@
  * OpenCode Runner - OpenCode 工具执行器
  * 
  * ClawDevFlow (CDF) AI 工具适配器
- * 负责：写 actions.json + 等待 outputs 扫描
- * 
- * 关键：不 exec，不调用 CLI，不调网络
+ * 负责：spawn opencode CLI + 扫描 outputs
  * 
  * @version 3.4.0
  * @author openclaw-ouyp
  * @license MIT
  */
 
-const { writeAction } = require('../utils/actions-writer');
+const { spawn } = require('child_process');
 const { scanOutputsAllOf } = require('../utils/output-scanner');
 
 /**
- * 运行阶段（写 action + 等待扫描）
+ * 运行阶段（spawn opencode + 扫描产物）
  * 
  * @param {object} options - 执行选项
  * @param {object} options.config - 配置对象
@@ -55,63 +53,97 @@ async function runStage({ config, stateManager, stageName, projectPath, taskText
   console.log(`[OpenCode]   期望输出：${outputsAllOf.join(', ')}`);
   console.log(`[OpenCode]   超时时间：${timeoutSeconds}s`);
   
-  // 2. 生成 action 对象
-  const action = {
-    workflowId,  // P0-1 修复：使用 stateManager 的 workflowId
-    stage: stageName,
-    actionId: `act-${Date.now().toString(36)}`,
-    status: 'pending',
-    createdAt: new Date().toISOString(),
-    timeoutSeconds,
-    command: '/sessions_spawn opencode',
-    task: taskText,
-    projectPath,
-    outputDir,
-    expectedOutputs: outputsAllOf,
-    attempt,
-    regenerateHint
-  };
-  
-  // 3. 写入 actions.json
-  writeAction(projectPath, action);
-  
-  console.log('[OpenCode] ⏳ 等待输出文件生成...');
-  console.log('[OpenCode] 提示：请手动创建合同文件，或由宿主执行 /sessions_spawn opencode');
-  
-  // 4. 等待输出扫描（轮询）
-  const startTime = Date.now();
+  const openclawConfig = config.openclaw || {};
+  const command = openclawConfig.command || 'opencode';
+  const baseArgs = Array.isArray(openclawConfig.args) ? openclawConfig.args : [];
+  const taskArg = typeof openclawConfig.taskArg === 'string' ? openclawConfig.taskArg : '--task';
+  const args = [...baseArgs, taskArg, taskText];
   const timeoutMs = timeoutSeconds * 1000;
-  const pollIntervalMs = 2000; // 2 秒轮询一次
+  const commandPreview = [command, ...baseArgs, taskArg, `<task:${taskText.length} chars>`]
+    .filter(Boolean)
+    .join(' ');
+  const taskPreview = taskText.replace(/\s+/g, ' ').slice(0, 120);
   
-  while (true) {
-    // 扫描输出
-    const result = scanOutputsAllOf({ projectPath, outputDir, outputsAllOf });
+  console.log(`[OpenCode]   CLI 命令：${commandPreview}`);
+  console.log(`[OpenCode]   任务预览：${taskPreview}${taskText.length > 120 ? '...' : ''}`);
+  
+  const execution = await new Promise(resolve => {
+    const child = spawn(command, args, {
+      cwd: projectPath,
+      env: {
+        ...process.env,
+        CDF_WORKFLOW_ID: workflowId,
+        CDF_STAGE: stageName,
+        CDF_ATTEMPT: String(attempt)
+      },
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
     
-    if (result.ok) {
-      // 成功：返回输出文件列表
-      console.log(`[OpenCode] ✅ 阶段完成：${stageName}`);
-      return {
-        success: true,
-        outputs: result.found.map(f => `${outputDir}/${f}`)
-      };
-    }
+    let stdout = '';
+    let stderr = '';
+    let timedOut = false;
     
-    // 检查超时
-    const elapsed = Date.now() - startTime;
-    if (elapsed >= timeoutMs) {
-      console.log(`[OpenCode] ❌ 超时：等待 ${timeoutSeconds}s 后仍未找到输出文件`);
-      console.log(`[OpenCode]   缺失文件：${result.missing.join(', ')}`);
-      return {
-        success: false,
-        outputs: [],
-        error: `Timeout waiting outputs: ${result.missing.join(', ')}`
-      };
-    }
+    const timeout = setTimeout(() => {
+      timedOut = true;
+      child.kill('SIGTERM');
+      setTimeout(() => child.kill('SIGKILL'), 2000);
+    }, timeoutMs);
     
-    // 等待下次轮询
-    console.log(`[OpenCode] ⏳ 等待中... (${Math.floor(elapsed / 1000)}s / ${timeoutSeconds}s)`);
-    await new Promise(resolve => setTimeout(resolve, pollIntervalMs));
+    child.stdout?.on('data', data => {
+      stdout += data.toString();
+    });
+    
+    child.stderr?.on('data', data => {
+      stderr += data.toString();
+    });
+    
+    child.on('error', error => {
+      clearTimeout(timeout);
+      resolve({
+        ok: false,
+        code: error.code === 'ENOENT' ? 127 : (error.code || 'SPAWN_ERROR'),
+        stderr: error.message
+      });
+    });
+    
+    child.on('close', code => {
+      clearTimeout(timeout);
+      resolve({
+        ok: !timedOut && code === 0,
+        code: timedOut ? 124 : code,
+        stdout,
+        stderr
+      });
+    });
+  });
+  
+  if (!execution.ok) {
+    const errorCode = execution.code ?? 'UNKNOWN';
+    const errorDetail = execution.stderr ? execution.stderr.trim() : 'opencode 执行失败';
+    console.log(`[OpenCode] ❌ CLI 执行失败 (code=${errorCode})`);
+    return {
+      success: false,
+      outputs: [],
+      error: `OpenCode exit ${errorCode}: ${errorDetail}`
+    };
   }
+  
+  const result = scanOutputsAllOf({ projectPath, outputDir, outputsAllOf });
+  
+  if (!result.ok) {
+    console.log(`[OpenCode] ❌ 产物不完整，缺失文件：${result.missing.join(', ')}`);
+    return {
+      success: false,
+      outputs: [],
+      error: `Missing outputs: ${result.missing.join(', ')}`
+    };
+  }
+  
+  console.log(`[OpenCode] ✅ 阶段完成：${stageName}`);
+  return {
+    success: true,
+    outputs: result.found.map(f => `${outputDir}/${f}`)
+  };
 }
 
 module.exports = {

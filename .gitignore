@@ -56,11 +56,9 @@ Thumbs.db
 
 # CDF 运行态文件（禁止入库）
 .cdf-state.json
-05_testing/
-06_releasing/
+06_testing/
 07_precommit/
+08_releasing/
 
 # ============ 环境桥接（本地软链接，非工程资产） ============
 universe-bridge
-
-
