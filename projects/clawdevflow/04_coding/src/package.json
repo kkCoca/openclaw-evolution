@@ -13,7 +13,7 @@
     "test:env": "node ../../tests/test-substitute-env.js",
     "test:workflow": "node ../../tests/test-cdf-workflow.js",
     "test:integration": "node ../../tests/test-cdf-integration.js",
-    "test:review": "node ../../tests/test-review-agents.js && node ../../tests/test-review-code.js && node ../../tests/test-review-orchestrator.js",
+    "test:review": "node ../../tests/test-review-agents.js && node ../../tests/test-review-orchestrator.js",
     "test:coverage": "nyc --reporter=html --reporter=text node ../../tests/run-all-tests.js",
     "report:coverage": "nyc report --reporter=html",
     "install:skill": "./install.sh"

@@ -243,8 +243,8 @@ CREATE TABLE {table_name} (
 
 | 术语 | 定义 |
 |------|------|
-| AI 工具 | 执行者，负责具体研发任务执行（根据 config.yaml 配置选择，支持 OpenCode/Claude Code/其他） |
-| config.yaml | 流程引擎配置文件，包含 AI 工具配置、审阅配置、回滚策略等 |
+| AI 工具 | 执行者，负责具体研发任务执行（根据 config.yaml 配置选择，当前仅 OpenCode） |
+| config.yaml | 流程引擎配置文件，包含阶段参数与回滚策略等 |
 | {术语 1} | {定义} |
 | {术语 2} | {定义} |
 
@@ -290,9 +290,9 @@ CREATE TABLE {table_name} (
 
 ### 6. AI 工具配置
 
-- **AI 工具选择** - 根据 config.yaml 中的 `defaultAITool` 配置选择（支持 opencode/claude-code/custom）
-- **阶段独立配置** - 每个阶段可单独配置 AI 工具（`stages.{stage}.aiTool`）
-- **灵活切换** - 无需修改文档，仅需调整配置文件即可切换 AI 工具
+- **AI 工具选择** - 根据 config.yaml 中的 `defaultAITool` 配置选择（当前仅 opencode）
+- **阶段独立配置** - 每个阶段可单独配置 AI 工具（`stages.{stage}.aiTool`，当前仅 opencode）
+- **灵活切换** - 预留适配层，其他工具适配尚未实现
 - **系统架构图** - 使用"AI 工具（执行者）"描述，不硬编码具体工具名称
 - **调用关系表** - 使用"AI 工具执行"描述，说明根据 config.yaml 配置选择
 
