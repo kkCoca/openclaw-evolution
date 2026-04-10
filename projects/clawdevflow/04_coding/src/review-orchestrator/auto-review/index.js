@@ -46,7 +46,7 @@ async function autoReview(ctx) {
   if (typeof reviewer.review === 'function') {
     return await reviewer.review(ctx);
   }
-  throw new Error(`自动审阅模块未暴露 review 方法：${stageName}`);
+  throw new Error(`自动审阅模块必须导出函数或包含 review 方法：${stageName}`);
 }
 
 module.exports = {

@@ -588,7 +588,7 @@ class WorkflowOrchestrator {
         continue;
       }
 
-      if (stage.status === StageStatus.BLOCKED || stage.stageStatus === 'blocked') {
+      if (stage.status === StageStatus.BLOCKED) {
         const reason = stage.blockReason || '阶段被阻断，需人工解除';
         console.log(`[Workflow-Orchestrator] 🛑 阶段 ${stageName} 处于 BLOCKED：${reason}`);
         return { success: false, blocked: true, blockedStage: stageName, error: reason };
