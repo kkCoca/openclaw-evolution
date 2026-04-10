@@ -53,21 +53,21 @@ cat > PROJECT_MANIFEST.json << 'EOF'
 }
 EOF
 
-# 创建 05_testing 证据包（让流程能到 reviewing）
-mkdir -p 05_testing
-cat > 05_testing/TEST_RESULTS.json << 'EOF'
+# 创建 06_testing 证据包（让流程能到 reviewing）
+mkdir -p 06_testing
+cat > 06_testing/TEST_RESULTS.json << 'EOF'
 {
   "TEST_CMD": "echo 'tests passed'",
   "RESULT": "PASS"
 }
 EOF
-cat > 05_testing/VERIFY_RESULTS.json << 'EOF'
+cat > 06_testing/VERIFY_RESULTS.json << 'EOF'
 {
   "VERIFY_CMD": "echo 'verify passed'",
   "RESULT": "PASS"
 }
 EOF
-cat > 05_testing/VERIFICATION_REPORT.md << 'EOF'
+cat > 06_testing/VERIFICATION_REPORT.md << 'EOF'
 # 验收报告
 **RESULT: PASS**
 EOF

@@ -13,6 +13,59 @@
 
 const { writeAction } = require('../utils/actions-writer');
 const { scanOutputsAllOf } = require('../utils/output-scanner');
+const { runCmd } = require('../utils/cmd');
+
+function getOpenclawConfig(config) {
+  const openclawConfig = config?.openclaw || {};
+  return {
+    command: openclawConfig.command || '/sessions_spawn',
+    spawnSkill: openclawConfig.defaultSpawnSkill || 'opencode',
+    autoSpawn: openclawConfig.autoSpawn !== false
+  };
+}
+
+function buildSpawnCommand({ command, spawnSkill, taskText }) {
+  const escapedTask = JSON.stringify(taskText);
+  return `${command} ${spawnSkill} --task ${escapedTask}`;
+}
+
+async function trySpawnSession({ config, taskText, timeoutSeconds, projectPath }) {
+  const { command, spawnSkill, autoSpawn } = getOpenclawConfig(config);
+  if (!autoSpawn) {
+    return { started: false, reason: 'autoSpawn disabled' };
+  }
+
+  if (typeof sessions_spawn === 'function') {
+    try {
+      const session = await sessions_spawn({
+        task: taskText,
+        runtime: 'subagent',
+        mode: 'run',
+        timeoutSeconds,
+        cleanup: 'delete'
+      });
+      return { started: true, method: 'api', session };
+    } catch (error) {
+      return { started: false, method: 'api', error: error.message };
+    }
+  }
+
+  if (!command) {
+    return { started: false, reason: 'missing command' };
+  }
+
+  const spawnCommand = buildSpawnCommand({ command, spawnSkill, taskText });
+  const result = await runCmd(spawnCommand, {
+    cwd: projectPath,
+    timeout: timeoutSeconds * 1000
+  });
+
+  if (result.error) {
+    return { started: false, method: 'cli', error: result.error };
+  }
+
+  return { started: true, method: 'cli', stdout: result.stdout };
+}
 
 /**
  * 运行阶段（写 action + 等待扫描）
@@ -50,6 +103,9 @@ async function runStage({ config, stateManager, stageName, projectPath, taskText
     outputsAllOf,
     timeoutSeconds = 1800
   } = stageConfig;
+
+  const openclawConfig = getOpenclawConfig(config);
+  const commandLabel = `${openclawConfig.command} ${openclawConfig.spawnSkill}`;
   
   console.log(`[OpenCode]   输出目录：${outputDir}`);
   console.log(`[OpenCode]   期望输出：${outputsAllOf.join(', ')}`);
@@ -63,7 +119,7 @@ async function runStage({ config, stateManager, stageName, projectPath, taskText
     status: 'pending',
     createdAt: new Date().toISOString(),
     timeoutSeconds,
-    command: '/sessions_spawn opencode',
+    command: commandLabel,
     task: taskText,
     projectPath,
     outputDir,
@@ -74,9 +130,26 @@ async function runStage({ config, stateManager, stageName, projectPath, taskText
   
   // 3. 写入 actions.json
   writeAction(projectPath, action);
+
+  // 4. 尝试自动启动子会话（OpenClaw 环境）
+  const spawnResult = await trySpawnSession({
+    config,
+    taskText,
+    timeoutSeconds,
+    projectPath
+  });
+
+  if (spawnResult.started) {
+    action.status = 'running';
+    writeAction(projectPath, action);
+    console.log(`[OpenCode] ✅ 已触发子会话（${spawnResult.method}）`);
+  } else if (spawnResult.error) {
+    console.log(`[OpenCode] ⚠️ 自动触发失败，继续等待输出：${spawnResult.error}`);
+  } else {
+    console.log('[OpenCode] ⚠️ 未触发子会话，等待宿主执行 actions.json');
+  }
   
   console.log('[OpenCode] ⏳ 等待输出文件生成...');
-  console.log('[OpenCode] 提示：请手动创建合同文件，或由宿主执行 /sessions_spawn opencode');
   
   // 4. 等待输出扫描（轮询）
   const startTime = Date.now();
@@ -89,6 +162,8 @@ async function runStage({ config, stateManager, stageName, projectPath, taskText
     
     if (result.ok) {
       // 成功：返回输出文件列表
+      action.status = 'done';
+      writeAction(projectPath, action);
       console.log(`[OpenCode] ✅ 阶段完成：${stageName}`);
       return {
         success: true,
@@ -99,6 +174,8 @@ async function runStage({ config, stateManager, stageName, projectPath, taskText
     // 检查超时
     const elapsed = Date.now() - startTime;
     if (elapsed >= timeoutMs) {
+      action.status = 'failed';
+      writeAction(projectPath, action);
       console.log(`[OpenCode] ❌ 超时：等待 ${timeoutSeconds}s 后仍未找到输出文件`);
       console.log(`[OpenCode]   缺失文件：${result.missing.join(', ')}`);
       return {

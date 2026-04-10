@@ -64,9 +64,9 @@ ClawDevFlow (CDF) 通过 `{projectPath}/.cdf/actions.json` 文件向宿主系统
 ## 生命周期
 
 1. **CDF 写入** `status=pending`
-2. 宿主读取并执行 `command`
+2. **CDF 自动触发**（当检测到 `sessions_spawn` 或 `openclaw.autoSpawn=true`）并将 `status` 更新为 `running`
 3. 子会话写入产物到 `{projectPath}/{outputDir}/`
-4. CDF 扫描产物，推进或返工
+4. CDF 扫描产物并更新 `status=done`，若超时则 `status=failed`
 5. 返工时重写 `actions.json`（`attempt++`，带 `regenerateHint`）
 
 ---
@@ -87,8 +87,8 @@ action=$(cat .cdf/actions.json)
 
 ## 硬约束
 
-- CDF **不负责**真的执行 `/sessions_spawn`
-- CDF **必须负责**：写 actions.json、等待扫描、超时报错
+- CDF **默认自动触发** `/sessions_spawn`（可通过 `openclaw.autoSpawn=false` 禁用）
+- CDF **必须负责**：写 actions.json、等待扫描、超时报错、写入状态更新
 - 子会话只能写 `{projectPath}/{outputDir}/` 下
 - 禁止在项目根目录直接写文件
 

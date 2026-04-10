@@ -18,7 +18,7 @@ const { readJson } = require('../../utils/json');
  * 
  * Gates:
  * - RL0: readiness 存在且 PASS
- * - RL1: 06_releasing/ 五件套齐全
+ * - RL1: 08_releasing/ 五件套齐全
  * - RL2: CLEANUP_REPORT.json 可解析
  * - RL3: securityFindings 必须为空，否则 reject
  * 
@@ -28,7 +28,7 @@ const { readJson } = require('../../utils/json');
  */
 async function review(ctx) {
   const { projectPath } = ctx;
-  const releasingPath = path.join(projectPath, '06_releasing');
+  const releasingPath = path.join(projectPath, '08_releasing');
   const readinessPath = path.join(projectPath, '05_reviewing/RELEASE_READINESS.json');
   
   // Gate RL0: readiness 存在且 PASS
@@ -59,7 +59,7 @@ async function review(ctx) {
     };
   }
   
-  // Gate RL1: 06_releasing/ 五件套齐全
+  // Gate RL1: 08_releasing/ 五件套齐全
   const requiredFiles = [
     'RELEASE_RECORD.json',
     'RELEASE_NOTES.md',
@@ -84,7 +84,7 @@ async function review(ctx) {
         id: 'RL1_EVIDENCE_MISSING',
         description: `Releasing 产出文件缺失：${missingFiles.join(', ')}`,
         suggestion: '请执行 Releasing 阶段生成完整的发布证据包',
-        evidencePath: '06_releasing/'
+        evidencePath: '08_releasing/'
       }]
     };
   }
@@ -102,7 +102,7 @@ async function review(ctx) {
         id: 'RL2_CLEANUP_REPORT_INVALID',
         description: `CLEANUP_REPORT.json 解析失败：${error.message}`,
         suggestion: '请修复 CLEANUP_REPORT.json 格式',
-        evidencePath: '06_releasing/CLEANUP_REPORT.json'
+        evidencePath: '08_releasing/CLEANUP_REPORT.json'
       }]
     };
   }
@@ -119,7 +119,7 @@ async function review(ctx) {
         id: 'RL3_SECURITY_FINDINGS_FOUND',
         description: `敏感文件：${finding.path || finding.file || `未知文件 ${index + 1}`}`,
         suggestion: '请移除敏感文件或将其添加到 .gitignore',
-        evidencePath: '06_releasing/CLEANUP_REPORT.json'
+        evidencePath: '08_releasing/CLEANUP_REPORT.json'
       }))
     };
   }

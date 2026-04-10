@@ -1,12 +1,12 @@
 ---
 name: clawdevflow
 displayName: ClawDevFlow (CDF) - 爪刃研发流
-description: AI 辅助研发流程编排引擎 v3.0.1，审阅驱动 + 会话隔离 + 工具无关，自动化编排 designing→roadmapping→detailing→coding→reviewing 完整流程
+description: AI 辅助研发流程编排引擎 v3.4.0，审阅驱动 + 会话隔离 + 工具无关，自动化编排 designing→roadmapping→detailing→coding→testing→reviewing→precommit→releasing 全流程
 triggers:
   - /sessions_spawn clawdevflow
   - /sessions_spawn cdf
 entry: workflow-executor.js
-version: 3.0.1
+version: 3.4.0
 author: openclaw-ouyp
 license: MIT
 ---
@@ -23,7 +23,7 @@ license: MIT
 
 | 维度 | 传统 Skill | 本引擎 |
 |------|-----------|------|
-| **功能** | 单一任务 | 编排 5 个阶段 + 状态管理 |
+| **功能** | 单一任务 | 编排 8 个阶段 + 状态管理 |
 | **代码规模** | ~100-500 行 | ~5500 行 |
 | **状态管理** | 无 | 完整状态机 + 断点续传 |
 | **可配置性** | 简单 | 完整 config.yaml |
@@ -54,7 +54,7 @@ license: MIT
 ## 使用方法
 
 ```bash
-/sessions_spawn openclaw-research-workflow
+/sessions_spawn clawdevflow
 
 # 任务：{任务描述}
 # 场景类型：[全新功能 | 增量需求 | 问题修复]
@@ -65,7 +65,7 @@ license: MIT
 # 输出目录：/home/ouyp/Learning/Practice/openclaw-universe/projects/{项目名}/
 # 
 # 重要要求：
-# - 必须按照 01_designing~05_reviewing 目录结构输出
+# - 必须按照 01_designing~08_releasing 目录结构输出
 # - 禁止直接输出到项目根目录
 # - 增量需求：读取原有 PRD.md 并追加新章节
 # - Bugfix 规范：REQUIREMENTS.md 不更新，使用 ISSUES.md
@@ -76,9 +76,9 @@ license: MIT
 ### 阶段执行流程
 
 ```
-designing → [审阅] → roadmapping → [审阅] → detailing → [审阅] → coding → [审阅] → reviewing → [验收]
-    ↓            ↓           ↓           ↓          ↓           ↓         ↓           ↓         ↓
-  PRD+TRD    通过/驳回   ROADMAP    通过/驳回    DETAIL    通过/驳回    src/     通过/驳回  REVIEW-REPORT
+designing → [审阅] → roadmapping → [审阅] → detailing → [审阅] → coding → [审阅] → testing → [审阅] → reviewing → [审阅] → precommit → [审阅] → releasing → [验收]
+    ↓            ↓           ↓           ↓          ↓           ↓         ↓           ↓         ↓           ↓           ↓           ↓           ↓           ↓
+  PRD+TRD    通过/驳回   ROADMAP    通过/驳回    DETAIL    通过/驳回    src/     通过/驳回  TEST-REPORT  通过/驳回  REVIEW-REPORT 通过/驳回 PRECOMMIT 通过/驳回 RELEASE-NOTES
 ```
 
 ### 审阅结论选项
@@ -109,6 +109,12 @@ projects/{项目名}/
 │   └── src/                # AI 生成（增量修改）
 ├── 05_reviewing/
 │   └── REVIEW-REPORT.md    # AI 生成
+├── 06_testing/
+│   └── TEST-REPORT.md       # AI 生成
+├── 07_precommit/
+│   └── PRECOMMIT-CHECKLIST.md # AI 生成
+├── 08_releasing/
+│   └── RELEASE-NOTES.md     # AI 生成
 ├── CHANGELOG.md            # AI 生成（追加式）
 └── ISSUES.md               # openclaw-ouyp 提供（Bugfix 使用）
 ```
@@ -208,7 +214,7 @@ aiTools:
 
 ```bash
 # 流程会自动检测 state.json 并恢复
-/sessions_spawn openclaw-research-workflow
+/sessions_spawn clawdevflow
 # 任务：恢复流程
 ```
 

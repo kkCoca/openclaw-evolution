@@ -33,7 +33,7 @@ const { existsNonEmpty } = require('../../utils/fsx');
 async function review(ctx) {
   const { projectPath } = ctx;
   const reviewingPath = path.join(projectPath, '05_reviewing');
-  const testingPath = path.join(projectPath, '05_testing');
+  const testingPath = path.join(projectPath, '06_testing');
   const manifestPath = path.join(projectPath, 'PROJECT_MANIFEST.json');
   const changesetPath = path.join(projectPath, '04_coding/CHANGESET.md');
   
@@ -65,7 +65,7 @@ async function review(ctx) {
       gateId: 'RG2',
       description: 'TEST_RESULTS.json 文件不存在',
       suggestion: '请执行 testing 阶段生成 TEST_RESULTS.json',
-      evidencePath: '05_testing/TEST_RESULTS.json'
+        evidencePath: '06_testing/TEST_RESULTS.json'
     });
   }
   
@@ -74,7 +74,7 @@ async function review(ctx) {
       gateId: 'RG2',
       description: 'VERIFY_RESULTS.json 文件不存在',
       suggestion: '请执行 testing 阶段生成 VERIFY_RESULTS.json',
-      evidencePath: '05_testing/VERIFY_RESULTS.json'
+        evidencePath: '06_testing/VERIFY_RESULTS.json'
     });
   }
   
@@ -83,7 +83,7 @@ async function review(ctx) {
       gateId: 'RG2',
       description: 'VERIFICATION_REPORT.md 文件不存在',
       suggestion: '请执行 testing 阶段生成 VERIFICATION_REPORT.md',
-      evidencePath: '05_testing/VERIFICATION_REPORT.md'
+        evidencePath: '06_testing/VERIFICATION_REPORT.md'
     });
   }
   
@@ -99,7 +99,7 @@ async function review(ctx) {
         gateId: 'RG3',
         description: `测试/验收未通过（测试：${testResults.RESULT}, 验收：${verifyResults.RESULT}）`,
         suggestion: '请修复测试和验收失败的问题',
-        evidencePath: '05_testing/'
+        evidencePath: '06_testing/'
       });
     }
   }
@@ -159,9 +159,9 @@ async function review(ctx) {
     result: blockingIssues.length === 0 ? 'PASS' : 'FAIL',
     evidence: {
       finalReport: '05_reviewing/FINAL_REPORT.md',
-      testResults: '05_testing/TEST_RESULTS.json',
-      verifyResults: '05_testing/VERIFY_RESULTS.json',
-      verificationReport: '05_testing/VERIFICATION_REPORT.md',
+      testResults: '06_testing/TEST_RESULTS.json',
+      verifyResults: '06_testing/VERIFY_RESULTS.json',
+      verificationReport: '06_testing/VERIFICATION_REPORT.md',
       changeset: '04_coding/CHANGESET.md'
     },
     blockingIssues: blockingIssues

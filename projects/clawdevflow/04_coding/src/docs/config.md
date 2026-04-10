@@ -34,6 +34,25 @@ global:
 
 ---
 
+## OpenClaw 集成配置
+
+```yaml
+openclaw:
+  # sessions_spawn 命令入口
+  command: "/sessions_spawn"
+
+  # 默认 spawn skill（通常为 opencode）
+  defaultSpawnSkill: "opencode"
+
+  # 默认超时（秒）
+  timeoutSecondsDefault: 1800
+
+  # 是否自动触发 sessions_spawn（默认 true）
+  autoSpawn: true
+```
+
+---
+
 ## 各阶段配置
 
 ```yaml

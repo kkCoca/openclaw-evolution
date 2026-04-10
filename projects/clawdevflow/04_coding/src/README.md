@@ -5,7 +5,7 @@ AI 辅助研发流程引擎，自动化编排完整研发流程。
 ## 特性
 
 - ✅ **一键安装** - 一个命令安装所有依赖
-- ✅ **流程标准化** - 完整的研发流程编排（designing→roadmapping→detailing→coding→reviewing）
+- ✅ **流程标准化** - 完整的研发流程编排（designing→roadmapping→detailing→coding→testing→reviewing→precommit→releasing）
 - ✅ **场景支持** - 全新功能/增量需求/问题修复
 - ✅ **跨平台** - Windows/Linux/macOS
 - ✅ **零感知依赖** - bundled skills 自动注册
@@ -58,7 +58,7 @@ clawhub install openclaw-research-workflow
 # 输出目录：/home/ouyp/Learning/Practice/openclaw-universe/projects/{项目名}/
 # 
 # 重要要求：
-# 输出到项目目录（01_designing/04_coding/05_reviewing）
+# 输出到项目目录（01_designing/02_roadmapping/03_detailing/04_coding/05_reviewing/06_testing/07_precommit/08_releasing）
 # 全新功能：生成 PRD.md + TRD.md + src/ + CHANGELOG.md
 # 增量需求：读取完整 REQUIREMENTS.md，追加 PRD.md 章节
 # 问题修复：记录根因到 TRD.md，更新 CHANGELOG.md
@@ -82,6 +82,12 @@ projects/{项目名}/
 │   └── src/                # AI 生成（增量修改）
 ├── 05_reviewing/
 │   └── REVIEW-REPORT.md    # AI 生成
+├── 06_testing/
+│   └── TEST-REPORT.md      # AI 生成
+├── 07_precommit/
+│   └── PRECOMMIT-CHECKLIST.md # AI 生成
+├── 08_releasing/
+│   └── RELEASE-NOTES.md    # AI 生成
 ├── CHANGELOG.md            # AI 生成（追加式）
 └── ISSUES.md               # openclaw-ouyp 提供（Bugfix 使用）
 ```
@@ -93,6 +99,9 @@ projects/{项目名}/
 - `03_detailing/` — 详细设计（DETAIL.md）
 - `04_coding/` — 源代码（src/）
 - `05_reviewing/` — 验收报告（REVIEW-REPORT.md）
+- `06_testing/` — 测试报告（TEST-REPORT.md）
+- `07_precommit/` — 提交前检查（PRECOMMIT-CHECKLIST.md）
+- `08_releasing/` — 发布说明（RELEASE-NOTES.md）
 - `CHANGELOG.md` — 变更日志（追加式）
 - `ISSUES.md` — 问题记录（Bugfix 使用）
 

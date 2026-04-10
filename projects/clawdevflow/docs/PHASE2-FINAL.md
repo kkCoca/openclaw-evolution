@@ -137,15 +137,15 @@ PC1 | 未跟踪文件检查 | ${precommitReport.untrackedFiles.length > 0 ? '❌
 ```gitignore
 # 运行态文件（禁止入库）
 .cdf-state.json
-05_testing/
-06_releasing/
+06_testing/
+08_releasing/
 07_precommit/
 ```
 
 **验收**:
 - ✅ `.cdf-state.json` 不入库
-- ✅ `05_testing/` 不入库
-- ✅ `06_releasing/` 不入库
+- ✅ `06_testing/` 不入库
+- ✅ `08_releasing/` 不入库
 - ✅ `07_precommit/` 不入库
 
 ---
@@ -157,11 +157,11 @@ PC1 | 未跟踪文件检查 | ${precommitReport.untrackedFiles.length > 0 ? '❌
 以下文件路径、文件名、关键字段保持一致：
 
 #### Testing evidence pack
-- `05_testing/TEST_CONTEXT.json` ✅
-- `05_testing/TEST_RESULTS.json` (含 `RESULT`) ✅
-- `05_testing/VERIFY_RESULTS.json` (含 `RESULT`) ✅
-- `05_testing/VERIFICATION_REPORT.md` ✅
-- `05_testing/TEST.log`, `VERIFY.log` ✅
+- `06_testing/TEST_CONTEXT.json` ✅
+- `06_testing/TEST_RESULTS.json` (含 `RESULT`) ✅
+- `06_testing/VERIFY_RESULTS.json` (含 `RESULT`) ✅
+- `06_testing/VERIFICATION_REPORT.md` ✅
+- `06_testing/TEST.log`, `VERIFY.log` ✅
 
 #### Reviewing 放行凭证
 - `05_reviewing/RELEASE_READINESS.json` (PASS/FAIL + blockingIssues) ✅
@@ -172,11 +172,11 @@ PC1 | 未跟踪文件检查 | ${precommitReport.untrackedFiles.length > 0 ? '❌
 - `07_precommit/PRECOMMIT_SUMMARY.md` (PC1 表格与硬阻断一致) ✅
 
 #### Releasing evidence pack
-- `06_releasing/RELEASE_RECORD.json` ✅
-- `06_releasing/RELEASE_NOTES.md` ✅
-- `06_releasing/ARTIFACT_MANIFEST.json` ✅
-- `06_releasing/CLEANUP_PLAN.json` ✅
-- `06_releasing/CLEANUP_REPORT.json` ✅
+- `08_releasing/RELEASE_RECORD.json` ✅
+- `08_releasing/RELEASE_NOTES.md` ✅
+- `08_releasing/ARTIFACT_MANIFEST.json` ✅
+- `08_releasing/CLEANUP_PLAN.json` ✅
+- `08_releasing/CLEANUP_REPORT.json` ✅
 
 ---
 

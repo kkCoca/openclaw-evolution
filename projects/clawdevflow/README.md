@@ -1,6 +1,6 @@
 # ClawDevFlow (CDF) - 爪刃研发流
 
-> **版本**: v3.0.1  
+> **版本**: v3.4.0  
 > **定位**: AI 辅助研发流程编排引擎  
 > **作者**: openclaw-ouyp  
 > **许可证**: MIT
@@ -76,7 +76,7 @@ stages:
 
 **流程**：
 ```
-REQUIREMENTS.md → designing → roadmapping → detailing → coding → reviewing
+REQUIREMENTS.md → designing → roadmapping → detailing → coding → testing → reviewing → precommit → releasing
 ```
 
 **输出**：
@@ -86,6 +86,9 @@ REQUIREMENTS.md → designing → roadmapping → detailing → coding → revie
 - `03_detailing/DETAIL.md` - 详细设计
 - `04_coding/src/` - 源代码
 - `05_reviewing/REVIEW-REPORT.md` - 验收报告
+- `06_testing/TEST-REPORT.md` - 测试报告
+- `07_precommit/PRECOMMIT-CHECKLIST.md` - 提交前检查
+- `08_releasing/RELEASE-NOTES.md` - 发布说明
 - `CHANGELOG.md` - 变更日志
 
 ### 2. 增量需求开发
@@ -130,9 +133,9 @@ ISSUES.md → 分析根因 → 最小化修复 → 回归测试
 ### 阶段执行流程
 
 ```
-designing → [审阅] → roadmapping → [审阅] → detailing → [审阅] → coding → [审阅] → reviewing → [验收]
-    ↓            ↓           ↓           ↓          ↓           ↓         ↓           ↓         ↓
-  PRD+TRD    通过/驳回   ROADMAP    通过/驳回    DETAIL    通过/驳回    src/     通过/驳回  REVIEW-REPORT
+designing → [审阅] → roadmapping → [审阅] → detailing → [审阅] → coding → [审阅] → testing → [审阅] → reviewing → [审阅] → precommit → [审阅] → releasing → [验收]
+    ↓            ↓           ↓           ↓          ↓           ↓         ↓           ↓         ↓           ↓           ↓           ↓           ↓           ↓
+  PRD+TRD    通过/驳回   ROADMAP    通过/驳回    DETAIL    通过/驳回    src/     通过/驳回  TEST-REPORT  通过/驳回  REVIEW-REPORT 通过/驳回 PRECOMMIT 通过/驳回 RELEASE-NOTES
 ```
 
 ### 审阅结论选项
@@ -165,6 +168,12 @@ projects/{项目名}/
 │   └── src/                # AI 生成（增量修改）
 ├── 05_reviewing/
 │   └── REVIEW-REPORT.md    # AI 生成
+├── 06_testing/
+│   └── TEST-REPORT.md      # AI 生成
+├── 07_precommit/
+│   └── PRECOMMIT-CHECKLIST.md # AI 生成
+├── 08_releasing/
+│   └── RELEASE-NOTES.md    # AI 生成
 └── CHANGELOG.md            # AI 生成（追加式）
 ```
 
@@ -189,7 +198,10 @@ clawdevflow/
 │   │   ├── roadmapping/
 │   │   ├── detailing/
 │   │   ├── coding/
-│   │   └── reviewing/
+│   │   ├── testing/
+│   │   ├── reviewing/
+│   │   ├── precommit/
+│   │   └── releasing/
 │   └── review-*/                # 审阅相关模块
 └── install.sh / install.bat     # 安装脚本
 ```
