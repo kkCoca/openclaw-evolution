@@ -61,7 +61,7 @@ class StateManager {
         const state = JSON.parse(fs.readFileSync(this.stateFile, 'utf-8'));
         return state;
       } catch (error) {
-        console.log(`[State-Manager] ⚠️ 状态文件解析失败，准备备份并重建：${error.message}`);
+        console.log(`[State-Manager] ⚠️ 状态文件解析失败(${this.stateFile})，准备备份并重建：${error.message}`);
         this.backupCorruptedState();
         const state = this.createInitialState();
         this.save();

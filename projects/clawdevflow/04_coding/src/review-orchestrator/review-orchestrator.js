@@ -16,6 +16,7 @@ const ReviewRoadmapAgentV1 = require('../review-agents/review-roadmap-v1');
 const ReviewWorkflow = require('./review-workflow');
 const { autoReview, autoReviewers } = require('./auto-review/index');
 const { writeJson } = require('../utils/json');
+const { Stage } = require('../cdf-orchestrator/stage-executor');
 
 /**
  * 审阅编排器
@@ -85,7 +86,7 @@ class ReviewOrchestrator {
           projectPath,
           agents: this.agents
         });
-        if (stageName === 'reviewing' && decision?.readiness) {
+        if (stageName === Stage.REVIEWING && decision?.readiness) {
           this.writeReviewingReadiness(projectPath, decision.readiness);
         }
         console.log('[Review-Orchestrator] ✅ 自动审阅完成');
