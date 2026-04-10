@@ -89,10 +89,10 @@ print_info "📋 步骤 4: bundled skills 检查"
 echo "═══════════════════════════════════════════════════════════"
 echo ""
 
-if [ -d "bundled-skills" ]; then
+if [ -d "04_coding/src/bundled-skills" ]; then
     print_success "bundled-skills 目录存在"
     echo "包含的 skills:"
-    ls -1 bundled-skills/
+    ls -1 04_coding/src/bundled-skills/
 else
     print_error "bundled-skills 目录不存在"
     exit 1

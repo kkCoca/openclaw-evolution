@@ -39,7 +39,7 @@ async function autoReview(ctx) {
     throw new Error(`未知阶段的自动审阅：${stageName}`);
   }
   
-  return await reviewer(ctx);
+  return await reviewer.review(ctx);
 }
 
 module.exports = {

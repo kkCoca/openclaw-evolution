@@ -22,7 +22,7 @@
 
 **类型**: 原始需求
 
-**描述**: 流程引擎 Skill（openclaw-research-workflow）的基础功能需求。
+**描述**: 流程引擎 Skill（clawdevflow）的基础功能需求。
 
 **需求内容**:
 1. **独立完整** — 一个包包含所有依赖 skills（designing/roadmapping/detailing/coding/reviewing）

@@ -1,6 +1,6 @@
 {
   "name": "clawdevflow",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "description": "ClawDevFlow (CDF) - AI 辅助研发流程编排引擎",
   "main": "workflow-executor.js",
   "bin": {
@@ -10,7 +10,6 @@
     "test": "node ../../tests/run-all-tests.js",
     "lint:docs": "node scripts/lint-docs.js",
     "test:state": "node ../../tests/test-state-manager.js",
-    "test:adapter": "node ../../tests/test-ai-tool-adapter.js",
     "test:env": "node ../../tests/test-substitute-env.js",
     "test:workflow": "node ../../tests/test-cdf-workflow.js",
     "test:integration": "node ../../tests/test-cdf-integration.js",
@@ -46,9 +45,7 @@
   "nyc": {
     "include": [
       "cdf-orchestrator/**/*.js",
-      "adapters/**/*.js",
-      "review-*/**/*.js",
-      "ai-tool-adapter.js"
+      "review-*/**/*.js"
     ],
     "exclude": [
       "tests/**",

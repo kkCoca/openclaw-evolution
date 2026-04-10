@@ -233,7 +233,7 @@
 
 #### Given
 - Git 分支 `feature/workflow-v2` 已创建
-- 项目已迁移到 `projects/openclaw-research-workflow/`
+- 项目已迁移到 `projects/clawdevflow/`
 - 阶段 1 核心框架已实施完成
 
 #### When

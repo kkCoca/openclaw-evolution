@@ -19,7 +19,7 @@ const { readJson } = require('../../utils/json');
  * Gates:
  * - PC0: 敏感文件发现 => reject
  * - PC1: 未跟踪文件（不在 allowlist）=> reject
- * - PC2: 06_releasing/ 被 git 跟踪 => reject
+ * - PC2: 08_releasing/ 被 git 跟踪 => reject
  * 
  * @param {object} ctx - 上下文对象
  * @param {string} ctx.projectPath - 项目路径
@@ -88,14 +88,14 @@ async function review(ctx) {
     }
   }
   
-  // Gate PC2: 06_releasing/ 被 git 跟踪 => reject
+  // Gate PC2: 08_releasing/ 被 git 跟踪 => reject
   const pc2Issues = report.blockingIssues?.filter(i => i.gateId === 'PC2') || [];
   for (const issue of pc2Issues) {
     blockingIssues.push({
       id: 'PC2',
       description: issue.description,
       suggestion: issue.suggestion,
-      evidencePath: issue.evidencePath || '06_releasing/'
+        evidencePath: issue.evidencePath || '08_releasing/'
     });
   }
   

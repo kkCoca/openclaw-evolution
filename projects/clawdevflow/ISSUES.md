@@ -1,4 +1,4 @@
-# openclaw-research-workflow - 问题记录
+# clawdevflow - 问题记录
 
 ---
 
@@ -9,7 +9,7 @@
 
 ### 复现步骤
 1. 安装技能：`./install.sh`
-2. 尝试调用：`/sessions_spawn openclaw-research-workflow`
+2. 尝试调用：`/sessions_spawn clawdevflow`
 3. 技能无响应或报错
 
 ### 预期行为
@@ -34,9 +34,9 @@
 5. 更新版本号至 v2.0.1
 
 ### 修复文件
-- `~/.openclaw/skills/openclaw-research-workflow/workflow-executor.js`（新创建）
-- `~/.openclaw/skills/openclaw-research-workflow/workflow-orchestrator.js`（新创建）
-- `~/.openclaw/skills/openclaw-research-workflow/SKILL.md`（修改 entry 配置）
+- `~/.openclaw/skills/clawdevflow/workflow-executor.js`（新创建）
+- `~/.openclaw/skills/clawdevflow/workflow-orchestrator.js`（新创建）
+- `~/.openclaw/skills/clawdevflow/SKILL.md`（修改 entry 配置）
 
 ### 修复版本
 v2.0.1

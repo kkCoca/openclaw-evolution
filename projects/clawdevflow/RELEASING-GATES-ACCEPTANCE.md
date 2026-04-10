@@ -95,7 +95,7 @@ EOF
 **测试步骤**：
 ```bash
 # 删除 releasing 产出文件
-rm -rf 06_releasing/
+rm -rf 08_releasing/
 
 # 启动流程到 releasing 阶段
 ```
@@ -129,13 +129,13 @@ cat > 05_reviewing/RELEASE_READINESS.json << 'EOF'
 EOF
 
 # 确保 releasing 产出齐全
-mkdir -p 06_releasing
+mkdir -p 08_releasing
 # ... 执行 releasing 阶段生成所有产出文件 ...
 ```
 
 **期望结果**：
 - releasing 自动审阅 pass
-- 06_releasing/ 包含所有产出文件：
+- 08_releasing/ 包含所有产出文件：
   - RELEASE_RECORD.json
   - RELEASE_NOTES.md
   - ARTIFACT_MANIFEST.json
@@ -145,7 +145,7 @@ mkdir -p 06_releasing
 **证据点**：
 - `.cdf-state.json` → `stages.releasing.reviewDecision = 'pass'`
 - `.cdf-state.json` → `stages.releasing.fixItems = []`
-- `06_releasing/` 目录包含所有必需文件
+- `08_releasing/` 目录包含所有必需文件
 
 **状态**: ✅ 待验证
 
@@ -179,7 +179,7 @@ echo "SECRET_KEY=abc123" > .env
 **证据点**：
 - `.cdf-state.json` → `stages.releasing.reviewDecision = 'reject'`
 - `.cdf-state.json` → `stages.releasing.fixItems[].id = 'RL3_SECURITY_FINDINGS_FOUND'`
-- `06_releasing/CLEANUP_REPORT.json` → `securityFindings` 非空
+- `08_releasing/CLEANUP_REPORT.json` → `securityFindings` 非空
 
 **状态**: ✅ 待验证
 
@@ -256,9 +256,9 @@ echo "SECRET_KEY=abc123" > .env
 }
 ```
 
-**06_releasing/ 产出文件**（示例）：
+**08_releasing/ 产出文件**（示例）：
 ```
-06_releasing/
+08_releasing/
 ├── RELEASE_RECORD.json
 ├── RELEASE_NOTES.md
 ├── ARTIFACT_MANIFEST.json

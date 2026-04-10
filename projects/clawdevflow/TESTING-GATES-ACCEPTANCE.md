@@ -106,7 +106,7 @@ EOF
 
 **证据点**：
 - `.cdf-state.json` → `stages.testing.lastBlockingIssues[].id == 'TG0_VERIFY_COMMAND_MISSING'`
-- `05_testing/VERIFY_RESULTS.json` → `ERROR == 'VERIFY_COMMAND_MISSING'`
+- `06_testing/VERIFY_RESULTS.json` → `ERROR == 'VERIFY_COMMAND_MISSING'`
 
 **状态**: ✅ 待验证
 
@@ -135,7 +135,7 @@ EOF
 - 自动返工修复测试
 
 **证据点**：
-- `05_testing/TEST_RESULTS.json` → `RESULT: FAIL`
+- `06_testing/TEST_RESULTS.json` → `RESULT: FAIL`
 - `.cdf-state.json` → `stages.testing.lastBlockingIssues[].id = 'TG5_TEST_FAILED'`
 - console log → "TG5_TEST_FAILED"
 
@@ -166,7 +166,7 @@ EOF
 - 自动返工修复验收
 
 **证据点**：
-- `05_testing/VERIFY_RESULTS.json` → `RESULT: FAIL`
+- `06_testing/VERIFY_RESULTS.json` → `RESULT: FAIL`
 - `.cdf-state.json` → `stages.testing.lastBlockingIssues[].id = 'TG5_VERIFY_FAILED'`
 - console log → "TG5_VERIFY_FAILED"
 
@@ -179,7 +179,7 @@ EOF
 **测试步骤**：
 ```bash
 # 手动删除 VERIFICATION_REPORT.md
-rm -f 05_testing/VERIFICATION_REPORT.md
+rm -f 06_testing/VERIFICATION_REPORT.md
 ```
 
 **期望结果**：

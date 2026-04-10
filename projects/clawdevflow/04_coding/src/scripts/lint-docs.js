@@ -19,7 +19,7 @@ let errors = [];
 console.log('=== lint:docs 开始 ===\n');
 
 // 1. package.json.version == SKILL.md version
-console.log('[1/4] 检查版本一致性...');
+console.log('[1/6] 检查版本一致性...');
 const pkg = require('../package.json');
 const skillPath = path.join(ROOT, 'SKILL.md');
 
@@ -43,7 +43,7 @@ if (fs.existsSync(skillPath)) {
 }
 
 // 2. constants.STAGE_SEQUENCE 在 README 出现
-console.log('[2/4] 检查阶段序列...');
+console.log('[2/6] 检查阶段序列...');
 const constants = require('../cdf-orchestrator/constants');
 const readmePath = path.join(ROOT, '../../README.md');
 
@@ -68,7 +68,7 @@ if (fs.existsSync(readmePath)) {
 }
 
 // 3. config/config.yaml 可解析
-console.log('[3/4] 检查配置文件...');
+console.log('[3/6] 检查配置文件...');
 const configPath = path.join(ROOT, 'config/config.yaml');
 
 if (fs.existsSync(configPath)) {
@@ -92,7 +92,7 @@ if (fs.existsSync(configPath)) {
 }
 
 // 4. stages 包含 testing/precommit/releasing 且输出文件名匹配
-console.log('[4/4] 检查阶段输出...');
+console.log('[4/6] 检查阶段输出...');
 const stagesPath = path.join(ROOT, '../../docs/stages.md');
 
 if (fs.existsSync(stagesPath)) {
@@ -114,6 +114,44 @@ if (fs.existsSync(stagesPath)) {
   }
 } else {
   console.log('  ⚠️ docs/stages.md 不存在，跳过输出检查');
+}
+
+// 5. auto-review 路由使用 reviewer.review(ctx)
+console.log('[5/6] 检查 auto-review 路由...');
+const autoReviewPath = path.join(ROOT, 'review-orchestrator/auto-review/index.js');
+if (fs.existsSync(autoReviewPath)) {
+  const autoReviewContent = fs.readFileSync(autoReviewPath, 'utf8');
+  if (!autoReviewContent.includes('reviewer.review(ctx)')) {
+    errors.push('auto-review 路由未调用 reviewer.review(ctx)');
+    console.log('  ❌ auto-review 路由未调用 reviewer.review(ctx)');
+  } else {
+    console.log('  ✅ auto-review 路由调用 reviewer.review(ctx)');
+  }
+} else {
+  errors.push('auto-review/index.js 不存在');
+  console.log('  ❌ auto-review/index.js 不存在');
+}
+
+// 6. CDF_IO_SPEC 目录一致性检查
+console.log('[6/6] 检查 CDF_IO_SPEC 目录...');
+const ioSpecPath = path.join(ROOT, '../../docs/CDF_IO_SPEC.md');
+if (fs.existsSync(ioSpecPath)) {
+  const ioSpec = fs.readFileSync(ioSpecPath, 'utf8');
+  const missingDirs = [];
+  if (!ioSpec.includes('06_testing')) {
+    missingDirs.push('06_testing');
+  }
+  if (!ioSpec.includes('08_releasing')) {
+    missingDirs.push('08_releasing');
+  }
+  if (missingDirs.length > 0) {
+    errors.push(`CDF_IO_SPEC.md 缺少目录声明：${missingDirs.join(', ')}`);
+    console.log(`  ❌ CDF_IO_SPEC.md 缺少目录声明：${missingDirs.join(', ')}`);
+  } else {
+    console.log('  ✅ CDF_IO_SPEC.md 目录声明一致');
+  }
+} else {
+  console.log('  ⚠️ docs/CDF_IO_SPEC.md 不存在，跳过目录检查');
 }
 
 // 总结

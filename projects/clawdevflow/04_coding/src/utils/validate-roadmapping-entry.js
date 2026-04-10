@@ -14,6 +14,9 @@
  * @param {object} state - 当前状态
  * @returns {{ok: boolean, reason?: string, details?: object}} 验证结果
  */
+const fs = require('fs');
+const crypto = require('crypto');
+
 function validateRoadmappingEntry(stateManager, state) {
   const designingStage = state.stages.designing;
   
@@ -36,7 +39,7 @@ function validateRoadmappingEntry(stateManager, state) {
       reason: 'APPROVED_SNAPSHOT_MISSING',
       details: {
         message: 'designing.approved 快照不存在',
-        required: ['requirementsHash', 'prdHash', 'trdHash', 'prdContent', 'trdContent', 'approvedBy', 'approvedAt', 'transitionId']
+        required: ['requirementsHash', 'prdHash', 'trdHash', 'requirementsPath', 'prdPath', 'trdPath', 'approvedBy', 'approvedAt', 'transitionId']
       }
     };
   }
@@ -46,8 +49,9 @@ function validateRoadmappingEntry(stateManager, state) {
     'requirementsHash',
     'prdHash',
     'trdHash',
-    'prdContent',
-    'trdContent',
+    'requirementsPath',
+    'prdPath',
+    'trdPath',
     'approvedBy',
     'approvedAt',
     'transitionId'
@@ -65,22 +69,25 @@ function validateRoadmappingEntry(stateManager, state) {
     };
   }
   
-  // 3. 检查 approved 内容是否为空
-  if (!approved.prdContent || !approved.trdContent) {
+  // 3. 检查 approved 路径文件存在
+  const missingPaths = ['requirementsPath', 'prdPath', 'trdPath'].filter(
+    key => !approved[key] || !fs.existsSync(approved[key])
+  );
+  if (missingPaths.length > 0) {
     return {
       ok: false,
-      reason: 'APPROVED_DOC_EMPTY',
+      reason: 'APPROVED_PATH_MISSING',
       details: {
-        prdContentEmpty: !approved.prdContent,
-        trdContentEmpty: !approved.trdContent
+        missingPaths
       }
     };
   }
   
   // 4. 漂移校验：当前 PRD/TRD hash 与 approved hash 一致
-  const crypto = require('crypto');
-  const currentPrdHash = crypto.createHash('sha256').update(approved.prdContent).digest('hex');
-  const currentTrdHash = crypto.createHash('sha256').update(approved.trdContent).digest('hex');
+  const prdContent = fs.readFileSync(approved.prdPath, 'utf8');
+  const trdContent = fs.readFileSync(approved.trdPath, 'utf8');
+  const currentPrdHash = crypto.createHash('sha256').update(prdContent).digest('hex');
+  const currentTrdHash = crypto.createHash('sha256').update(trdContent).digest('hex');
   
   if (currentPrdHash !== approved.prdHash) {
     return {

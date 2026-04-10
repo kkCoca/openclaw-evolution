@@ -101,7 +101,7 @@ main() {
     
     REQUIRED_FILES=(
         "SKILL.md"
-        "workflow.md"
+        "workflow-executor.js"
         "README.md"
         "install.sh"
         "install.bat"
@@ -130,7 +130,7 @@ main() {
     fi
 
     # 检查 bundled skills
-    BUNDLED_SKILLS=("designing" "roadmapping" "detailing" "coding" "reviewing")
+    BUNDLED_SKILLS=("designing" "roadmapping" "detailing" "coding" "testing" "reviewing" "precommit" "releasing")
     MISSING_SKILLS=()
     for skill in "${BUNDLED_SKILLS[@]}"; do
         if [ ! -d "$TARGET_DIR/bundled-skills/$skill" ]; then

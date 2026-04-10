@@ -31,7 +31,7 @@ class ReviewOrchestrator {
       designing: new ReviewDesignAgent(config),
       coding: new ReviewCodeAgent(config),
       roadmapping: new ReviewRoadmapAgentV1(config)
-      // detailing 使用最小规则检查（硬编码）
+      // detailing 使用 auto-review/detailing.js 最小规则检查
     };
     this.workflow = new ReviewWorkflow(config);
     

@@ -43,7 +43,7 @@ echo ✅  OpenClaw skills 目录：%SKILLS_DIR%
 
 REM 3. 获取脚本所在目录
 set "SCRIPT_DIR=%~dp0"
-set "SKILL_NAME=openclaw-research-workflow"
+set "SKILL_NAME=clawdevflow"
 set "TARGET_DIR=%SKILLS_DIR%\%SKILL_NAME%"
 
 REM 4. 检查是否已安装
@@ -70,7 +70,7 @@ echo ✅  复制完成
 REM 6. 验证安装
 echo ✅  验证安装...
 
-set "REQUIRED_FILES=SKILL.md workflow.md README.md install.sh install.bat install.js"
+set "REQUIRED_FILES=SKILL.md workflow-executor.js README.md install.sh install.bat install.js"
 set "MISSING_FILES="
 
 for %%f in (%REQUIRED_FILES%) do (
@@ -91,7 +91,7 @@ if not exist "%TARGET_DIR%\bundled-skills" (
 )
 
 REM 检查 bundled skills
-set "BUNDLED_SKILLS=designing roadmapping detailing coding reviewing"
+set "BUNDLED_SKILLS=designing roadmapping detailing coding testing reviewing precommit releasing"
 set "MISSING_SKILLS="
 
 for %%s in (%BUNDLED_SKILLS%) do (
@@ -114,7 +114,7 @@ echo.
 echo ℹ️  安装位置：%TARGET_DIR%
 echo.
 echo 使用方法:
-echo   /sessions_spawn openclaw-research-workflow
+echo   /sessions_spawn clawdevflow
 echo.
 echo 查看文档:
 echo   type %TARGET_DIR%\README.md
