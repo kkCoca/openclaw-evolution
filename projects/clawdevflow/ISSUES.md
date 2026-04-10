@@ -14,7 +14,7 @@
 
 ### 预期行为
 - 技能正常启动
-- 执行 5 个阶段流程（designing→roadmapping→detailing→coding→reviewing）
+- 执行 8 个阶段流程（designing→roadmapping→detailing→coding→testing→reviewing→precommit→releasing）
 - 每阶段调用 AI 工具（OpenCode/Claude Code）
 - 每阶段完成后发送审阅请求
 

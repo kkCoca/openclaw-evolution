@@ -82,7 +82,19 @@ class WorkflowOrchestrator {
       console.log('[Workflow-Orchestrator] 步骤 2/7: 开始执行阶段循环...');
       console.log('');
 
-      for (let i = 0; i < STAGE_SEQUENCE.length; i++) {
+      let startIndex = 0;
+      if (workflowConfig.resume) {
+        const resumeStage = STAGE_SEQUENCE.find(stage => !this.stateManager.isStagePassed(stage));
+        if (resumeStage) {
+          startIndex = STAGE_SEQUENCE.indexOf(resumeStage);
+          console.log(`[Workflow-Orchestrator] Resume 模式：从 ${resumeStage} 阶段继续`);
+        } else {
+          startIndex = STAGE_SEQUENCE.length;
+          console.log('[Workflow-Orchestrator] Resume 模式：所有阶段已通过，无需继续');
+        }
+      }
+
+      for (let i = startIndex; i < STAGE_SEQUENCE.length; i++) {
         const stageName = STAGE_SEQUENCE[i];
         const stageResult = await this.executeStage(stageName, workflowConfig);
         

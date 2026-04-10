@@ -118,6 +118,12 @@ function loadConfig() {
       precommit: { aiTool: 'opencode', requireReview: true, timeoutSeconds: 1800, maxRetries: 2 },
       releasing: { aiTool: 'opencode', requireReview: true, timeoutSeconds: 1800, maxRetries: 2 }
     },
+    openclaw: {
+      command: 'opencode',
+      args: ['--print'],
+      taskArg: '--task',
+      timeoutSecondsDefault: 1800
+    },
     rollback: {
       strategy: 'A',
       maxRetriesPerStage: 3
@@ -136,7 +142,7 @@ function loadConfig() {
       const mergedConfig = {
         global: { ...defaultConfig.global, ...config.global },
         stages: { ...defaultConfig.stages, ...config.stages },
-        openclaw: config.openclaw || {},
+        openclaw: { ...defaultConfig.openclaw, ...config.openclaw },
         rollback: { ...defaultConfig.rollback, ...config.rollback }
       };
       
@@ -215,6 +221,7 @@ function parseTaskConfig(taskConfig, config) {
   let requirementsFile = '';
   let projectPath = '';
   let outputDir = '';
+  let resume = false;
   
   if (typeof taskConfig === 'string') {
     // 从任务描述字符串解析
@@ -224,8 +231,9 @@ function parseTaskConfig(taskConfig, config) {
       if (line.startsWith('# 任务：')) task = line.replace('# 任务：', '').trim();
       if (line.startsWith('场景类型：')) scenario = line.replace('场景类型：', '').trim();
       if (line.startsWith('需求说明：')) requirementsFile = line.replace('需求说明：', '').trim();
-      if (line.startsWith('输出目录：')) outputDir = line.replace('输出目录：', '').trim();
-      if (line.startsWith('原有项目：')) projectPath = line.replace('原有项目：', '').trim();
+        if (line.startsWith('输出目录：')) outputDir = line.replace('输出目录：', '').trim();
+        if (line.startsWith('原有项目：')) projectPath = line.replace('原有项目：', '').trim();
+        if (line.startsWith('恢复流程：')) resume = line.replace('恢复流程：', '').trim() === 'true';
     }
   } else if (typeof taskConfig === 'object') {
     // 从对象解析
@@ -234,6 +242,7 @@ function parseTaskConfig(taskConfig, config) {
     requirementsFile = taskConfig.requirementsFile || '';
     projectPath = taskConfig.projectPath || taskConfig.outputDir || '';
     outputDir = taskConfig.outputDir || projectPath;
+    resume = taskConfig.resume === true || taskConfig.resume === 'true';
   }
   
   // 如果没有指定项目路径，从输出目录推断
@@ -253,6 +262,7 @@ function parseTaskConfig(taskConfig, config) {
     requirementsFile,
     projectPath,
     outputDir: outputDir || projectPath,
+    resume,
     config
   };
 }

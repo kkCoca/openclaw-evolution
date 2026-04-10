@@ -27,9 +27,12 @@ echo "# Smoke Test" > cdf-smoke/REQUIREMENTS.md
 node projects/clawdevflow/04_coding/src/workflow-executor.js --scenario "全新功能" --output "projects/cdf-smoke"
 ```
 
-### 3. 观察 actions.json
+### 3. 观察 opencode 执行日志
 
-检查生成：`projects/cdf-smoke/.cdf/actions.json`
+确保控制台输出包含：
+
+- `[OpenCode]   CLI 命令：opencode ...`
+- `[OpenCode] ✅ 阶段完成：designing`
 
 ### 4. 手动创建合同文件（模拟子会话）
 
@@ -50,22 +53,35 @@ echo "# DETAIL" > projects/cdf-smoke/03_detailing/DETAIL.md
 # Coding
 mkdir -p projects/cdf-smoke/04_coding/src
 echo "// code" > projects/cdf-smoke/04_coding/src/index.js
+echo "# CHANGESET" > projects/cdf-smoke/04_coding/CHANGESET.md
 
 # Testing
 mkdir -p projects/cdf-smoke/06_testing
-echo "# TEST REPORT" > projects/cdf-smoke/06_testing/TEST-REPORT.md
+echo '{}' > projects/cdf-smoke/06_testing/TEST_CONTEXT.json
+echo 'TEST LOG' > projects/cdf-smoke/06_testing/TEST.log
+echo '{"RESULT":"PASS"}' > projects/cdf-smoke/06_testing/TEST_RESULTS.json
+echo 'VERIFY LOG' > projects/cdf-smoke/06_testing/VERIFY.log
+echo '{"RESULT":"PASS"}' > projects/cdf-smoke/06_testing/VERIFY_RESULTS.json
+echo "# VERIFICATION REPORT" > projects/cdf-smoke/06_testing/VERIFICATION_REPORT.md
 
 # Reviewing
 mkdir -p projects/cdf-smoke/05_reviewing
-echo "# REVIEW REPORT" > projects/cdf-smoke/05_reviewing/REVIEW-REPORT.md
+echo "# FINAL REPORT" > projects/cdf-smoke/05_reviewing/FINAL_REPORT.md
+echo '{"result":"PASS"}' > projects/cdf-smoke/05_reviewing/RELEASE_READINESS.json
 
 # Precommit
 mkdir -p projects/cdf-smoke/07_precommit
-echo "# PRECOMMIT CHECKLIST" > projects/cdf-smoke/07_precommit/PRECOMMIT-CHECKLIST.md
+echo '{}' > projects/cdf-smoke/07_precommit/PRECOMMIT_PLAN.json
+echo '{"result":"PASS","securityFindings":[],"untrackedFiles":[],"blockingIssues":[]}' > projects/cdf-smoke/07_precommit/PRECOMMIT_REPORT.json
+echo "# PRECOMMIT SUMMARY" > projects/cdf-smoke/07_precommit/PRECOMMIT_SUMMARY.md
 
 # Releasing
 mkdir -p projects/cdf-smoke/08_releasing
-echo "# RELEASE NOTES" > projects/cdf-smoke/08_releasing/RELEASE-NOTES.md
+echo '{}' > projects/cdf-smoke/08_releasing/RELEASE_RECORD.json
+echo "# RELEASE NOTES" > projects/cdf-smoke/08_releasing/RELEASE_NOTES.md
+echo '{}' > projects/cdf-smoke/08_releasing/ARTIFACT_MANIFEST.json
+echo '{}' > projects/cdf-smoke/08_releasing/CLEANUP_PLAN.json
+echo '{"securityFindings":[],"summary":{"totalSecurityFindings":0}}' > projects/cdf-smoke/08_releasing/CLEANUP_REPORT.json
 ```
 
 ### 5. 验证推进

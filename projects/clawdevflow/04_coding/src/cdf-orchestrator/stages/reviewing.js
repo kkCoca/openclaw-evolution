@@ -23,8 +23,9 @@ async function execute(aiTool, stateManager, projectPath, input) {
 
 ## 任务内容
 1. 审阅全部阶段产出
-2. 生成 REVIEW-REPORT.md：审阅结论、问题列表、改进建议
-3. 检查测试覆盖率、代码质量、文档完整性
+2. 生成 FINAL_REPORT.md：审阅结论、问题列表、改进建议
+3. 生成 RELEASE_READINESS.json：发布就绪门禁结果
+4. 检查测试覆盖率、代码质量、文档完整性
 `;
 
   const result = await aiTool.runStage({

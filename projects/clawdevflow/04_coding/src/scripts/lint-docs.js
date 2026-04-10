@@ -19,7 +19,7 @@ let errors = [];
 console.log('=== lint:docs 开始 ===\n');
 
 // 1. package.json.version == SKILL.md version
-console.log('[1/6] 检查版本一致性...');
+console.log('[1/8] 检查版本一致性...');
 const pkg = require('../package.json');
 const skillPath = path.join(ROOT, 'SKILL.md');
 
@@ -43,7 +43,7 @@ if (fs.existsSync(skillPath)) {
 }
 
 // 2. constants.STAGE_SEQUENCE 在 README 出现
-console.log('[2/6] 检查阶段序列...');
+console.log('[2/8] 检查阶段序列...');
 const constants = require('../cdf-orchestrator/constants');
 const readmePath = path.join(ROOT, '../../README.md');
 
@@ -68,7 +68,7 @@ if (fs.existsSync(readmePath)) {
 }
 
 // 3. config/config.yaml 可解析
-console.log('[3/6] 检查配置文件...');
+console.log('[3/8] 检查配置文件...');
 const configPath = path.join(ROOT, 'config/config.yaml');
 
 if (fs.existsSync(configPath)) {
@@ -92,12 +92,12 @@ if (fs.existsSync(configPath)) {
 }
 
 // 4. stages 包含 testing/precommit/releasing 且输出文件名匹配
-console.log('[4/6] 检查阶段输出...');
+console.log('[4/8] 检查阶段输出...');
 const stagesPath = path.join(ROOT, '../../docs/stages.md');
 
 if (fs.existsSync(stagesPath)) {
   const stages = fs.readFileSync(stagesPath, 'utf8');
-  const requiredOutputs = ['TEST-REPORT.md', 'PRECOMMIT-CHECKLIST.md', 'RELEASE-NOTES.md'];
+  const requiredOutputs = ['TEST_RESULTS.json', 'FINAL_REPORT.md', 'PRECOMMIT_REPORT.json', 'RELEASE_RECORD.json'];
   const missingOutputs = [];
   
   for (const output of requiredOutputs) {
@@ -117,7 +117,7 @@ if (fs.existsSync(stagesPath)) {
 }
 
 // 5. auto-review 路由使用 reviewer.review(ctx)
-console.log('[5/6] 检查 auto-review 路由...');
+console.log('[5/8] 检查 auto-review 路由...');
 const autoReviewPath = path.join(ROOT, 'review-orchestrator/auto-review/index.js');
 if (fs.existsSync(autoReviewPath)) {
   const autoReviewContent = fs.readFileSync(autoReviewPath, 'utf8');
@@ -133,7 +133,7 @@ if (fs.existsSync(autoReviewPath)) {
 }
 
 // 6. CDF_IO_SPEC 目录一致性检查
-console.log('[6/6] 检查 CDF_IO_SPEC 目录...');
+console.log('[6/8] 检查 CDF_IO_SPEC 目录...');
 const ioSpecPath = path.join(ROOT, '../../docs/CDF_IO_SPEC.md');
 if (fs.existsSync(ioSpecPath)) {
   const ioSpec = fs.readFileSync(ioSpecPath, 'utf8');
@@ -152,6 +152,58 @@ if (fs.existsSync(ioSpecPath)) {
   }
 } else {
   console.log('  ⚠️ docs/CDF_IO_SPEC.md 不存在，跳过目录检查');
+}
+
+// 7. config.yaml 输出与约定一致
+console.log('[7/8] 检查 config.yaml 输出...');
+if (fs.existsSync(configPath)) {
+  try {
+    const yamlContent = fs.readFileSync(configPath, 'utf8');
+    const parsedConfig = YAML.parse(yamlContent);
+    const expectedOutputs = {
+      coding: ['src/', 'CHANGESET.md'],
+      testing: ['TEST_CONTEXT.json', 'TEST.log', 'TEST_RESULTS.json', 'VERIFY.log', 'VERIFY_RESULTS.json', 'VERIFICATION_REPORT.md'],
+      reviewing: ['FINAL_REPORT.md', 'RELEASE_READINESS.json'],
+      precommit: ['PRECOMMIT_PLAN.json', 'PRECOMMIT_REPORT.json', 'PRECOMMIT_SUMMARY.md'],
+      releasing: ['RELEASE_RECORD.json', 'RELEASE_NOTES.md', 'ARTIFACT_MANIFEST.json', 'CLEANUP_PLAN.json', 'CLEANUP_REPORT.json']
+    };
+
+    for (const [stage, outputs] of Object.entries(expectedOutputs)) {
+      const stageConfig = parsedConfig.stages?.[stage];
+      const actualOutputs = stageConfig?.outputsAllOf || [];
+      const missing = outputs.filter(item => !actualOutputs.includes(item));
+      if (missing.length > 0) {
+        errors.push(`config.yaml ${stage}.outputsAllOf 缺少：${missing.join(', ')}`);
+        console.log(`  ❌ config.yaml ${stage}.outputsAllOf 缺少：${missing.join(', ')}`);
+      } else {
+        console.log(`  ✅ ${stage} outputsAllOf 完整`);
+      }
+    }
+  } catch (error) {
+    errors.push(`config.yaml 输出检查失败：${error.message}`);
+    console.log(`  ❌ config.yaml 输出检查失败：${error.message}`);
+  }
+} else {
+  errors.push('config/config.yaml 不存在，无法校验输出');
+  console.log('  ❌ config/config.yaml 不存在，无法校验输出');
+}
+
+// 8. .gitignore 运行态目录检查
+console.log('[8/8] 检查 .gitignore...');
+const rootGitignorePath = path.join(ROOT, '../../../..', '.gitignore');
+if (fs.existsSync(rootGitignorePath)) {
+  const rootGitignore = fs.readFileSync(rootGitignorePath, 'utf8');
+  const requiredIgnored = ['06_testing/', '07_precommit/', '08_releasing/'];
+  const missingIgnored = requiredIgnored.filter(item => !rootGitignore.includes(item));
+  if (missingIgnored.length > 0) {
+    errors.push(`根 .gitignore 缺少：${missingIgnored.join(', ')}`);
+    console.log(`  ❌ 根 .gitignore 缺少：${missingIgnored.join(', ')}`);
+  } else {
+    console.log('  ✅ 根 .gitignore 包含运行态目录');
+  }
+} else {
+  errors.push('根 .gitignore 不存在');
+  console.log('  ❌ 根 .gitignore 不存在');
 }
 
 // 总结

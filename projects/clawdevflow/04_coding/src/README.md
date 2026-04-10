@@ -5,7 +5,7 @@ AI 辅助研发流程引擎，自动化编排完整研发流程。
 ## 特性
 
 - ✅ **一键安装** - 一个命令安装所有依赖
-- ✅ **流程标准化** - 完整的研发流程编排（designing→roadmapping→detailing→coding→reviewing）
+- ✅ **流程标准化** - 完整的研发流程编排（designing→roadmapping→detailing→coding→testing→reviewing→precommit→releasing）
 - ✅ **场景支持** - 全新功能/增量需求/问题修复
 - ✅ **跨平台** - Windows/Linux/macOS
 - ✅ **零感知依赖** - bundled skills 自动注册
@@ -58,8 +58,8 @@ clawhub install clawdevflow
 # 输出目录：/home/ouyp/Learning/Practice/openclaw-universe/projects/{项目名}/
 # 
 # 重要要求：
-# 输出到项目目录（01_designing/04_coding/05_reviewing）
-# 全新功能：生成 PRD.md + TRD.md + src/ + CHANGELOG.md
+# 输出到项目目录（01_designing~08_releasing）
+# 全新功能：生成 01_designing~08_releasing 全量产物 + CHANGELOG.md
 # 增量需求：读取完整 REQUIREMENTS.md，追加 PRD.md 章节
 # 问题修复：记录根因到 TRD.md，更新 CHANGELOG.md
 ```
@@ -79,9 +79,28 @@ projects/{项目名}/
 ├── 03_detailing/
 │   └── DETAIL.md           # AI 生成
 ├── 04_coding/
-│   └── src/                # AI 生成（增量修改）
+│   ├── src/                # AI 生成（增量修改）
+│   └── CHANGESET.md        # AI 生成（变更说明）
 ├── 05_reviewing/
-│   └── REVIEW-REPORT.md    # AI 生成
+│   ├── FINAL_REPORT.md     # AI 生成
+│   └── RELEASE_READINESS.json # AI 生成
+├── 06_testing/
+│   ├── TEST_CONTEXT.json   # AI 生成
+│   ├── TEST.log            # AI 生成
+│   ├── TEST_RESULTS.json   # AI 生成
+│   ├── VERIFY.log          # AI 生成
+│   ├── VERIFY_RESULTS.json # AI 生成
+│   └── VERIFICATION_REPORT.md # AI 生成
+├── 07_precommit/
+│   ├── PRECOMMIT_PLAN.json   # AI 生成
+│   ├── PRECOMMIT_REPORT.json # AI 生成
+│   └── PRECOMMIT_SUMMARY.md  # AI 生成
+├── 08_releasing/
+│   ├── RELEASE_RECORD.json   # AI 生成
+│   ├── RELEASE_NOTES.md      # AI 生成
+│   ├── ARTIFACT_MANIFEST.json # AI 生成
+│   ├── CLEANUP_PLAN.json     # AI 生成
+│   └── CLEANUP_REPORT.json   # AI 生成
 ├── CHANGELOG.md            # AI 生成（追加式）
 └── ISSUES.md               # openclaw-ouyp 提供（Bugfix 使用）
 ```
@@ -91,8 +110,11 @@ projects/{项目名}/
 - `01_designing/` — 产品需求文档（PRD.md）和技术设计文档（TRD.md）
 - `02_roadmapping/` — 开发计划（ROADMAP.md）
 - `03_detailing/` — 详细设计（DETAIL.md）
-- `04_coding/` — 源代码（src/）
-- `05_reviewing/` — 验收报告（REVIEW-REPORT.md）
+- `04_coding/` — 源代码（src/ + CHANGESET.md）
+- `05_reviewing/` — 验收报告（FINAL_REPORT.md + RELEASE_READINESS.json）
+- `06_testing/` — 测试证据（TEST_RESULTS/VERIFY_RESULTS）
+- `07_precommit/` — 提交前检查（PRECOMMIT_REPORT.json）
+- `08_releasing/` — 发布证据（RELEASE_RECORD.json 等）
 - `CHANGELOG.md` — 变更日志（追加式）
 - `ISSUES.md` — 问题记录（Bugfix 使用）
 
@@ -121,7 +143,10 @@ clawdevflow/
 │   ├── roadmapping/
 │   ├── detailing/
 │   ├── coding/
-│   └── reviewing/
+│   ├── testing/
+│   ├── reviewing/
+│   ├── precommit/
+│   └── releasing/
 └── examples/             # 使用示例
     ├── example-1-new-feature.md
     ├── example-2-incremental.md
@@ -138,7 +163,10 @@ clawdevflow/
 | roadmapping | 开发计划制定 |
 | detailing | 文件级设计 |
 | coding | 代码实现 + 测试 + 文档 |
+| testing | 测试与验收证据 |
 | reviewing | 验收验证 |
+| precommit | 提交前检查 |
+| releasing | 发布证据生成 |
 
 ## 工作流程
 
@@ -162,12 +190,27 @@ clawdevflow/
   ↓
 ┌─────────────────────────────────────┐
 │ 阶段 4: coding                      │
-│ 输出：代码 + 测试 + 文档             │
+│ 输出：src/ + CHANGESET.md           │
 └─────────────────────────────────────┘
   ↓
 ┌─────────────────────────────────────┐
-│ 阶段 5: reviewing                   │
-│ 输出：验收报告                       │
+│ 阶段 5: testing                     │
+│ 输出：TEST_RESULTS/VERIFY_RESULTS   │
+└─────────────────────────────────────┘
+  ↓
+┌─────────────────────────────────────┐
+│ 阶段 6: reviewing                   │
+│ 输出：FINAL_REPORT + READINESS      │
+└─────────────────────────────────────┘
+  ↓
+┌─────────────────────────────────────┐
+│ 阶段 7: precommit                   │
+│ 输出：PRECOMMIT_REPORT              │
+└─────────────────────────────────────┘
+  ↓
+┌─────────────────────────────────────┐
+│ 阶段 8: releasing                   │
+│ 输出：RELEASE_RECORD + NOTES        │
 └─────────────────────────────────────┘
   ↓
 完整研发产出
@@ -201,8 +244,11 @@ clawdevflow/
 │  • designing → PRD + TRD            │
 │  • roadmapping → ROADMAP            │
 │  • detailing → DETAIL               │
-│  • coding → 代码 + 测试             │
-│  • reviewing → 验收报告             │
+│  • coding → src + CHANGESET         │
+│  • testing → TEST_RESULTS           │
+│  • reviewing → FINAL_REPORT         │
+│  • precommit → PRECOMMIT_REPORT     │
+│  • releasing → RELEASE_RECORD       │
 └─────────────────────────────────────┘
 ```
 
@@ -221,8 +267,11 @@ clawdevflow/
 | designing | 调用 designing skill | 执行需求分析和架构设计 | PRD.md + TRD.md |
 | roadmapping | 调用 roadmapping skill | 执行开发计划制定 | ROADMAP.md |
 | detailing | 调用 detailing skill | 执行文件级设计 | DETAIL.md |
-| coding | 调用 coding skill | 执行代码实现 + 测试 + 文档 | src/ + tests/ + README.md |
-| reviewing | 调用 reviewing skill | 执行验收验证 | REVIEW-REPORT.md |
+| coding | 调用 coding skill | 执行代码实现 | src/ + CHANGESET.md |
+| testing | 调用 testing skill | 执行测试与验收 | TEST_RESULTS.json + VERIFY_RESULTS.json |
+| reviewing | 调用 reviewing skill | 执行验收验证 | FINAL_REPORT.md + RELEASE_READINESS.json |
+| precommit | 调用 precommit skill | 执行提交前检查 | PRECOMMIT_REPORT.json |
+| releasing | 调用 releasing skill | 执行发布证据生成 | RELEASE_RECORD.json |
 
 ## 故障排除
 

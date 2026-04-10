@@ -18,8 +18,8 @@ async function execute(aiTool, stateManager, projectPath, input) {
 - PROJECT_MANIFEST：${projectPath}/PROJECT_MANIFEST.json
 
 ## 输出要求
-你必须把所有输出写入目录：${projectPath}/${outputDir}/src/
-你必须生成以下目录（必须非空）：${outputsAllOf.join(', ')}
+你必须把所有输出写入目录：${projectPath}/${outputDir}/
+你必须生成以下文件或目录（必须非空）：${outputsAllOf.join(', ')}
 禁止在 ${projectPath} 根目录直接写文件
 ${input.regenerateHint ? `修复：${input.regenerateHint}` : ''}
 

@@ -1,100 +1,81 @@
-# Actions 协议规范
+# OpenCode CLI 执行契约
 
-> 版本：v1.0.0  
-> 更新日期：2026-04-09
+> 版本：v2.0.0  
+> 更新日期：2026-04-10
 
 ---
 
 ## 概述
 
-ClawDevFlow (CDF) 通过 `{projectPath}/.cdf/actions.json` 文件向宿主系统传达执行动作。
+ClawDevFlow (CDF) 在每个阶段**直接 spawn opencode CLI**，执行完毕后退出并扫描产物。该文件描述执行契约与错误码约定。
 
 ---
 
-## 动作文件位置
+## 执行配置来源
 
-```
-{projectPath}/.cdf/actions.json
-```
+`config/config.yaml`：
 
----
-
-## 动作文件 Schema
-
-```json
-{
-  "workflowId": "cdf-YYYYMMDD-XXXX",
-  "stage": "designing",
-  "actionId": "act-XXXXXX",
-  "status": "pending",
-  "createdAt": "2026-04-09T12:00:00.000Z",
-  "timeoutSeconds": 1800,
-  "command": "/sessions_spawn opencode",
-  "task": "完整子会话任务文本",
-  "projectPath": "openclaw-evolution/projects/<projectName>",
-  "outputDir": "01_designing",
-  "expectedOutputs": ["PRD.md", "TRD.md"],
-  "attempt": 1,
-  "regenerateHint": ""
-}
+```yaml
+openclaw:
+  command: "opencode"
+  args: ["--print"]
+  taskArg: "--task"
 ```
 
 ---
 
-## 字段说明
+## 执行流程
 
-| 字段 | 类型 | 必需 | 说明 |
-|------|------|------|------|
-| `workflowId` | string | ✅ | 工作流唯一标识 |
-| `stage` | string | ✅ | 阶段名称（8 阶段之一） |
-| `actionId` | string | ✅ | 动作唯一标识 |
-| `status` | string | ✅ | 状态：pending/running/done/failed |
-| `createdAt` | string | ✅ | 创建时间（ISO 8601） |
-| `timeoutSeconds` | number | ✅ | 超时时间（秒） |
-| `command` | string | ✅ | 宿主应执行的命令 |
-| `task` | string | ✅ | 任务文本（注入子会话） |
-| `projectPath` | string | ✅ | 项目路径 |
-| `outputDir` | string | ✅ | 输出目录（相对项目根） |
-| `expectedOutputs` | string[] | ✅ | 期望输出文件列表 |
-| `attempt` | number | ✅ | 尝试次数（从 1 开始） |
-| `regenerateHint` | string | ⚠️ | 返工提示（返工时填写） |
+1. CDF 组装阶段任务文本（taskText）
+2. CDF 调用 `child_process.spawn(command, args, { cwd })`
+3. 进程退出后执行 `scanOutputsAllOf()` 校验产物
+4. 成功：返回 outputs 列表；失败：返回 error
 
 ---
 
-## 生命周期
+## 执行参数
 
-1. **CDF 写入** `status=pending`
-2. 宿主读取并执行 `command`
-3. 子会话写入产物到 `{projectPath}/{outputDir}/`
-4. CDF 扫描产物，推进或返工
-5. 返工时重写 `actions.json`（`attempt++`，带 `regenerateHint`）
+| 字段 | 说明 |
+|------|------|
+| `command` | opencode CLI 命令 |
+| `args` | CLI 固定参数（如 `--print`） |
+| `taskArg` | 任务文本参数名（默认 `--task`） |
+| `cwd` | 项目根目录（projectPath） |
+| `timeoutSeconds` | 由 `config.yaml` 每阶段定义 |
 
 ---
 
-## 宿主消费示例
+## 超时与终止
 
-```bash
-# 读取动作
-action=$(cat .cdf/actions.json)
+- 超时：达到 `timeoutSeconds` 后发送 `SIGTERM`
+- 宽限：2 秒后仍未退出则发送 `SIGKILL`
 
-# 执行命令
-/sessions_spawn opencode --task "$action"
+---
 
-# 等待产物...
+## 错误码约定
+
+| 错误码 | 含义 | 处理 |
+|--------|------|------|
+| 0 | 执行成功 | 继续扫描产物 |
+| 124 | 超时被 kill | 记录超时并返回失败 |
+| 127 | CLI 未找到 | 返回失败并提示安装 |
+| 其他 | opencode 执行异常 | 返回失败并记录 stderr |
+
+---
+
+## 产物扫描
+
+CDF 使用 `output-scanner.js` 校验产物：
+
+```
+scanOutputsAllOf({ projectPath, outputDir, outputsAllOf })
 ```
 
----
-
-## 硬约束
-
-- CDF **不负责**真的执行 `/sessions_spawn`
-- CDF **必须负责**：写 actions.json、等待扫描、超时报错
-- 子会话只能写 `{projectPath}/{outputDir}/` 下
-- 禁止在项目根目录直接写文件
+`outputsAllOf` 来自 `config/config.yaml`，必须与 `docs/CDF_IO_SPEC.md` 一致。
 
 ---
 
 ## 相关文档
 
+- `docs/CDF_IO_SPEC.md` - 阶段 I/O 规范
 - `docs/config.md` - 配置说明
-- `docs/stages.md` - 阶段说明

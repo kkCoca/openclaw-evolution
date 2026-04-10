@@ -25,7 +25,7 @@
 | 结论 | 标识 | 说明 | 后续动作 |
 |------|------|------|---------|
 | **通过** | `pass` | 完全符合要求，无问题 | 进入下一阶段 |
-| **条件通过** | `conditional` | 有小问题但不影响继续 | 进入下一阶段，记录待修复项 |
+| **条件通过** | `conditional` | 有小问题但不影响继续 | designing 放行；其余自动阶段按驳回处理并返工 |
 | **驳回** | `reject` | 触及底线，必须修改 | 重新执行当前阶段（策略 A） |
 | **需澄清** | `clarify` | 信息不足，无法判断 | 回答问题后重新审阅 |
 | **终止** | `terminate` | 用户主动停止流程 | 流程结束，清理资源 |
@@ -324,10 +324,12 @@
 - `01_designing/PRD.md` + `TRD.md`
 - `02_roadmapping/ROADMAP.md`
 - `03_detailing/DETAIL.md`
-- `04_coding/src/` + `tests/` + `README.md`
+- `04_coding/src/` + `04_coding/CHANGESET.md`
+- `06_testing/TEST_RESULTS.json` + `VERIFY_RESULTS.json` + `VERIFICATION_REPORT.md`
 
 ### 输出文档
-- `05_reviewing/REVIEW-REPORT.md`
+- `05_reviewing/FINAL_REPORT.md`
+- `05_reviewing/RELEASE_READINESS.json`
 
 ### 审阅检查点
 
@@ -359,10 +361,12 @@
 - 01_designing/PRD.md + TRD.md
 - 02_roadmapping/ROADMAP.md
 - 03_detailing/DETAIL.md
-- 04_coding/src/ + tests/ + README.md
+- 04_coding/src/ + 04_coding/CHANGESET.md
+- 06_testing/TEST_RESULTS.json + VERIFY_RESULTS.json + VERIFICATION_REPORT.md
 
 ### 输出文档
-- 05_reviewing/REVIEW-REPORT.md
+- 05_reviewing/FINAL_REPORT.md
+- 05_reviewing/RELEASE_READINESS.json
 
 ### 审阅检查点
 | 编号 | 检查项 | 状态 | 备注 |

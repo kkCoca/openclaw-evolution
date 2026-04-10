@@ -25,7 +25,9 @@ async function execute(aiTool, stateManager, projectPath, input) {
 ## 任务内容
 1. 运行测试命令（PROJECT_MANIFEST.json 中的 commands.test）
 2. 运行验收命令（commands.verify）
-3. 生成 TEST-REPORT.md：测试结果、覆盖率、问题列表
+3. 生成测试上下文、测试日志与结构化结果
+4. 生成验收日志与结构化结果
+5. 汇总 VERIFICATION_REPORT.md
 `;
 
   const result = await aiTool.runStage({

@@ -47,7 +47,7 @@ designing → roadmapping → detailing → coding → testing → reviewing →
 | 项目 | 说明 |
 |------|------|
 | **输出目录** | `04_coding/` |
-| **固定产物** | `src/` |
+| **固定产物** | `src/`, `CHANGESET.md` |
 | **审阅方式** | 自动审阅 |
 | **最大重试** | 3 次 |
 
@@ -56,7 +56,7 @@ designing → roadmapping → detailing → coding → testing → reviewing →
 | 项目 | 说明 |
 |------|------|
 | **输出目录** | `06_testing/` |
-| **固定产物** | `TEST-REPORT.md` |
+| **固定产物** | `TEST_CONTEXT.json`, `TEST.log`, `TEST_RESULTS.json`, `VERIFY.log`, `VERIFY_RESULTS.json`, `VERIFICATION_REPORT.md` |
 | **审阅方式** | 自动审阅 |
 | **最大重试** | 2 次 |
 
@@ -65,7 +65,7 @@ designing → roadmapping → detailing → coding → testing → reviewing →
 | 项目 | 说明 |
 |------|------|
 | **输出目录** | `05_reviewing/` |
-| **固定产物** | `REVIEW-REPORT.md` |
+| **固定产物** | `FINAL_REPORT.md`, `RELEASE_READINESS.json` |
 | **审阅方式** | 自动审阅 |
 | **最大重试** | 2 次 |
 
@@ -74,7 +74,7 @@ designing → roadmapping → detailing → coding → testing → reviewing →
 | 项目 | 说明 |
 |------|------|
 | **输出目录** | `07_precommit/` |
-| **固定产物** | `PRECOMMIT-CHECKLIST.md` |
+| **固定产物** | `PRECOMMIT_PLAN.json`, `PRECOMMIT_REPORT.json`, `PRECOMMIT_SUMMARY.md` |
 | **审阅方式** | 自动审阅 |
 | **最大重试** | 2 次 |
 
@@ -83,7 +83,7 @@ designing → roadmapping → detailing → coding → testing → reviewing →
 | 项目 | 说明 |
 |------|------|
 | **输出目录** | `08_releasing/` |
-| **固定产物** | `RELEASE-NOTES.md` |
+| **固定产物** | `RELEASE_RECORD.json`, `RELEASE_NOTES.md`, `ARTIFACT_MANIFEST.json`, `CLEANUP_PLAN.json`, `CLEANUP_REPORT.json` |
 | **审阅方式** | 自动审阅 |
 | **最大重试** | 2 次 |
 
@@ -113,15 +113,15 @@ designing → roadmapping → detailing → coding → testing → reviewing →
 | designing | `PRD.md`, `TRD.md` |
 | roadmapping | `ROADMAP.md` |
 | detailing | `DETAIL.md` |
-| coding | `src/` |
-| testing | `TEST-REPORT.md` |
-| reviewing | `REVIEW-REPORT.md` |
-| precommit | `PRECOMMIT-CHECKLIST.md` |
-| releasing | `RELEASE-NOTES.md` |
+| coding | `src/`, `CHANGESET.md` |
+| testing | `TEST_CONTEXT.json`, `TEST.log`, `TEST_RESULTS.json`, `VERIFY.log`, `VERIFY_RESULTS.json`, `VERIFICATION_REPORT.md` |
+| reviewing | `FINAL_REPORT.md`, `RELEASE_READINESS.json` |
+| precommit | `PRECOMMIT_PLAN.json`, `PRECOMMIT_REPORT.json`, `PRECOMMIT_SUMMARY.md` |
+| releasing | `RELEASE_RECORD.json`, `RELEASE_NOTES.md`, `ARTIFACT_MANIFEST.json`, `CLEANUP_PLAN.json`, `CLEANUP_REPORT.json` |
 
 ---
 
 ## 相关文档
 
-- `docs/actions-contract.md` - Actions 协议规范
+- `docs/actions-contract.md` - OpenCode CLI 执行契约
 - `docs/config.md` - 配置说明
