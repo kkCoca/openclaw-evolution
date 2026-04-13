@@ -16,6 +16,12 @@ const YAML = require('yaml');
 const ROOT = path.join(__dirname, '..');
 let errors = [];
 
+/**
+ * 解析环境变量语法（支持 ${VAR} / ${VAR:-default} / ${VAR:=default}）
+ * - ${VAR}：未设置时替换为空字符串
+ * - ${VAR:-default}：未设置时使用默认值
+ * - ${VAR:=default}：未设置时使用默认值并写入环境变量
+ */
 function resolveEnvValue(value) {
   if (!value || typeof value !== 'string') return value;
   const envRegex = /\$\{([^}:]+?)(?::(-|=)([^}]*))?\}/g;

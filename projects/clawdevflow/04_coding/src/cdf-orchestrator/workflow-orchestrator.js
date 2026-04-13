@@ -21,6 +21,8 @@ const StageStatus = require('./state-manager').StageStatus;
 const { STAGE_SEQUENCE } = require('./constants');
 const { validateRoadmappingEntry } = require('../utils/validate-roadmapping-entry');
 
+const AUTO_RETRY_STAGES = STAGE_SEQUENCE.filter(stage => stage !== Stage.DESIGNING);
+
 /**
  * 流程编排器
  */
@@ -211,7 +213,7 @@ class WorkflowOrchestrator {
       const requireReview = stageConfig.requireReview !== false;
 
       // 自动返工循环（除 designing 外所有阶段）
-      const autoRetryStages = STAGE_SEQUENCE.filter(stage => stage !== Stage.DESIGNING);
+      const autoRetryStages = AUTO_RETRY_STAGES;
       const maxRetries = stageConfig.maxRetries || 3;
       
       if (autoRetryStages.includes(stageName)) {

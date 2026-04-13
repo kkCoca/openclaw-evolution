@@ -225,7 +225,7 @@ function parseTaskLine(line) {
   const splitIndex = [chineseColonIndex, asciiColonIndex]
     .filter(index => index >= 0)
     .sort((a, b) => a - b)[0];
-  if (splitIndex === undefined) return null;
+  if (splitIndex === undefined || splitIndex < 0) return null;
   const key = normalized.slice(0, splitIndex).trim();
   const value = normalized.slice(splitIndex + 1).trim();
   if (!key) return null;
