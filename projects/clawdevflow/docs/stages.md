@@ -102,6 +102,8 @@ designing → roadmapping → detailing → coding → testing → reviewing →
 | precommit | `07_precommit/` | 提交前检查 |
 | releasing | `08_releasing/` | 发布证据 |
 
+> 运行态目录：`.cdf-work/` 用于审阅请求与临时产物，不入库。
+
 ---
 
 ## 产物合同

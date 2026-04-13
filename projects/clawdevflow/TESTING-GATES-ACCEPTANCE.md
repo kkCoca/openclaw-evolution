@@ -135,7 +135,7 @@ EOF
 - 自动返工修复测试
 
 **证据点**：
-- `06_testing/TEST_RESULTS.json` → `RESULT: FAIL`
+- `06_testing/TEST_RESULTS.json` → `result: FAIL`
 - `.cdf-state.json` → `stages.testing.lastBlockingIssues[].id = 'TG5_TEST_FAILED'`
 - console log → "TG5_TEST_FAILED"
 
@@ -166,7 +166,7 @@ EOF
 - 自动返工修复验收
 
 **证据点**：
-- `06_testing/VERIFY_RESULTS.json` → `RESULT: FAIL`
+- `06_testing/VERIFY_RESULTS.json` → `result: FAIL`
 - `.cdf-state.json` → `stages.testing.lastBlockingIssues[].id = 'TG5_VERIFY_FAILED'`
 - console log → "TG5_VERIFY_FAILED"
 

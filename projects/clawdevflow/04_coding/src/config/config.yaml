@@ -2,6 +2,7 @@ global:
   workspaceRoot: ${OPENCLAW_WORKSPACE_ROOT:-../../..}
   defaultAITool: opencode
   logLevel: info
+  runtimeDir: ${CDF_RUNTIME_DIR:-.cdf-work}
 
 openclaw:
   command: "opencode"

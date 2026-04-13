@@ -260,6 +260,8 @@ REQUIREMENTS.md → designing → roadmapping → detailing → coding → testi
 
 **状态文件**: `.cdf-state.json` (运行态，不应提交到仓库)
 
+**运行态目录**: `.cdf-work/` (审阅请求与临时产物，不应提交到仓库)
+
 **状态 Schema**:
 ```json
 {
@@ -284,6 +286,7 @@ REQUIREMENTS.md → designing → roadmapping → detailing → coding → testi
 | 目录/文件 | 保留策略 | 说明 |
 |----------|---------|------|
 | `.cdf-state.json` | ❌ 不入库 | 运行态状态文件 |
+| `.cdf-work/` | ❌ 不入库 | 运行态目录（审阅请求/临时产物） |
 | `06_testing/` | ❌ 不入库 | 测试临时产物 |
 | `08_releasing/` | ❌ 不入库 | 发布审计产物（留档用，不提交） |
 | `07_precommit/` | ❌ 不入库 | 提交前检查产物 |

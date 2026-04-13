@@ -43,6 +43,7 @@ license: MIT
 | **会话隔离** | 每个阶段独立子会话执行 | 上下文不膨胀，Token 节省 |
 | **工具适配层预留** | 当前仅支持 OpenCode（保留扩展接口） | 为后续扩展留空间 |
 | **状态可追溯** | .cdf-state.json 持久化，支持断点续传 | 中断后可恢复，决策可追溯 |
+| **运行态隔离** | .cdf-work/ 存放审阅请求与临时产物 | 不影响提交，避免 precommit 阻塞 |
 | **回滚灵活** | 策略 A（驳回后重新执行当前阶段） | 不影响已通过阶段 |
 
 ## 支持的场景
@@ -58,7 +59,8 @@ license: MIT
 
 # 任务：{任务描述}
 # 场景类型：[全新功能 | 增量需求 | 问题修复]
-# 需求说明：REQUIREMENTS.md（openclaw-ouyp 提供）
+# 需求说明：REQUIREMENTS.md（openclaw-ouyp 提供，可用“需求描述”替代）
+# 问题记录（问题修复）：ISSUES.md
 # 原有项目：{项目路径，增量/修复必填}
 # 约束条件：{约束条件}
 # 验收标准：{Given/When/Then}
@@ -151,6 +153,7 @@ projects/{项目名}/
 ```yaml
 global:
   defaultAITool: opencode  # 默认 AI 工具
+  runtimeDir: ${CDF_RUNTIME_DIR:-.cdf-work}    # 运行态目录（审阅请求/临时产物）
 
 stages:
   designing:
@@ -177,6 +180,7 @@ rollback:
 ### 状态文件
 
 `.cdf-state.json` - 记录流程执行状态，支持断点续传（位于项目目录）
+`.cdf-work/` - 审阅请求与临时产物（运行态目录，禁止提交）
 
 ```json
 {

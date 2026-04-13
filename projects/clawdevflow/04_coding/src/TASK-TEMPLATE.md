@@ -15,6 +15,7 @@
 ## 需求说明
 
 **文件位置**：REQUIREMENTS.md（openclaw-ouyp 提供）
+**问题修复**：ISSUES.md（问题记录）
 
 **说明**：REQUIREMENTS.md 是 openclaw-ouyp 提供的原始需求说明，采用追加式记录所有版本需求。
 

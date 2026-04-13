@@ -10,6 +10,7 @@ async function execute(aiTool, stateManager, projectPath, input) {
   const outputDir = stageConfig.outputDir;
   const outputsAllOf = stageConfig.outputsAllOf;
   
+  const runtimeDir = config.global?.runtimeDir || '.cdf-work';
   const taskText = `
 # 任务：Precommit 阶段 - 提交前检查
 
@@ -23,7 +24,7 @@ async function execute(aiTool, stateManager, projectPath, input) {
 
 ## 任务内容
 1. 扫描敏感文件（.env, *.pem, *.key, id_rsa）
-2. 检查未跟踪文件（git status）
+2. 检查未跟踪文件（git status），忽略运行态目录：${runtimeDir}/、06_testing/、07_precommit/、08_releasing/、.cdf-state.json
 3. 检查 08_releasing/ 是否被 git 跟踪
 4. 生成 PRECOMMIT_PLAN.json、PRECOMMIT_REPORT.json、PRECOMMIT_SUMMARY.md
 `;

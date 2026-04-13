@@ -59,9 +59,9 @@ echo "# CHANGESET" > projects/cdf-smoke/04_coding/CHANGESET.md
 mkdir -p projects/cdf-smoke/06_testing
 echo '{}' > projects/cdf-smoke/06_testing/TEST_CONTEXT.json
 echo 'TEST LOG' > projects/cdf-smoke/06_testing/TEST.log
-echo '{"RESULT":"PASS"}' > projects/cdf-smoke/06_testing/TEST_RESULTS.json
+echo '{"result":"PASS"}' > projects/cdf-smoke/06_testing/TEST_RESULTS.json
 echo 'VERIFY LOG' > projects/cdf-smoke/06_testing/VERIFY.log
-echo '{"RESULT":"PASS"}' > projects/cdf-smoke/06_testing/VERIFY_RESULTS.json
+echo '{"result":"PASS"}' > projects/cdf-smoke/06_testing/VERIFY_RESULTS.json
 echo "# VERIFICATION REPORT" > projects/cdf-smoke/06_testing/VERIFICATION_REPORT.md
 
 # Reviewing

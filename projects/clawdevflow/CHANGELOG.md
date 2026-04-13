@@ -36,7 +36,7 @@
 **提交**: `ecf8b3a`
 
 **变更**：
-- P0-1: 补齐 'Test 必须 PASS' gate（检查 TEST_RESULTS.json.RESULT）
+- P0-1: 补齐 'Test 必须 PASS' gate（检查 TEST_RESULTS.json.result）
 - P0-2: 移除 verify 默认命令占位（缺 verify 标记 FAIL）
 - P1: 统一 gate id 命名（TG5_TEST_FAILED / TG0_VERIFY_COMMAND_MISSING）
 

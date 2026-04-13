@@ -108,8 +108,7 @@ class StateManager {
           reviewNotes: '',
           fixItems: [],
           lastRegenerateHint: '',
-          lastBlockingIssues: [],
-          lastAutoReviewReport: null
+          lastBlockingIssues: []
         },
         detailing: {
           status: StageStatus.PENDING,
@@ -120,8 +119,7 @@ class StateManager {
           reviewNotes: '',
           fixItems: [],
           lastRegenerateHint: '',
-          lastBlockingIssues: [],
-          lastAutoReviewReport: null
+          lastBlockingIssues: []
         },
         coding: {
           status: StageStatus.PENDING,
@@ -132,8 +130,7 @@ class StateManager {
           reviewNotes: '',
           fixItems: [],
           lastRegenerateHint: '',
-          lastBlockingIssues: [],
-          lastAutoReviewReport: null
+          lastBlockingIssues: []
         },
         testing: {
           status: StageStatus.PENDING,
@@ -144,8 +141,7 @@ class StateManager {
           reviewNotes: '',
           fixItems: [],
           lastRegenerateHint: '',
-          lastBlockingIssues: [],
-          lastAutoReviewReport: null
+          lastBlockingIssues: []
         },
         reviewing: {
           status: StageStatus.PENDING,

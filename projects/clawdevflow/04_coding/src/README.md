@@ -51,7 +51,8 @@ clawhub install clawdevflow
 
 # 任务：{任务描述}
 # 场景类型：[全新功能 | 增量需求 | 问题修复]
-# 需求说明：REQUIREMENTS.md（openclaw-ouyp 提供）
+# 需求说明：REQUIREMENTS.md（openclaw-ouyp 提供，可用“需求描述”替代）
+# 问题记录（问题修复）：ISSUES.md
 # 原有项目：{项目路径，增量/修复必填}
 # 约束条件：{约束条件}
 # 验收标准：{Given/When/Then}
@@ -115,6 +116,7 @@ projects/{项目名}/
 - `06_testing/` — 测试证据（TEST_RESULTS/VERIFY_RESULTS）
 - `07_precommit/` — 提交前检查（PRECOMMIT_REPORT.json）
 - `08_releasing/` — 发布证据（RELEASE_RECORD.json 等）
+- `.cdf-work/` — 运行态目录（审阅请求/临时产物，禁止提交）
 - `CHANGELOG.md` — 变更日志（追加式）
 - `ISSUES.md` — 问题记录（Bugfix 使用）
 

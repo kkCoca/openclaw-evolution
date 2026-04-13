@@ -58,18 +58,18 @@ mkdir -p 06_testing
 cat > 06_testing/TEST_RESULTS.json << 'EOF'
 {
   "TEST_CMD": "echo 'tests passed'",
-  "RESULT": "PASS"
+  "result": "PASS"
 }
 EOF
 cat > 06_testing/VERIFY_RESULTS.json << 'EOF'
 {
   "VERIFY_CMD": "echo 'verify passed'",
-  "RESULT": "PASS"
+  "result": "PASS"
 }
 EOF
 cat > 06_testing/VERIFICATION_REPORT.md << 'EOF'
 # 验收报告
-**RESULT: PASS**
+**result: PASS**
 EOF
 ```
 

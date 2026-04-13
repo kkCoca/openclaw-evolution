@@ -73,6 +73,9 @@ scanOutputsAllOf({ projectPath, outputDir, outputsAllOf })
 
 `outputsAllOf` 来自 `config/config.yaml`，必须与 `docs/CDF_IO_SPEC.md` 一致。
 
+**结果字段约定**：
+- `TEST_RESULTS.json` / `VERIFY_RESULTS.json` 使用 `result` 字段（兼容 `RESULT`）。
+
 ---
 
 ## 相关文档

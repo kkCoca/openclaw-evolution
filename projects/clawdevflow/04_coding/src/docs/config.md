@@ -17,6 +17,9 @@ global:
 
   # 日志级别（仅影响控制台输出）
   logLevel: info
+
+  # 运行态目录（审阅请求与临时产物）
+  runtimeDir: ${CDF_RUNTIME_DIR:-.cdf-work}
 ```
 
 ---
@@ -53,6 +56,8 @@ stages:
 ```
 
 支持的阶段：`designing`、`roadmapping`、`detailing`、`coding`、`testing`、`reviewing`、`precommit`、`releasing`。
+
+`requireReview=false` 时会跳过该阶段审阅并直接标记通过（适用于纯本地演示或快速通路）。
 
 ---
 

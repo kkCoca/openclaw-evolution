@@ -436,7 +436,7 @@ rollback:
    - 实际只输出 3 个阶段（01_designing/04_coding/05_reviewing）
 
 3. **验收报告造假**
-   - REVIEW-REPORT.md 声称文件存在
+   - FINAL_REPORT.md 声称文件存在
    - 实际文件不存在
 
 ### 9.2 修复方案
@@ -496,7 +496,7 @@ rollback:
 | `02_roadmapping/ROADMAP.md` | 新建 | 阶段 2 产物 |
 | `03_detailing/DETAIL.md` | 新建 | 阶段 3 产物 |
 | `CHANGELOG.md` | 新建 | 变更记录 |
-| `05_reviewing/REVIEW-REPORT.md` | 更新 | v2.0.1 验收报告 |
+| `05_reviewing/FINAL_REPORT.md` | 更新 | v2.0.1 验收报告 |
 
 #### 9.2.4 保留原有代码
 
@@ -524,7 +524,7 @@ rollback:
 | C4 | TRD.md 含 v2.0.1 章节 | `grep "v2.0.1" TRD.md` |
 | C5 | CHANGELOG.md 存在 | `ls -la CHANGELOG.md` |
 | C6 | 04_coding/src/ 代码完整 | `ls -la 04_coding/src/` |
-| C7 | REVIEW-REPORT.md 更新 | `grep "v2.0.1" REVIEW-REPORT.md` |
+| C7 | FINAL_REPORT.md 更新 | `grep "v2.0.1" FINAL_REPORT.md` |
 
 ---
 

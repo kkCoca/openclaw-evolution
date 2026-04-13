@@ -119,7 +119,7 @@ projects/{项目名}/
 ├── 04_coding/
 │   └── src/
 ├── 05_reviewing/
-│   └── REVIEW-REPORT.md
+│   └── FINAL_REPORT.md
 └── CHANGELOG.md
 ```
 
@@ -148,7 +148,7 @@ projects/{项目名}/
 **根因分析**:
 1. PRD.md v2.0.0 的需求定义不完整，没有明确要求输出 ROADMAP.md 和 DETAIL.md
 2. 流程引擎自己没有执行自己定义的标准（SKILL.md 要求 5 阶段，实际只输出 3 个）
-3. 验收报告造假（REVIEW-REPORT.md 声称文件存在，但实际不存在）
+3. 验收报告造假（FINAL_REPORT.md 声称文件存在，但实际不存在）
 
 **修复方案**:
 重新执行流程引擎，确保完整输出 5 个阶段的产物。

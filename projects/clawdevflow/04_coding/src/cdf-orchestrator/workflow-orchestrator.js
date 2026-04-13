@@ -21,6 +21,9 @@ const StageStatus = require('./state-manager').StageStatus;
 const { STAGE_SEQUENCE } = require('./constants');
 const { validateRoadmappingEntry } = require('../utils/validate-roadmapping-entry');
 
+// STAGE_SEQUENCE 为静态常量，AUTO_RETRY_STAGES 仅在加载时计算一次
+const AUTO_RETRY_STAGES = STAGE_SEQUENCE.filter(stage => stage !== Stage.DESIGNING);
+
 /**
  * 流程编排器
  */
@@ -207,9 +210,12 @@ class WorkflowOrchestrator {
         console.log('[Workflow-Orchestrator] ✅ roadmapping 入口门禁校验通过');
       }
 
+      const stageConfig = this.config.stages?.[stageName] || {};
+      const requireReview = stageConfig.requireReview !== false;
+
       // 自动返工循环（除 designing 外所有阶段）
-      const autoRetryStages = ['roadmapping', 'detailing', 'coding', 'testing', 'reviewing', 'precommit', 'releasing'];
-      const maxRetries = this.config.stages?.[stageName]?.maxRetries || 3;
+      const autoRetryStages = AUTO_RETRY_STAGES;
+      const maxRetries = stageConfig.maxRetries || 3;
       
       if (autoRetryStages.includes(stageName)) {
         // 自动返工模式：while 循环控制重试
@@ -242,6 +248,15 @@ class WorkflowOrchestrator {
           this.stateManager.updateStage(stageName, StageStatus.REVIEWING);
 
           // 6. 执行审阅
+          if (!requireReview) {
+            this.stateManager.recordReviewDecision(stageName, 'pass', 'review skipped by config', []);
+            this.stateManager.state.stages[stageName].retryCount = 0;
+            this.stateManager.state.stages[stageName].lastRegenerateHint = '';
+            this.stateManager.save();
+            console.log('[Workflow-Orchestrator] ✅ 审阅被跳过，自动通过');
+            return { success: true };
+          }
+
           console.log('[Workflow-Orchestrator] 执行审阅...');
           const reviewDecision = await this.reviewOrchestrator.review(
             stageName,
@@ -329,7 +344,7 @@ class WorkflowOrchestrator {
         // TODO-1 修复：禁止 while-loop 结束后默认 success
         return { success: false, error: '自动返工耗尽或决策未处理' };
       } else {
-        // 人工确认模式（designing/coding）：原有逻辑
+        // 人工确认模式（designing）：原有逻辑
         // 1. 更新状态为执行中
         this.stateManager.updateStage(stageName, StageStatus.RUNNING);
 
@@ -354,6 +369,15 @@ class WorkflowOrchestrator {
         this.stateManager.updateStage(stageName, StageStatus.REVIEWING);
 
         // 6. 执行审阅
+        if (!requireReview) {
+          this.stateManager.recordReviewDecision(stageName, 'pass', 'review skipped by config', []);
+          if (stageName === 'designing') {
+            await this.writeDesigningApprovedSnapshot(workflowConfig.projectPath);
+          }
+          console.log('[Workflow-Orchestrator] ✅ 审阅被跳过，自动通过');
+          return { success: true };
+        }
+
         console.log('[Workflow-Orchestrator] 执行审阅...');
         const reviewDecision = await this.reviewOrchestrator.review(
           stageName,
@@ -389,10 +413,16 @@ class WorkflowOrchestrator {
    */
   async prepareStageInput(stageName, workflowConfig) {
     const { projectPath, requirementsFile } = workflowConfig;
-    
+    let resolvedRequirementsFile = requirementsFile;
+    if (!resolvedRequirementsFile) {
+      resolvedRequirementsFile = path.join(projectPath, 'REQUIREMENTS.md');
+    } else if (!path.isAbsolute(resolvedRequirementsFile)) {
+      resolvedRequirementsFile = path.join(projectPath, resolvedRequirementsFile);
+    }
+
     const input = {
       projectPath,
-      requirementsFile: path.join(projectPath, requirementsFile),
+      requirementsFile: resolvedRequirementsFile,
       workflowId: this.stateManager?.state?.workflowId
     };
 
