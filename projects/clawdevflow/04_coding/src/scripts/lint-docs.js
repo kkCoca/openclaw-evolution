@@ -183,18 +183,21 @@ if (fs.existsSync(ioSpecPath)) {
 
 // 7. config.yaml 输出与约定一致
 console.log('[7/9] 检查 config.yaml 输出...');
-if (fs.existsSync(configPath)) {
-  try {
-    const expectedOutputs = {
-      coding: ['src/', 'CHANGESET.md'],
-      testing: ['TEST_CONTEXT.json', 'TEST.log', 'TEST_RESULTS.json', 'VERIFY.log', 'VERIFY_RESULTS.json', 'VERIFICATION_REPORT.md'],
-      reviewing: ['FINAL_REPORT.md', 'RELEASE_READINESS.json'],
-      precommit: ['PRECOMMIT_PLAN.json', 'PRECOMMIT_REPORT.json', 'PRECOMMIT_SUMMARY.md'],
-      releasing: ['RELEASE_RECORD.json', 'RELEASE_NOTES.md', 'ARTIFACT_MANIFEST.json', 'CLEANUP_PLAN.json', 'CLEANUP_REPORT.json']
-    };
+const expectedOutputs = {
+  coding: ['src/', 'CHANGESET.md'],
+  testing: ['TEST_CONTEXT.json', 'TEST.log', 'TEST_RESULTS.json', 'VERIFY.log', 'VERIFY_RESULTS.json', 'VERIFICATION_REPORT.md'],
+  reviewing: ['FINAL_REPORT.md', 'RELEASE_READINESS.json'],
+  precommit: ['PRECOMMIT_PLAN.json', 'PRECOMMIT_REPORT.json', 'PRECOMMIT_SUMMARY.md'],
+  releasing: ['RELEASE_RECORD.json', 'RELEASE_NOTES.md', 'ARTIFACT_MANIFEST.json', 'CLEANUP_PLAN.json', 'CLEANUP_REPORT.json']
+};
 
+if (fs.existsSync(configPath)) {
+  if (!parsedConfig?.stages) {
+    errors.push('config.yaml 输出检查失败：缺少 stages 配置');
+    console.log('  ❌ config.yaml 输出检查失败：缺少 stages 配置');
+  } else {
     for (const [stage, outputs] of Object.entries(expectedOutputs)) {
-      const stageConfig = parsedConfig?.stages?.[stage];
+      const stageConfig = parsedConfig.stages?.[stage];
       const actualOutputs = stageConfig?.outputsAllOf || [];
       const missing = outputs.filter(item => !actualOutputs.includes(item));
       if (missing.length > 0) {
@@ -204,9 +207,6 @@ if (fs.existsSync(configPath)) {
         console.log(`  ✅ ${stage} outputsAllOf 完整`);
       }
     }
-  } catch (error) {
-    errors.push(`config.yaml 输出检查失败：${error.message}`);
-    console.log(`  ❌ config.yaml 输出检查失败：${error.message}`);
   }
 } else {
   errors.push('config/config.yaml 不存在，无法校验输出');

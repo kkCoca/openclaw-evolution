@@ -410,9 +410,12 @@ class WorkflowOrchestrator {
    */
   async prepareStageInput(stageName, workflowConfig) {
     const { projectPath, requirementsFile } = workflowConfig;
-    const resolvedRequirementsFile = requirementsFile
-      ? (path.isAbsolute(requirementsFile) ? requirementsFile : path.join(projectPath, requirementsFile))
-      : path.join(projectPath, 'REQUIREMENTS.md');
+    let resolvedRequirementsFile = requirementsFile;
+    if (!resolvedRequirementsFile) {
+      resolvedRequirementsFile = path.join(projectPath, 'REQUIREMENTS.md');
+    } else if (!path.isAbsolute(resolvedRequirementsFile)) {
+      resolvedRequirementsFile = path.join(projectPath, resolvedRequirementsFile);
+    }
 
     const input = {
       projectPath,
