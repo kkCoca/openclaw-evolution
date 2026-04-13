@@ -207,6 +207,42 @@ rollback:
 
 详见 `ai-tools/opencode.js`。
 
+## 审阅通知机制（P0#4）
+
+### 子会话 AI 处理通知
+
+流程引擎在进入审阅等待时，会输出特殊标记通知子会话 AI：
+
+```
+╔═══════════════════════════════════════════════════════════╗
+║   [NOTIFY_PARENT] 请发送以下消息给父会话                    ║
+╚═══════════════════════════════════════════════════════════╝
+
+[NOTIFY_PARENT_MESSAGE]
+📋 审阅请求：Design（设计）
+...
+[/NOTIFY_PARENT_MESSAGE]
+```
+
+**子会话 AI 的职责**：
+1. 检测到 `[NOTIFY_PARENT]` 标记
+2. 读取 `[NOTIFY_PARENT_MESSAGE]` 和 `[/NOTIFY_PARENT_MESSAGE]` 之间的内容
+3. 调用 `sessions_send` 发送消息给父会话（用户所在会话）
+
+**实现方式**：
+```javascript
+// 子会话 AI 检测到通知标记后执行
+sessions_send({
+  sessionKey: "parent",  // 发送给父会话
+  message: "📋 审阅请求：Design（设计）\n..."
+})
+```
+
+**注意**：
+- 流程引擎本身是纯 Node.js 代码，不能直接调用 OpenClaw 工具
+- 需要子会话 AI 代理检测特殊标记并执行发送
+- 这是审阅通知的唯一途径
+
 ## 状态管理
 
 ### 状态文件

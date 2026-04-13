@@ -142,8 +142,16 @@ ${requestPath}
     console.log('[Review-Workflow] 审阅通知:');
     console.log(message);
     
-    // TODO: 通过 OpenClaw sessions_send 发送消息
-    // await sessions_send({ message });
+    // P0#4 修复：使用特殊标记通知子会话 AI 发送消息给父会话
+    console.log('');
+    console.log('╔═══════════════════════════════════════════════════════════╗');
+    console.log('║   [NOTIFY_PARENT] 请发送以下消息给父会话                    ║');
+    console.log('╚═══════════════════════════════════════════════════════════╝');
+    console.log('');
+    console.log('[NOTIFY_PARENT_MESSAGE]');
+    console.log(message);
+    console.log('[/NOTIFY_PARENT_MESSAGE]');
+    console.log('');
   }
 
   /**
