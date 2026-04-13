@@ -293,19 +293,24 @@ class StateManager {
     
     // 根据审阅结论更新状态
     // P0#1 修复：删除 retryCount++，统一交给 while-loop 控制（避免重复自增）
+    // P0#2 修复：同步更新 stageStatus，确保入口门禁校验正确
     switch (decision) {
       case 'pass':
         this.state.stages[stageName].status = StageStatus.PASSED;
+        this.state.stages[stageName].stageStatus = 'passed';
         break;
       case 'conditional':
         this.state.stages[stageName].status = StageStatus.CONDITIONAL_PASSED;
+        this.state.stages[stageName].stageStatus = 'conditional_passed';
         break;
       case 'reject':
         this.state.stages[stageName].status = StageStatus.REJECTED;
+        this.state.stages[stageName].stageStatus = 'rejected';
         // retryCount++ 已删除，由 while-loop 手动控制
         break;
       case 'clarify':
-        this.state.stages[stageName].status = StageStatus.REVIEWING; // 保持待审阅状态
+        this.state.stages[stageName].status = StageStatus.REVIEWING;
+        this.state.stages[stageName].stageStatus = 'reviewing';
         break;
     }
     
