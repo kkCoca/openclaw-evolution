@@ -11,7 +11,7 @@
 
 const path = require('path');
 const fs = require('fs');
-const { readJson, writeJson } = require('../../utils/json');
+const { readJson } = require('../../utils/json');
 const { existsNonEmpty } = require('../../utils/fsx');
 
 /**
@@ -152,22 +152,7 @@ async function review(ctx) {
   }
   
   // Gate RG6: 生成 RELEASE_READINESS.json（无论 PASS/FAIL）
-  const readinessPath = path.join(reviewingPath, 'RELEASE_READINESS.json');
-  const readiness = {
-    schemaVersion: 'v1',
-    generatedAt: new Date().toISOString(),
-    result: blockingIssues.length === 0 ? 'PASS' : 'FAIL',
-    evidence: {
-      finalReport: '05_reviewing/FINAL_REPORT.md',
-      testResults: '06_testing/TEST_RESULTS.json',
-      verifyResults: '06_testing/VERIFY_RESULTS.json',
-      verificationReport: '06_testing/VERIFICATION_REPORT.md',
-      changeset: '04_coding/CHANGESET.md'
-    },
-    blockingIssues: blockingIssues
-  };
-  
-  writeJson(readinessPath, readiness);
+  const readiness = buildReadiness(blockingIssues);
   
   // 返回决策
   if (blockingIssues.length > 0) {
@@ -179,14 +164,37 @@ async function review(ctx) {
         description: issue.description,
         suggestion: issue.suggestion,
         evidencePath: issue.evidencePath
-      }))
+      })),
+      readiness
     };
   }
   
   return {
     decision: 'pass',
     notes: '所有检查通过',
-    fixItems: []
+    fixItems: [],
+    readiness
+  };
+}
+
+/**
+ * 构建 Release Readiness 结果
+ * @param {Array} blockingIssues - 阻塞项
+ * @returns {object} readiness 结果
+ */
+function buildReadiness(blockingIssues) {
+  return {
+    schemaVersion: 'v1',
+    generatedAt: new Date().toISOString(),
+    result: blockingIssues.length === 0 ? 'PASS' : 'FAIL',
+    evidence: {
+      finalReport: '05_reviewing/FINAL_REPORT.md',
+      testResults: '06_testing/TEST_RESULTS.json',
+      verifyResults: '06_testing/VERIFY_RESULTS.json',
+      verificationReport: '06_testing/VERIFICATION_REPORT.md',
+      changeset: '04_coding/CHANGESET.md'
+    },
+    blockingIssues: blockingIssues
   };
 }
 

@@ -57,8 +57,16 @@ class StateManager {
   loadOrCreateState() {
     if (fs.existsSync(this.stateFile)) {
       console.log('[State-Manager] 加载现有状态文件');
-      const state = JSON.parse(fs.readFileSync(this.stateFile, 'utf-8'));
-      return state;
+      try {
+        const state = JSON.parse(fs.readFileSync(this.stateFile, 'utf-8'));
+        return state;
+      } catch (error) {
+        console.log(`[State-Manager] ⚠️ 状态文件解析失败(${this.stateFile})，准备备份并重建：${error.message}`);
+        this.backupCorruptedState();
+        const state = this.createInitialState();
+        this.save();
+        return state;
+      }
     } else {
       console.log('[State-Manager] 创建新状态文件');
       const state = this.createInitialState();
@@ -171,6 +179,21 @@ class StateManager {
         endTime: null
       }
     };
+  }
+
+  /**
+   * 备份损坏的状态文件
+   * @private
+   */
+  backupCorruptedState() {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const backupPath = `${this.stateFile}.bak-${timestamp}`;
+    try {
+      fs.copyFileSync(this.stateFile, backupPath);
+      console.log(`[State-Manager] ⚠️ 已备份损坏状态文件：${backupPath}`);
+    } catch (error) {
+      console.log(`[State-Manager] ⚠️ 状态文件备份失败：${error.message}`);
+    }
   }
 
   /**

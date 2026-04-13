@@ -41,6 +41,7 @@ class ReviewWorkflow {
    * @param {ReviewReport} autoResults - 自动检查结果
    * @param {object} outputs - 阶段产出列表
    * @param {string} projectPath - 项目路径
+   * @param {string} workflowId - 工作流 ID
    * @returns {Promise<{decision: string, notes: string, fixItems: Array}>}
    * 
    * @example
@@ -50,7 +51,7 @@ class ReviewWorkflow {
    * console.log(result.decision); // 'pass' | 'conditional' | 'reject' | 'clarify'
    * ```
    */
-  async execute(stageName, autoResults, outputs, projectPath) {
+  async execute(stageName, autoResults, outputs, projectPath, workflowId) {
     console.log('');
     console.log('[Review-Workflow] ════════════════════════════════════════');
     console.log('[Review-Workflow] 开始审阅流程');
@@ -66,7 +67,8 @@ class ReviewWorkflow {
         stageName,
         autoResults,
         outputs,
-        projectPath
+        projectPath,
+        workflowId
       );
       console.log(`[Review-Workflow] ✅ 审阅请求已生成：${requestPath}`);
       console.log('');

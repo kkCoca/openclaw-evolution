@@ -7,7 +7,7 @@
     "clawdevflow": "./workflow-executor.js"
   },
   "scripts": {
-    "test": "node ../../tests/run-all-tests.js",
+    "test": "node ../test/test-roadmapping-integration.js",
     "lint:docs": "node scripts/lint-docs.js",
     "test:state": "node ../../tests/test-state-manager.js",
     "test:env": "node ../../tests/test-substitute-env.js",

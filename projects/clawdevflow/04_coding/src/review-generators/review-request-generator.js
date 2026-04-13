@@ -43,6 +43,7 @@ class ReviewRequestGenerator {
    * @param {string} stageName - 阶段名称
    * @param {ReviewReport} autoResults - 自动检查结果
    * @param {object} outputs - 阶段产出列表
+   * @param {string} workflowId - 工作流 ID
    * @returns {string} 审阅请求 Markdown
    * 
    * @example
@@ -54,18 +55,18 @@ class ReviewRequestGenerator {
    * ]);
    * ```
    */
-  generate(stageName, autoResults, outputs) {
+  generate(stageName, autoResults, outputs, workflowId) {
     const reviewId = `review-${stageName}-${Date.now()}`;
-    const workflowId = this.getWorkflowId();
+    const resolvedWorkflowId = workflowId || this.config.workflowId || 'unknown';
     const timestamp = new Date().toISOString();
 
     console.log(`[Review-Generator] 生成审阅请求：${stageName}`);
     console.log(`[Review-Generator]   Review ID: ${reviewId}`);
-    console.log(`[Review-Generator]   Workflow ID: ${workflowId}`);
+    console.log(`[Review-Generator]   Workflow ID: ${resolvedWorkflowId}`);
 
     return this.template
       .replace('{stageName}', this.formatStageName(stageName))
-      .replace('{workflowId}', workflowId)
+      .replace('{workflowId}', resolvedWorkflowId)
       .replace('{reviewId}', reviewId)
       .replace('{timestamp}', timestamp)
       .replace('{outputs}', this.formatOutputs(outputs))
@@ -194,18 +195,6 @@ ${rows}
   }
 
   /**
-   * 获取工作流 ID
-   * @returns {string} 工作流 ID
-   * @private
-   */
-  getWorkflowId() {
-    // TODO: 从状态管理器获取
-    // 临时实现：生成基于日期的 ID
-    const date = new Date().toISOString().split('T')[0].replace(/-/g, '');
-    return `wf-${date}-001`;
-  }
-
-  /**
    * 保存到文件
    * 
    * @param {string} content - 文件内容
@@ -235,10 +224,11 @@ ${rows}
    * @param {ReviewReport} autoResults - 自动检查结果
    * @param {object} outputs - 阶段产出列表
    * @param {string} projectPath - 项目路径
+   * @param {string} workflowId - 工作流 ID
    * @returns {string} 保存的文件路径
    */
-  generateAndSave(stageName, autoResults, outputs, projectPath) {
-    const content = this.generate(stageName, autoResults, outputs);
+  generateAndSave(stageName, autoResults, outputs, projectPath, workflowId) {
+    const content = this.generate(stageName, autoResults, outputs, workflowId);
     const outputPath = path.join(projectPath, '05_reviewing', `review-request-${stageName}.md`);
     this.saveToFile(content, outputPath);
     return outputPath;

@@ -392,7 +392,8 @@ class WorkflowOrchestrator {
     
     const input = {
       projectPath,
-      requirementsFile: path.join(projectPath, requirementsFile)
+      requirementsFile: path.join(projectPath, requirementsFile),
+      workflowId: this.stateManager?.state?.workflowId
     };
 
     // 根据阶段添加特定输入

@@ -15,6 +15,8 @@ const ReviewDesignAgent = require('../review-agents/review-design-v2');
 const ReviewRoadmapAgentV1 = require('../review-agents/review-roadmap-v1');
 const ReviewWorkflow = require('./review-workflow');
 const { autoReview, autoReviewers } = require('./auto-review/index');
+const { writeJson } = require('../utils/json');
+const { Stage } = require('../cdf-orchestrator/stage-executor');
 
 /**
  * 审阅编排器
@@ -84,6 +86,9 @@ class ReviewOrchestrator {
           projectPath,
           agents: this.agents
         });
+        if (stageName === Stage.REVIEWING && decision?.readiness) {
+          this.writeReviewingReadiness(projectPath, decision.readiness);
+        }
         console.log('[Review-Orchestrator] ✅ 自动审阅完成');
         console.log('');
         return decision;
@@ -107,7 +112,8 @@ class ReviewOrchestrator {
           stageName,
           autoResults,
           outputs,
-          projectPath
+          projectPath,
+          input?.workflowId
         );
         console.log('[Review-Orchestrator] ✅ 审阅工作流完成');
         console.log('');
@@ -120,6 +126,21 @@ class ReviewOrchestrator {
       console.error('[Review-Orchestrator] ❌ 审阅失败:', error.message);
       throw error;
     }
+  }
+
+  /**
+   * 写入 Reviewing 阶段 Release Readiness
+   * @param {string} projectPath - 项目路径
+   * @param {object} readiness - readiness 内容
+   */
+  writeReviewingReadiness(projectPath, readiness) {
+    const reviewingPath = path.join(projectPath, '05_reviewing');
+    const readinessPath = path.join(reviewingPath, 'RELEASE_READINESS.json');
+    if (!fs.existsSync(reviewingPath)) {
+      fs.mkdirSync(reviewingPath, { recursive: true });
+    }
+    writeJson(readinessPath, readiness);
+    console.log(`[Review-Orchestrator] ✅ Release Readiness 已保存：${readinessPath}`);
   }
 
   /**
