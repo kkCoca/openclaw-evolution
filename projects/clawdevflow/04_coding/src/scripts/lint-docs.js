@@ -16,10 +16,25 @@ const YAML = require('yaml');
 const ROOT = path.join(__dirname, '..');
 let errors = [];
 
+function resolveEnvValue(value) {
+  if (!value || typeof value !== 'string') return value;
+  const envRegex = /\$\{([^}:]+?)(?::(-|=)([^}]*))?\}/g;
+  return value.replace(envRegex, (match, varName, operator, defaultValue) => {
+    let envValue = process.env[varName];
+    if (envValue === undefined || envValue === '') {
+      envValue = defaultValue !== undefined ? defaultValue : '';
+      if (operator === '=') {
+        process.env[varName] = envValue;
+      }
+    }
+    return envValue;
+  });
+}
+
 console.log('=== lint:docs 开始 ===\n');
 
 // 1. package.json.version == SKILL.md version
-console.log('[1/8] 检查版本一致性...');
+console.log('[1/9] 检查版本一致性...');
 const pkg = require('../package.json');
 const skillPath = path.join(ROOT, 'SKILL.md');
 
@@ -43,7 +58,7 @@ if (fs.existsSync(skillPath)) {
 }
 
 // 2. constants.STAGE_SEQUENCE 在 README 出现
-console.log('[2/8] 检查阶段序列...');
+console.log('[2/9] 检查阶段序列...');
 const constants = require('../cdf-orchestrator/constants');
 const readmePath = path.join(ROOT, '../../README.md');
 
@@ -68,39 +83,45 @@ if (fs.existsSync(readmePath)) {
 }
 
 // 3. config/config.yaml 可解析
-console.log('[3/8] 检查配置文件...');
+console.log('[3/9] 检查配置文件...');
 const configPath = path.join(ROOT, 'config/config.yaml');
+let parsedConfig = null;
+let configError = null;
 
 if (fs.existsSync(configPath)) {
   try {
     const yamlContent = fs.readFileSync(configPath, 'utf8');
-    const config = YAML.parse(yamlContent);
-    
-    if (!config.stages) {
-      errors.push('config.yaml 缺少 stages 字段');
-      console.log('  ❌ config.yaml 缺少 stages 字段');
-    } else {
-      console.log(`  ✅ config.yaml 解析成功，包含 ${Object.keys(config.stages).length} 个阶段`);
-    }
+    parsedConfig = YAML.parse(yamlContent);
   } catch (error) {
-    errors.push(`config.yaml 解析失败：${error.message}`);
-    console.log(`  ❌ config.yaml 解析失败：${error.message}`);
+    configError = error;
   }
-} else {
+}
+
+if (!fs.existsSync(configPath)) {
   errors.push('config/config.yaml 不存在');
   console.log('  ❌ config/config.yaml 不存在');
+} else if (configError) {
+  errors.push(`config.yaml 解析失败：${configError.message}`);
+  console.log(`  ❌ config.yaml 解析失败：${configError.message}`);
+} else if (!parsedConfig?.stages) {
+  errors.push('config.yaml 缺少 stages 字段');
+  console.log('  ❌ config.yaml 缺少 stages 字段');
+} else {
+  console.log(`  ✅ config.yaml 解析成功，包含 ${Object.keys(parsedConfig.stages).length} 个阶段`);
 }
 
 // 4. stages 包含 testing/precommit/releasing 且输出文件名匹配
-console.log('[4/8] 检查阶段输出...');
+console.log('[4/9] 检查阶段输出...');
 const stagesPath = path.join(ROOT, '../../docs/stages.md');
 
 if (fs.existsSync(stagesPath)) {
   const stages = fs.readFileSync(stagesPath, 'utf8');
-  const requiredOutputs = ['TEST_RESULTS.json', 'FINAL_REPORT.md', 'PRECOMMIT_REPORT.json', 'RELEASE_RECORD.json'];
   const missingOutputs = [];
+  const stageOutputs = parsedConfig?.stages
+    ? Object.values(parsedConfig.stages).flatMap(stage => stage.outputsAllOf || [])
+    : [];
   
-  for (const output of requiredOutputs) {
+  for (const output of stageOutputs) {
     if (!stages.includes(output)) {
       missingOutputs.push(output);
     }
@@ -117,7 +138,7 @@ if (fs.existsSync(stagesPath)) {
 }
 
 // 5. auto-review 路由使用 reviewer.review(ctx)
-console.log('[5/8] 检查 auto-review 路由...');
+console.log('[5/9] 检查 auto-review 路由...');
 const autoReviewPath = path.join(ROOT, 'review-orchestrator/auto-review/index.js');
 if (fs.existsSync(autoReviewPath)) {
   const autoReviewContent = fs.readFileSync(autoReviewPath, 'utf8');
@@ -133,7 +154,7 @@ if (fs.existsSync(autoReviewPath)) {
 }
 
 // 6. CDF_IO_SPEC 目录一致性检查
-console.log('[6/8] 检查 CDF_IO_SPEC 目录...');
+console.log('[6/9] 检查 CDF_IO_SPEC 目录...');
 const ioSpecPath = path.join(ROOT, '../../docs/CDF_IO_SPEC.md');
 if (fs.existsSync(ioSpecPath)) {
   const ioSpec = fs.readFileSync(ioSpecPath, 'utf8');
@@ -143,6 +164,10 @@ if (fs.existsSync(ioSpecPath)) {
   }
   if (!ioSpec.includes('08_releasing')) {
     missingDirs.push('08_releasing');
+  }
+  const runtimeDir = resolveEnvValue(parsedConfig?.global?.runtimeDir) || '.cdf-work';
+  if (!ioSpec.includes(runtimeDir)) {
+    missingDirs.push(runtimeDir);
   }
   if (missingDirs.length > 0) {
     errors.push(`CDF_IO_SPEC.md 缺少目录声明：${missingDirs.join(', ')}`);
@@ -155,11 +180,9 @@ if (fs.existsSync(ioSpecPath)) {
 }
 
 // 7. config.yaml 输出与约定一致
-console.log('[7/8] 检查 config.yaml 输出...');
+console.log('[7/9] 检查 config.yaml 输出...');
 if (fs.existsSync(configPath)) {
   try {
-    const yamlContent = fs.readFileSync(configPath, 'utf8');
-    const parsedConfig = YAML.parse(yamlContent);
     const expectedOutputs = {
       coding: ['src/', 'CHANGESET.md'],
       testing: ['TEST_CONTEXT.json', 'TEST.log', 'TEST_RESULTS.json', 'VERIFY.log', 'VERIFY_RESULTS.json', 'VERIFICATION_REPORT.md'],
@@ -169,7 +192,7 @@ if (fs.existsSync(configPath)) {
     };
 
     for (const [stage, outputs] of Object.entries(expectedOutputs)) {
-      const stageConfig = parsedConfig.stages?.[stage];
+      const stageConfig = parsedConfig?.stages?.[stage];
       const actualOutputs = stageConfig?.outputsAllOf || [];
       const missing = outputs.filter(item => !actualOutputs.includes(item));
       if (missing.length > 0) {
@@ -188,12 +211,35 @@ if (fs.existsSync(configPath)) {
   console.log('  ❌ config/config.yaml 不存在，无法校验输出');
 }
 
-// 8. .gitignore 运行态目录检查
-console.log('[8/8] 检查 .gitignore...');
+// 8. 示例文档一致性检查
+console.log('[8/9] 检查示例文档...');
+const examplesPath = path.join(ROOT, 'examples');
+if (fs.existsSync(examplesPath)) {
+  const exampleFiles = fs.readdirSync(examplesPath).filter(file => file.endsWith('.md'));
+  const reviewReportHits = [];
+  for (const file of exampleFiles) {
+    const content = fs.readFileSync(path.join(examplesPath, file), 'utf8');
+    if (content.includes('REVIEW-REPORT.md')) {
+      reviewReportHits.push(file);
+    }
+  }
+  if (reviewReportHits.length > 0) {
+    errors.push(`examples 引用了过期产物 REVIEW-REPORT.md：${reviewReportHits.join(', ')}`);
+    console.log(`  ❌ examples 引用了过期产物 REVIEW-REPORT.md：${reviewReportHits.join(', ')}`);
+  } else {
+    console.log('  ✅ examples 未引用过期产物');
+  }
+} else {
+  console.log('  ⚠️ examples 目录不存在，跳过示例检查');
+}
+
+// 9. .gitignore 运行态目录检查
+console.log('[9/9] 检查 .gitignore...');
 const rootGitignorePath = path.join(ROOT, '../../../..', '.gitignore');
 if (fs.existsSync(rootGitignorePath)) {
   const rootGitignore = fs.readFileSync(rootGitignorePath, 'utf8');
-  const requiredIgnored = ['06_testing/', '07_precommit/', '08_releasing/'];
+  const runtimeDir = resolveEnvValue(parsedConfig?.global?.runtimeDir) || '.cdf-work';
+  const requiredIgnored = ['06_testing/', '07_precommit/', '08_releasing/', '.cdf-state.json', `${runtimeDir}/`];
   const missingIgnored = requiredIgnored.filter(item => !rootGitignore.includes(item));
   if (missingIgnored.length > 0) {
     errors.push(`根 .gitignore 缺少：${missingIgnored.join(', ')}`);

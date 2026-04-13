@@ -98,6 +98,8 @@ async function review(ctx) {
   // 读取结果
   const testResults = readJson(testResultsPath);
   const verifyResults = readJson(verifyResultsPath);
+  const testResultValue = readResultValue(testResults);
+  const verifyResultValue = readResultValue(verifyResults);
   
   // Gate TG4: 若 VERIFY_RESULTS.ERROR == VERIFY_COMMAND_MISSING => reject
   if (verifyResults.ERROR === 'VERIFY_COMMAND_MISSING') {
@@ -114,13 +116,13 @@ async function review(ctx) {
   }
   
   // Gate TG5: TEST_RESULTS.RESULT == PASS 且 VERIFY_RESULTS.RESULT == PASS
-  if (testResults.RESULT !== 'PASS' || verifyResults.RESULT !== 'PASS') {
+  if (testResultValue !== 'PASS' || verifyResultValue !== 'PASS') {
     return {
       decision: 'reject',
-      notes: `测试/验收未通过（测试：${testResults.RESULT}, 验收：${verifyResults.RESULT}）`,
+      notes: `测试/验收未通过（测试：${testResultValue}, 验收：${verifyResultValue}）`,
       fixItems: [{
         id: 'TG5_TEST_OR_VERIFY_FAILED',
-        description: `测试：${testResults.RESULT}, 验收：${verifyResults.RESULT}`,
+        description: `测试：${testResultValue}, 验收：${verifyResultValue}`,
         suggestion: '请修复测试和验收失败的问题',
         evidencePath: '06_testing/'
       }]
@@ -136,3 +138,10 @@ async function review(ctx) {
 }
 
 module.exports = { review };
+
+function readResultValue(resultJson) {
+  if (!resultJson || typeof resultJson !== 'object') {
+    return undefined;
+  }
+  return resultJson.RESULT ?? resultJson.result;
+}

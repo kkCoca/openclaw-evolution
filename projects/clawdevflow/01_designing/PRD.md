@@ -285,7 +285,7 @@
 ### 9.2 影响范围
 
 - 流程引擎未完整执行自己定义的 5 阶段标准
-- 验收报告造假（REVIEW-REPORT.md 声称文件存在，但实际不存在）
+- 验收报告造假（FINAL_REPORT.md 声称文件存在，但实际不存在）
 - 违背 AGENTS.md 中"流程标准化"原则
 
 ### 9.3 修复目标
@@ -351,7 +351,7 @@
 - ✅ 02_roadmapping/ROADMAP.md 存在（新增）
 - ✅ 03_detailing/DETAIL.md 存在（新增）
 - ✅ 04_coding/src/ 存在（保留原有代码）
-- ✅ 05_reviewing/REVIEW-REPORT.md 存在（v2.0.1 验收报告）
+- ✅ 05_reviewing/FINAL_REPORT.md 存在（v2.0.1 验收报告）
 - ✅ CHANGELOG.md 存在（新增）
 
 ### 9.6 非功能需求
@@ -459,7 +459,7 @@ clawdevflow v3.2.0 发布后发现以下文档和配置差距：
 | **README 增强** | 补充环境变量配置示例 | 新增"环境变量配置"章节 |
 | **覆盖率说明** | 补充覆盖率报告说明 | 新增"测试与覆盖率"章节 |
 | **JSDoc 注释** | 为 `substituteEnvVars()` 添加完整注释 | 包含参数、返回值、示例、作者、版本 |
-| **文档追加** | 追加 PRD/ROADMAP/DETAIL/CHANGELOG/REVIEW-REPORT v3.3.0 | 所有文档追加 v3.3.0 章节 |
+| **文档追加** | 追加 PRD/ROADMAP/DETAIL/CHANGELOG/FINAL_REPORT v3.3.0 | 所有文档追加 v3.3.0 章节 |
 
 ### 11.3 功能需求
 
@@ -526,7 +526,7 @@ clawdevflow v3.2.0 发布后发现以下文档和配置差距：
 - 02_roadmapping/ROADMAP.md - 追加 v3.3.0 章节
 - 03_detailing/DETAIL.md - 追加 v3.3.0 章节
 - CHANGELOG.md - 追加 v3.3.0 记录
-- 05_reviewing/REVIEW-REPORT.md - 追加 v3.3.0 验收报告
+- 05_reviewing/FINAL_REPORT.md - 追加 v3.3.0 验收报告
 
 ### 11.4 验收标准
 
@@ -543,7 +543,7 @@ clawdevflow v3.2.0 发布后发现以下文档和配置差距：
 - ✅ `loadConfig()` 调用 `substituteEnvVars()` 解析配置
 - ✅ README.md 有"环境变量配置"章节
 - ✅ README.md 有"测试与覆盖率"章节
-- ✅ PRD.md/ROADMAP.md/DETAIL.md/CHANGELOG.md/REVIEW-REPORT.md 追加 v3.3.0 章节
+- ✅ PRD.md/ROADMAP.md/DETAIL.md/CHANGELOG.md/FINAL_REPORT.md 追加 v3.3.0 章节
 - ✅ 测试通过率>80%
 
 ### 11.5 非功能需求

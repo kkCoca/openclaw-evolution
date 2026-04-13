@@ -89,7 +89,8 @@ class ReviewRequestGenerator {
       'coding': 'Code（代码）',
       'testing': 'Test（测试）',
       'reviewing': 'Review（验收）',
-      'release': 'Release（发布）'
+      'precommit': 'Precommit（提交前检查）',
+      'releasing': 'Release（发布）'
     };
     return names[stageName] || stageName;
   }
@@ -202,7 +203,7 @@ ${rows}
    * 
    * @example
    * ```javascript
-   * generator.saveToFile(content, 'projects/xxx/05_reviewing/review-request-design.md');
+   * generator.saveToFile(content, 'projects/xxx/.cdf-work/review-requests/review-request-design.md');
    * ```
    */
   saveToFile(content, outputPath) {
@@ -229,7 +230,8 @@ ${rows}
    */
   generateAndSave(stageName, autoResults, outputs, projectPath, workflowId) {
     const content = this.generate(stageName, autoResults, outputs, workflowId);
-    const outputPath = path.join(projectPath, '05_reviewing', `review-request-${stageName}.md`);
+    const runtimeDir = this.config?.global?.runtimeDir || '.cdf-work';
+    const outputPath = path.join(projectPath, runtimeDir, 'review-requests', `review-request-${stageName}.md`);
     this.saveToFile(content, outputPath);
     return outputPath;
   }

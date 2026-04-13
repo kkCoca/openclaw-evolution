@@ -84,7 +84,8 @@ class ReviewOrchestrator {
           stageName,
           input,
           projectPath,
-          agents: this.agents
+          agents: this.agents,
+          config: this.config
         });
         if (stageName === Stage.REVIEWING && decision?.readiness) {
           this.writeReviewingReadiness(projectPath, decision.readiness);

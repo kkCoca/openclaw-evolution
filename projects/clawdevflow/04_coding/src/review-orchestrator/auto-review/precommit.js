@@ -27,6 +27,7 @@ const { readJson } = require('../../utils/json');
  */
 async function review(ctx) {
   const { projectPath } = ctx;
+  const runtimeDir = ctx.config?.global?.runtimeDir || '.cdf-work';
   const reportPath = path.join(projectPath, '07_precommit/PRECOMMIT_REPORT.json');
   
   // 检查 PRECOMMIT_REPORT.json 存在
@@ -77,6 +78,9 @@ async function review(ctx) {
   // Gate PC1: 未跟踪文件（不在 allowlist）=> reject
   if (report.untrackedFiles && report.untrackedFiles.length > 0) {
     for (const untracked of report.untrackedFiles) {
+      if (isRuntimeFile(untracked.path, runtimeDir)) {
+        continue;
+      }
       blockingIssues.push({
         id: 'PC1',
         description: `未跟踪文件：${untracked.path}`,
@@ -116,3 +120,17 @@ async function review(ctx) {
 }
 
 module.exports = { review };
+
+function isRuntimeFile(filePath, runtimeDir) {
+  if (!filePath) return false;
+  const normalized = filePath.replace(/\\/g, '/');
+  const runtimePrefix = `${runtimeDir}/`;
+  return (
+    normalized === '.cdf-state.json' ||
+    normalized === runtimeDir ||
+    normalized.startsWith(runtimePrefix) ||
+    normalized.startsWith('06_testing/') ||
+    normalized.startsWith('07_precommit/') ||
+    normalized.startsWith('08_releasing/')
+  );
+}

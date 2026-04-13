@@ -106,7 +106,8 @@ function loadConfig() {
     global: {
       defaultAITool: 'opencode',
       workspaceRoot: defaultWorkspaceRoot,
-      logLevel: 'info'
+      logLevel: 'info',
+      runtimeDir: '.cdf-work'
     },
     stages: {
       designing: { aiTool: 'opencode', requireReview: true, timeoutSeconds: 1800, maxRetries: 3 },
@@ -210,6 +211,24 @@ function substituteEnvVars(str) {
 }
 
 /**
+ * 解析任务行（兼容 # 前缀与中英文冒号）
+ * @param {string} line
+ * @returns {{key: string, value: string}|null}
+ */
+function parseTaskLine(line) {
+  if (!line) return null;
+  const trimmed = line.trim();
+  if (!trimmed) return null;
+  const normalized = trimmed.replace(/^#+\s*/, '').replace(/^-+\s*/, '');
+  const match = normalized.match(/^([^:：]+)[:：]\s*(.*)$/);
+  if (!match) return null;
+  return {
+    key: match[1].trim(),
+    value: match[2].trim()
+  };
+}
+
+/**
  * 解析任务配置
  */
 function parseTaskConfig(taskConfig, config) {
@@ -228,14 +247,41 @@ function parseTaskConfig(taskConfig, config) {
     task = taskConfig;
     const lines = taskConfig.split('\n');
     for (const line of lines) {
-      if (line.startsWith('# 任务：')) task = line.replace('# 任务：', '').trim();
-      if (line.startsWith('场景类型：')) scenario = line.replace('场景类型：', '').trim();
-      if (line.startsWith('需求说明：')) requirementsFile = line.replace('需求说明：', '').trim();
-        if (line.startsWith('输出目录：')) outputDir = line.replace('输出目录：', '').trim();
-        if (line.startsWith('原有项目：')) projectPath = line.replace('原有项目：', '').trim();
-        if (line.startsWith('恢复流程：')) resume = line.replace('恢复流程：', '').trim() === 'true';
+      const parsed = parseTaskLine(line);
+      if (!parsed) continue;
+
+      const { key, value } = parsed;
+      switch (key) {
+        case '任务':
+        case '任务描述':
+        case '任务名称':
+          task = value;
+          break;
+        case '场景类型':
+          scenario = value;
+          break;
+        case '需求说明':
+        case '需求描述':
+        case '问题描述':
+        case '问题记录':
+        case '需求文件':
+          requirementsFile = value;
+          break;
+        case '输出目录':
+          outputDir = value;
+          break;
+        case '项目路径':
+        case '原有项目':
+          projectPath = value;
+          break;
+        case '恢复流程':
+          resume = value === 'true';
+          break;
+        default:
+          break;
+      }
     }
-  } else if (typeof taskConfig === 'object') {
+  } else if (typeof taskConfig === 'object' && taskConfig !== null) {
     // 从对象解析
     task = taskConfig.task || '';
     scenario = taskConfig.scenario || '全新功能';
@@ -250,9 +296,13 @@ function parseTaskConfig(taskConfig, config) {
     projectPath = outputDir;
   }
   
-  // 如果没有指定需求文件，使用默认路径
-  if (!requirementsFile && projectPath) {
-    requirementsFile = path.join(projectPath, 'REQUIREMENTS.md');
+  // 如果没有指定需求文件，使用默认路径（保持为相对路径）
+  if (!requirementsFile) {
+    if (scenario.includes('问题修复') || scenario.toLowerCase().includes('bug')) {
+      requirementsFile = 'ISSUES.md';
+    } else {
+      requirementsFile = 'REQUIREMENTS.md';
+    }
   }
   
   return {

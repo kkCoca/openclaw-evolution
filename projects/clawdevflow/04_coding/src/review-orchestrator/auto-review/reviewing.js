@@ -92,12 +92,14 @@ async function review(ctx) {
   if (fs.existsSync(testResultsPath) && fs.existsSync(verifyResultsPath)) {
     const testResults = readJson(testResultsPath);
     const verifyResults = readJson(verifyResultsPath);
+    const testResultValue = readResultValue(testResults);
+    const verifyResultValue = readResultValue(verifyResults);
     
-    if (testResults.RESULT !== 'PASS' || verifyResults.RESULT !== 'PASS') {
+    if (testResultValue !== 'PASS' || verifyResultValue !== 'PASS') {
       testingPassed = false;
       blockingIssues.push({
         gateId: 'RG3',
-        description: `测试/验收未通过（测试：${testResults.RESULT}, 验收：${verifyResults.RESULT}）`,
+        description: `测试/验收未通过（测试：${testResultValue}, 验收：${verifyResultValue}）`,
         suggestion: '请修复测试和验收失败的问题',
         evidencePath: '06_testing/'
       });
@@ -196,6 +198,13 @@ function buildReadiness(blockingIssues) {
     },
     blockingIssues: blockingIssues
   };
+}
+
+function readResultValue(resultJson) {
+  if (!resultJson || typeof resultJson !== 'object') {
+    return undefined;
+  }
+  return resultJson.RESULT ?? resultJson.result;
 }
 
 module.exports = { review };
