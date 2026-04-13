@@ -1,12 +1,12 @@
 ---
 name: clawdevflow
 displayName: ClawDevFlow (CDF) - 爪刃研发流
-description: AI 辅助研发流程编排引擎 v3.4.0，审阅驱动 + 会话隔离 + 仅支持 OpenCode，自动化编排 designing→roadmapping→detailing→coding→testing→reviewing→precommit→releasing 完整流程
+description: AI 辅助研发流程编排引擎 v3.4.1，审阅驱动 + 会话隔离 + PTY 模式支持 OpenCode，自动化编排 designing→roadmapping→detailing→coding→testing→reviewing→precommit→releasing 完整流程
 triggers:
   - /sessions_spawn clawdevflow
   - /sessions_spawn cdf
 entry: workflow-executor.js
-version: 3.4.0
+version: 3.4.1
 author: openclaw-ouyp
 license: MIT
 ---
@@ -34,17 +34,25 @@ license: MIT
 - ✅ **内部复杂，外部简单** - 用户无需关心实现细节
 - ✅ **审阅驱动** - 每个阶段必须确认后继续，质量可控
 - ✅ **工具适配层预留** - 当前仅支持 OpenCode，后续可扩展其他工具
+- ✅ **PTY 模式** - OpenCode CLI 需要交互式终端，使用 node-pty 提供支持
 
-## 核心特性 v2.0
+## 核心特性 v3.4.1
 
 | 特性 | 说明 | 收益 |
 |------|------|------|
-| **审阅驱动** | 每个阶段必须 openclaw-ouyp 确认后才继续 | 质量可控，错误不传递 |
+| **审阅驱动** | 每个阶段必须 openclaw-ouyp 确认后才继续 | 贞量可控，错误不传递 |
 | **会话隔离** | 每个阶段独立子会话执行 | 上下文不膨胀，Token 节省 |
 | **工具适配层预留** | 当前仅支持 OpenCode（保留扩展接口） | 为后续扩展留空间 |
-| **状态可追溯** | .cdf-state.json 持久化，支持断点续传 | 中断后可恢复，决策可追溯 |
+| **状态可追溯** | .cdf-state.json 久化，支持断点续传 | 中断后可恢复，决策可追溯 |
 | **运行态隔离** | .cdf-work/ 存放审阅请求与临时产物 | 不影响提交，避免 precommit 阻塞 |
 | **回滚灵活** | 策略 A（驳回后重新执行当前阶段） | 不影响已通过阶段 |
+| **PTY 模式** | OpenCode 需要 PTY 终端环境 | 正确捕获输出和文件操作 |
+
+## 依赖
+
+- Node.js v18+
+- **node-pty** (OpenCode CLI 需要 PTY 终端环境)
+- opencode CLI v1.3+
 
 ## 支持的场景
 

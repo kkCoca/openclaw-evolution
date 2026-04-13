@@ -4,12 +4,12 @@
  * ClawDevFlow (CDF) AI 工具适配器
  * 负责：spawn opencode CLI + 扫描 outputs
  * 
- * @version 3.4.0
+ * @version 3.4.1 (PTY 支持)
  * @author openclaw-ouyp
  * @license MIT
  */
 
-const { spawn } = require('child_process');
+const pty = require('node-pty');
 const { scanOutputsAllOf } = require('../utils/output-scanner');
 
 /**
@@ -56,8 +56,9 @@ async function runStage({ config, stateManager, stageName, projectPath, taskText
   const openclawConfig = config.openclaw || {};
   const command = openclawConfig.command || 'opencode';
   const baseArgs = Array.isArray(openclawConfig.args) ? openclawConfig.args : [];
-  const taskArg = typeof openclawConfig.taskArg === 'string' ? openclawConfig.taskArg : '--task';
-  const args = [...baseArgs, taskArg, taskText];
+  const taskArg = typeof openclawConfig.taskArg === 'string' ? openclawConfig.taskArg : '';
+  // 如果 taskArg 为空，将 taskText 作为位置参数；否则作为选项参数
+  const args = taskArg ? [...baseArgs, taskArg, taskText] : [...baseArgs, taskText];
   const timeoutMs = timeoutSeconds * 1000;
   const commandPreview = [command, ...baseArgs, taskArg, `<task:${taskText.length} chars>`]
     .filter(Boolean)
@@ -68,58 +69,50 @@ async function runStage({ config, stateManager, stageName, projectPath, taskText
   console.log(`[OpenCode]   任务预览：${taskPreview}${taskText.length > 120 ? '...' : ''}`);
   
   const execution = await new Promise(resolve => {
-    const child = spawn(command, args, {
+    // 使用 PTY spawn 替代普通 spawn（OpenCode 需要交互式终端）
+    const ptyProcess = pty.spawn(command, args, {
+      name: 'xterm-256color',
+      cols: 120,
+      rows: 40,
       cwd: projectPath,
       env: {
         ...process.env,
         CDF_WORKFLOW_ID: workflowId,
         CDF_STAGE: stageName,
-        CDF_ATTEMPT: String(attempt)
-      },
-      stdio: ['ignore', 'pipe', 'pipe']
+        CDF_ATTEMPT: String(attempt),
+        TERM: 'xterm-256color'
+      }
     });
     
-    let stdout = '';
-    let stderr = '';
+    let output = '';
     let timedOut = false;
     
     const timeout = setTimeout(() => {
       timedOut = true;
-      child.kill('SIGTERM');
-      setTimeout(() => child.kill('SIGKILL'), 2000);
+      ptyProcess.kill();
     }, timeoutMs);
     
-    child.stdout?.on('data', data => {
-      stdout += data.toString();
+    ptyProcess.onData(data => {
+      output += data;
+      // 输出进度日志（可选）
+      if (data.includes('[OpenCode]') || data.includes('✅') || data.includes('❌')) {
+        console.log(data.trim());
+      }
     });
     
-    child.stderr?.on('data', data => {
-      stderr += data.toString();
-    });
-    
-    child.on('error', error => {
+    ptyProcess.onExit(({ exitCode }) => {
       clearTimeout(timeout);
       resolve({
-        ok: false,
-        code: error.code === 'ENOENT' ? 127 : (error.code || 'SPAWN_ERROR'),
-        stderr: error.message
-      });
-    });
-    
-    child.on('close', code => {
-      clearTimeout(timeout);
-      resolve({
-        ok: !timedOut && code === 0,
-        code: timedOut ? 124 : code,
-        stdout,
-        stderr
+        ok: !timedOut && exitCode === 0,
+        code: timedOut ? 124 : exitCode,
+        output
       });
     });
   });
   
   if (!execution.ok) {
     const errorCode = execution.code ?? 'UNKNOWN';
-    const errorDetail = execution.stderr ? execution.stderr.trim() : 'opencode 执行失败';
+    const errorDetail = execution.output ? execution.output.slice(-500) : 'opencode 执行失败';
     console.log(`[OpenCode] ❌ CLI 执行失败 (code=${errorCode})`);
     return {
       success: false,
@@ -127,6 +120,9 @@ async function runStage({ config, stateManager, stageName, projectPath, taskText
       error: `OpenCode exit ${errorCode}: ${errorDetail}`
     };
   }
+  
+  // 等待文件系统同步（PTY 可能有延迟）
+  await new Promise(resolve => setTimeout(resolve, 2000));
   
   const result = scanOutputsAllOf({ projectPath, outputDir, outputsAllOf });
   
