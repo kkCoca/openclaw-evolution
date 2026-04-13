@@ -1,6 +1,6 @@
-# OpenClaw Research Workflow Skill
+# ClawDevFlow (CDF) - 爪刃研发流
 
-AI 辅助研发流程引擎，自动化编排完整研发流程。
+AI 辅助研发流程引擎 v3.4.1，自动化编排完整研发流程。
 
 ## 特性
 
@@ -10,6 +10,7 @@ AI 辅助研发流程引擎，自动化编排完整研发流程。
 - ✅ **跨平台** - Windows/Linux/macOS
 - ✅ **零感知依赖** - bundled skills 自动注册
 - ✅ **易于分享** - 支持 clawhub/脚本/压缩包多种安装方式
+- ✅ **PTY 模式** - OpenCode CLI 需要交互式终端，使用 node-pty 提供支持
 
 ## 快速开始
 
@@ -44,7 +45,16 @@ node install.js
 clawhub install clawdevflow
 ```
 
-### 2. 使用
+### 2. 安装依赖
+
+OpenCode CLI 需要 PTY 终端环境，安装 node-pty：
+
+```bash
+cd ~/.openclaw/skills/clawdevflow
+npm install node-pty
+```
+
+### 3. 使用
 
 ```bash
 /sessions_spawn clawdevflow
