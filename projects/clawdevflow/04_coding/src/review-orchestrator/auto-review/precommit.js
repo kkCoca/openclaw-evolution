@@ -124,10 +124,11 @@ module.exports = { review };
 function isRuntimeFile(filePath, runtimeDir) {
   if (!filePath) return false;
   const normalized = filePath.replace(/\\/g, '/');
+  const trimmed = normalized.replace(/\/+$/, '');
   const runtimePrefix = `${runtimeDir}/`;
   return (
-    normalized === '.cdf-state.json' ||
-    normalized === runtimeDir ||
+    trimmed === '.cdf-state.json' ||
+    trimmed === runtimeDir ||
     normalized.startsWith(runtimePrefix) ||
     normalized.startsWith('06_testing/') ||
     normalized.startsWith('07_precommit/') ||

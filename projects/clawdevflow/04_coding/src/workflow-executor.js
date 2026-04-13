@@ -220,12 +220,16 @@ function parseTaskLine(line) {
   const trimmed = line.trim();
   if (!trimmed) return null;
   const normalized = trimmed.replace(/^#+\s*/, '').replace(/^-+\s*/, '');
-  const match = normalized.match(/^([^:：]+)[:：]\s*(.*)$/);
-  if (!match) return null;
-  return {
-    key: match[1].trim(),
-    value: match[2].trim()
-  };
+  const chineseColonIndex = normalized.indexOf('：');
+  const asciiColonIndex = normalized.indexOf(':');
+  const splitIndex = [chineseColonIndex, asciiColonIndex]
+    .filter(index => index >= 0)
+    .sort((a, b) => a - b)[0];
+  if (splitIndex === undefined) return null;
+  const key = normalized.slice(0, splitIndex).trim();
+  const value = normalized.slice(splitIndex + 1).trim();
+  if (!key) return null;
+  return { key, value };
 }
 
 /**
@@ -289,6 +293,8 @@ function parseTaskConfig(taskConfig, config) {
     projectPath = taskConfig.projectPath || taskConfig.outputDir || '';
     outputDir = taskConfig.outputDir || projectPath;
     resume = taskConfig.resume === true || taskConfig.resume === 'true';
+  } else if (taskConfig !== undefined) {
+    console.log('[CDF] ⚠️ 任务配置类型无效，使用默认解析结果');
   }
   
   // 如果没有指定项目路径，从输出目录推断
@@ -296,7 +302,7 @@ function parseTaskConfig(taskConfig, config) {
     projectPath = outputDir;
   }
   
-  // 如果没有指定需求文件，使用默认路径（保持为相对路径）
+  // 如果没有指定需求文件，使用默认文件名（在编排器中解析为完整路径）
   if (!requirementsFile) {
     if (scenario.includes('问题修复') || scenario.toLowerCase().includes('bug')) {
       requirementsFile = 'ISSUES.md';

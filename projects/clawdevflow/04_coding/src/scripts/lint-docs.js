@@ -116,22 +116,24 @@ const stagesPath = path.join(ROOT, '../../docs/stages.md');
 
 if (fs.existsSync(stagesPath)) {
   const stages = fs.readFileSync(stagesPath, 'utf8');
-  const missingOutputs = [];
-  const stageOutputs = parsedConfig?.stages
-    ? Object.values(parsedConfig.stages).flatMap(stage => stage.outputsAllOf || [])
-    : [];
-  
-  for (const output of stageOutputs) {
-    if (!stages.includes(output)) {
-      missingOutputs.push(output);
-    }
-  }
-  
-  if (missingOutputs.length > 0) {
-    errors.push(`stages.md 未包含输出文件：${missingOutputs.join(', ')}`);
-    console.log(`  ❌ stages.md 未包含输出文件：${missingOutputs.join(', ')}`);
+  if (!parsedConfig?.stages) {
+    console.log('  ⚠️ config.yaml 不可用，跳过 outputsAllOf 校验');
   } else {
-    console.log(`  ✅ stages.md 包含所有必需输出文件`);
+    const missingOutputs = [];
+    const stageOutputs = Object.values(parsedConfig.stages).flatMap(stage => stage.outputsAllOf || []);
+    
+    for (const output of stageOutputs) {
+      if (!stages.includes(output)) {
+        missingOutputs.push(output);
+      }
+    }
+
+    if (missingOutputs.length > 0) {
+      errors.push(`stages.md 未包含输出文件：${missingOutputs.join(', ')}`);
+      console.log(`  ❌ stages.md 未包含输出文件：${missingOutputs.join(', ')}`);
+    } else {
+      console.log(`  ✅ stages.md 包含所有必需输出文件`);
+    }
   }
 } else {
   console.log('  ⚠️ docs/stages.md 不存在，跳过输出检查');
