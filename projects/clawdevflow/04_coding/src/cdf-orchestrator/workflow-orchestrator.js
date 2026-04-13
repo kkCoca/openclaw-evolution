@@ -21,6 +21,7 @@ const StageStatus = require('./state-manager').StageStatus;
 const { STAGE_SEQUENCE } = require('./constants');
 const { validateRoadmappingEntry } = require('../utils/validate-roadmapping-entry');
 
+// STAGE_SEQUENCE 为静态常量，AUTO_RETRY_STAGES 仅在加载时计算一次
 const AUTO_RETRY_STAGES = STAGE_SEQUENCE.filter(stage => stage !== Stage.DESIGNING);
 
 /**

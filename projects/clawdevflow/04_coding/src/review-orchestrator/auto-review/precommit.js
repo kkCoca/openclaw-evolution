@@ -126,10 +126,10 @@ function isRuntimeFile(filePath, ignoredDirs) {
   if (!filePath) return false;
   const normalized = filePath.replace(/\\/g, '/');
   const trimmed = normalized.replace(/\/+$/, '');
-  const prefixes = ignoredDirs.map(dir => `${dir}/`);
+  const prefixes = ignoredDirs.prefixes;
   return (
     trimmed === '.cdf-state.json' ||
-    ignoredDirs.includes(trimmed) ||
+    ignoredDirs.dirs.includes(trimmed) ||
     prefixes.some(prefix => normalized.startsWith(prefix))
   );
 }
@@ -143,5 +143,9 @@ function buildIgnoredDirs(runtimeDir, config) {
   const stageDirs = ['testing', 'precommit', 'releasing']
     .map(stage => config?.stages?.[stage]?.outputDir || defaults[stage])
     .filter(Boolean);
-  return [runtimeDir, ...stageDirs].filter(Boolean);
+  const dirs = [runtimeDir, ...stageDirs].filter(Boolean);
+  return {
+    dirs,
+    prefixes: dirs.map(dir => `${dir}/`)
+  };
 }

@@ -116,6 +116,8 @@ if (!fs.existsSync(configPath)) {
   console.log(`  ✅ config.yaml 解析成功，包含 ${Object.keys(parsedConfig.stages).length} 个阶段`);
 }
 
+const resolvedRuntimeDir = resolveEnvValue(parsedConfig?.global?.runtimeDir) || '.cdf-work';
+
 // 4. stages 包含 testing/precommit/releasing 且输出文件名匹配
 console.log('[4/9] 检查阶段输出...');
 const stagesPath = path.join(ROOT, '../../docs/stages.md');
@@ -173,9 +175,8 @@ if (fs.existsSync(ioSpecPath)) {
   if (!ioSpec.includes('08_releasing')) {
     missingDirs.push('08_releasing');
   }
-  const runtimeDir = resolveEnvValue(parsedConfig?.global?.runtimeDir) || '.cdf-work';
-  if (!ioSpec.includes(runtimeDir)) {
-    missingDirs.push(runtimeDir);
+  if (!ioSpec.includes(resolvedRuntimeDir)) {
+    missingDirs.push(resolvedRuntimeDir);
   }
   if (missingDirs.length > 0) {
     errors.push(`CDF_IO_SPEC.md 缺少目录声明：${missingDirs.join(', ')}`);
@@ -246,8 +247,7 @@ console.log('[9/9] 检查 .gitignore...');
 const rootGitignorePath = path.join(ROOT, '../../../..', '.gitignore');
 if (fs.existsSync(rootGitignorePath)) {
   const rootGitignore = fs.readFileSync(rootGitignorePath, 'utf8');
-  const runtimeDir = resolveEnvValue(parsedConfig?.global?.runtimeDir) || '.cdf-work';
-  const requiredIgnored = ['06_testing/', '07_precommit/', '08_releasing/', '.cdf-state.json', `${runtimeDir}/`];
+  const requiredIgnored = ['06_testing/', '07_precommit/', '08_releasing/', '.cdf-state.json', `${resolvedRuntimeDir}/`];
   const missingIgnored = requiredIgnored.filter(item => !rootGitignore.includes(item));
   if (missingIgnored.length > 0) {
     errors.push(`根 .gitignore 缺少：${missingIgnored.join(', ')}`);

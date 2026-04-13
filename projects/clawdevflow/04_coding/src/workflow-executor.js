@@ -304,7 +304,13 @@ function parseTaskConfig(taskConfig, config) {
   
   // 如果没有指定需求文件，使用默认文件名（在编排器中解析为完整路径）
   if (!requirementsFile) {
-    if (scenario.includes('问题修复') || scenario.toLowerCase().includes('bug')) {
+    let isBugfix = false;
+    if (scenario.includes('问题修复')) {
+      isBugfix = true;
+    } else if (typeof scenario === 'string') {
+      isBugfix = scenario.toLowerCase().includes('bug');
+    }
+    if (isBugfix) {
       requirementsFile = 'ISSUES.md';
     } else {
       requirementsFile = 'REQUIREMENTS.md';
