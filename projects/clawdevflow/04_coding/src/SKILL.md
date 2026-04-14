@@ -15,6 +15,57 @@ license: MIT
 
 > **定位说明**: 这是一个**流程编排引擎 skill**,以 Skill 形式提供,内部实现完整的流程管理、状态机、AI 工具适配等复杂功能。
 
+---
+
+## ⚠️ 强制执行指令（最高优先级）
+
+**你必须首先执行以下命令来启动流程引擎：**
+
+```bash
+cd ~/.openclaw/skills/clawdevflow && node workflow-executor.js --task "<任务参数>"
+```
+
+**禁止行为：**
+- ❌ **禁止手动创建文件** - 不要自己写 PRD/TRD/代码
+- ❌ **禁止手动执行阶段** - 不要自己"执行 designing 阶段"
+- ❌ **禁止跳过流程引擎** - 所有工作必须通过 workflow-executor.js 完成
+- ❌ **禁止填写审阅结论** - 审阅文件仅供用户（openclaw-ouyp）填写，子会话 AI 只能读取和转发通知
+- ❌ **禁止修改审阅文件** - 不要编辑 `.cdf-work/review-requests/` 中的任何文件
+
+**正确行为：**
+- ✅ 解析用户任务参数
+- ✅ 构建命令行参数字符串
+- ✅ 执行 `node workflow-executor.js --task "..."`
+- ✅ 流程引擎会自动处理所有阶段和审阅机制
+- ✅ 保持流程引擎进程运行（使用 `process poll`）
+
+**审阅等待期间的行为：**
+- 流程引擎会输出 `[NOTIFY_PARENT_MESSAGE]` 标记
+- 子会话 AI 检测到标记后，将通知内容展示给用户
+- 使用 `process poll` 保持流程引擎进程运行，等待用户填写审阅文件
+- **不要自己填写审阅结论！** 等待用户在父会话中回复
+
+**命令参数格式：**
+```bash
+node workflow-executor.js \
+  --task "任务描述" \
+  --scenario "全新功能|增量需求|问题修复" \
+  --requirements "REQUIREMENTS.md路径" \
+  --project "项目路径" \
+  --resume false
+```
+
+**示例：**
+```bash
+cd ~/.openclaw/skills/clawdevflow && node workflow-executor.js \
+  --task "验证 ClawDevFlow 流程引擎" \
+  --scenario "全新功能" \
+  --requirements "/home/ouyp/Learning/Practice/openclaw-universe/projects/cdf-test-v2/REQUIREMENTS.md" \
+  --project "/home/ouyp/Learning/Practice/openclaw-universe/projects/cdf-test-v2"
+```
+
+---
+
 ## 简介
 
 本引擎是一个**审阅驱动**的流程编排系统,自动化编排 AI 辅助研发流程。每个阶段完成后必须经 openclaw-ouyp 审阅确认后才继续,确保质量可控。
